@@ -15,18 +15,20 @@ const messages = defineMessages({
         description: 'Scratch 3.0 telemetry modal label - for accessibility'
     },
     bodyText1: {
-        defaultMessage: 'The Scratch Team is always looking to better understand how Scratch is used around the ' +
-            'world. To help support this effort, you can allow Scratch to automatically send usage information to ' +
-            'the Scratch Team.',
+        // defaultMessage: 'The Scratch Team is always looking to better understand how Scratch is used around the ' +
+        //     'world. To help support this effort, you can allow Scratch to automatically send usage information to ' +
+        //     'the Scratch Team.',
+        defaultMessage: '允许好学图形化编程自动发送使用情况给好学团队，帮助我们了解软件的使用情况。',
         description: 'First paragraph of body text for telemetry opt-in modal',
-        id: 'gui.telemetryOptIn.body1'
+        id: 'gui.telemetryOptIn.body1_bak'
     },
     bodyText2: {
-        defaultMessage: 'The information we collect includes language selection, blocks usage, and some events like ' +
-            'saving, loading, and uploading a project. We DO NOT collect any personal information. Please see our ' +
-            '{privacyPolicyLink} for more information.',
+        // defaultMessage: 'The information we collect includes language selection, blocks usage, and some events like ' +
+        //     'saving, loading, and uploading a project. We DO NOT collect any personal information. Please see our ' +
+        //     '{privacyPolicyLink} for more information.',
+        defaultMessage: '我们收集的信息包括所选语言、积木使用情况以及诸如保存、加载和上传作品等功能的使用情况。我们不会收集任何个人信息。',
         description: 'First paragraph of body text for telemetry opt-in modal',
-        id: 'gui.telemetryOptIn.body2'
+        id: 'gui.telemetryOptIn.body2_bak'
     },
     privacyPolicyLink: {
         defaultMessage: 'Privacy Policy',
@@ -44,9 +46,9 @@ const messages = defineMessages({
         id: 'gui.telemetryOptIn.buttonTooltipNo'
     },
     yesButton: {
-        defaultMessage: "Yes, I'd like to help improve Scratch",
+        defaultMessage: "好的，我愿意帮助改进",
         description: 'Text for telemetry modal opt-in button',
-        id: 'gui.telemetryOptIn.buttonTextYes'
+        id: 'gui.telemetryOptIn.buttonTextYes_bak'
     },
     yesTooltip: {
         defaultMessage: 'Enable telemetry',

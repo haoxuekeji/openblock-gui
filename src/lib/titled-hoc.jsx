@@ -9,11 +9,18 @@ import {
 } from '../reducers/project-state';
 import {setProjectTitle} from '../reducers/project-title';
 
+// const messages = defineMessages({
+//     defaultProjectTitle: {
+//         id: 'gui.gui.defaultProjectTitle',
+//         description: 'Default title for project',
+//         defaultMessage: '我的作品'
+//     }
+// })
 const messages = defineMessages({
     defaultProjectTitle: {
-        id: 'gui.gui.defaultProjectTitle',
+        id: 'gui.gui.defaultProjectTitlehx',
         description: 'Default title for project',
-        defaultMessage: 'Scratch Project'
+        defaultMessage: '我的作品'
     }
 });
 

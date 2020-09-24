@@ -72,6 +72,7 @@ import languageIcon from '../language-selector/language-icon.svg';
 import aboutIcon from './icon--about.svg';
 
 import scratchLogo from './scratch-logo.svg';
+import hxlogo from './hx-logo.png'
 
 import sharedMessages from '../../lib/shared-messages';
 
@@ -774,7 +775,7 @@ MenuBar.propTypes = {
 };
 
 MenuBar.defaultProps = {
-    logo: scratchLogo,
+    logo: hxlogo,
     onShare: () => {}
 };
 
