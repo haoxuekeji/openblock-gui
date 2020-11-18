@@ -13,6 +13,7 @@ import Box from '../box/box.jsx';
 import Button from '../button/button.jsx';
 import CommunityButton from './community-button.jsx';
 import ShareButton from './share-button.jsx';
+import ProfileButton from './profile-button.jsx';
 import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
 import LanguageSelector from '../../containers/language-selector.jsx';
@@ -59,6 +60,8 @@ import {
     loginMenuOpen
 } from '../../reducers/menus';
 
+import {setSession} from '../../reducers/session';
+
 import collectMetadata from '../../lib/collect-metadata';
 
 import styles from './menu-bar.css';
@@ -73,6 +76,7 @@ import aboutIcon from './icon--about.svg';
 
 import scratchLogo from './scratch-logo.svg';
 import hxlogo from './hx-logo.png'
+import HXLib from '../../hx_tarin.js'
 
 import sharedMessages from '../../lib/shared-messages';
 
@@ -170,7 +174,9 @@ class MenuBar extends React.Component {
             'handleLanguageMouseUp',
             'handleRestoreOption',
             'getSaveToComputerHandler',
-            'restoreOptionMessage'
+            'restoreOptionMessage',
+            'handleRenderLogin',
+            'handleLogout'
         ]);
     }
     componentDidMount () {
@@ -284,6 +290,51 @@ class MenuBar extends React.Component {
         }
         }
     }
+
+    handleRenderLogin (e) {//登录操作
+      e.preventDefault();
+          //console.log(this.props);
+      let form = {
+        user: e.target.username.value,
+        pwd: e.target.password.value,
+      }
+      window.api.login(form).then(res => {
+        const user = res.data
+        let data = {
+          session: {
+            user: {
+              userid: user.id,
+              username: user.name,
+              thumbnailUrl: user.avatar
+            }
+          }
+        }
+            this.props.onSetSession(data);
+            window.localStorage.setItem('token', user.access_token)
+            //this.props.onSetProjectId();
+            this.props.onRequestCloseAccount();//关闭登录后弹出账号菜单
+
+            //restoreStateInLoginComponent()
+
+      }).catch(err => {
+        //alert(res.status);//提示用户登录不成功的原因
+        console.log(err)
+          //restoreStateInLoginComponent()
+      });
+    }
+    handleLogout () { //退出账号登录状态
+      let data = {
+        session: {
+          user: {
+            username: ''
+          }
+        }
+      }
+      this.props.onSetSession(data);
+      localStorage.removeItem('token')
+      this.props.onRequestCloseAccount()
+    }
+
     render () {
         const saveNowMessage = (
             <FormattedMessage
@@ -337,6 +388,7 @@ class MenuBar extends React.Component {
             >
                 <div className={styles.mainMenu}>
                     <div className={styles.fileGroup}>
+                    {(window.scratchConfig.logo && window.scratchConfig.logo.show) && (
                         <div className={classNames(styles.menuBarItem)}>
                             <img
                                 alt="Scratch"
@@ -344,10 +396,11 @@ class MenuBar extends React.Component {
                                     [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
                                 })}
                                 draggable={false}
-                                src={this.props.logo}
+                                src={window.scratchConfig.logo.url ||this.props.logo}
                                 onClick={this.props.onClickLogo}
                             />
                         </div>
+                    )}
                         {(this.props.canChangeLanguage) && (<div
                             className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
                         >
@@ -382,12 +435,15 @@ class MenuBar extends React.Component {
                                     onRequestClose={this.props.onRequestCloseFile}
                                 >
                                     <MenuSection>
+                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.newButton &&
+                                        window.scratchConfig.menuBar.newButton.show) && (
                                         <MenuItem
                                             isRtl={this.props.isRtl}
                                             onClick={this.handleClickNew}
                                         >
                                             {newProjectMessage}
                                         </MenuItem>
+                                    )}
                                     </MenuSection>
                                     {(this.props.canSave || this.props.canCreateCopy || this.props.canRemix) && (
                                         <MenuSection>
@@ -409,6 +465,8 @@ class MenuBar extends React.Component {
                                         </MenuSection>
                                     )}
                                     <MenuSection>
+                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.loadFileButton &&
+                                    window.scratchConfig.menuBar.loadFileButton.show) && (
                                         <SBFileUploader
                                             canSave={this.props.canSave}
                                             userOwnsProject={this.props.userOwnsProject}
@@ -425,6 +483,9 @@ class MenuBar extends React.Component {
                                                 </MenuItem>
                                             )}
                                         </SBFileUploader>
+                                        )}
+                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.saveFileButton &&
+                                         window.scratchConfig.menuBar.saveFileButton.show) && (
                                         <SB3Downloader>{(className, downloadProjectCallback) => (
                                             <MenuItem
                                                 className={className}
@@ -437,6 +498,23 @@ class MenuBar extends React.Component {
                                                 />
                                             </MenuItem>
                                         )}</SB3Downloader>
+                                        )}
+
+                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.libButton &&
+                                              window.scratchConfig.menuBar.libButton.show) && (
+                                              <SB3Downloader>{(className, downloadProjectCallback) => (
+                                              <MenuItem
+                                                  className={className}
+                                                  onClick={HXLib.opProjectClick}
+                                              >
+                                                  <FormattedMessage
+                                                      defaultMessage="从库中选取"
+                                                      description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
+                                                      id="gui.menuBar.downloadToComputer2"
+                                                  />
+                                              </MenuItem>
+                                          )}</SB3Downloader>
+                                        )}
                                     </MenuSection>
                                 </MenuBarMenu>
                             </div>
@@ -490,7 +568,12 @@ class MenuBar extends React.Component {
                             </MenuBarMenu>
                         </div>
                     </div>
+                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
+                                                window.scratchConfig.menuBar.helpButton.show) && (
                     <Divider className={classNames(styles.divider)} />
+                    )}
+                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
+                                                window.scratchConfig.menuBar.helpButton.show) && (
                     <div
                         aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
                         className={classNames(styles.menuBarItem, styles.hoverable)}
@@ -502,7 +585,11 @@ class MenuBar extends React.Component {
                         />
                         <FormattedMessage {...ariaMessages.tutorials} />
                     </div>
+                    )}
+                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
+                                                window.scratchConfig.menuBar.helpButton.show) && (
                     <Divider className={classNames(styles.divider)} />
+                    )}
                     {this.props.canEditTitle ? (
                         <div className={classNames(styles.menuBarItem, styles.growable)}>
                             <MenuBarItemTooltip
@@ -551,6 +638,50 @@ class MenuBar extends React.Component {
                         )}
                         {this.props.canRemix ? remixButton : []}
                     </div>
+
+
+                    <div className={classNames(styles.menuBarItem)}>
+                    { //提交
+                    (window.scratchConfig && window.scratchConfig.shareButton && window.scratchConfig.shareButton.show) && (<ProfileButton
+                        className={styles.menuBarButton}
+                        onClick = {
+                            () => {
+                                window.scratchConfig.shareButton.handleClick();
+                            }
+                        }
+                        buttonName = {window.scratchConfig.shareButton.buttonName}
+                    />
+                    )}
+                    </div>
+
+                    <div className={classNames(styles.menuBarItem)}>
+                    { //我的作品
+                    (window.scratchConfig && window.scratchConfig.profileButton && window.scratchConfig.profileButton.show) && (<ProfileButton
+                        className={styles.menuBarButton}
+                        onClick = {
+                            () => {
+                                window.scratchConfig.profileButton.handleClick();
+                            }
+                        }
+                        buttonName = {window.scratchConfig.profileButton.buttonName}
+                    />
+                    )}
+                    </div>
+
+                    <div className={classNames(styles.menuBarItem)}>
+                    {
+                    (window.scratchConfig && window.scratchConfig.guideButton && window.scratchConfig.guideButton.show) && (<ProfileButton
+                        className={styles.menuBarButton}
+                        onClick = {
+                            () => {
+                                window.scratchConfig.guideButton.handleClick();
+                            }
+                        }
+                        buttonName = {window.scratchConfig.guideButton.buttonName}
+                    />
+                    )}
+                    </div>
+
                     <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
                         {this.props.enableCommunity ? (
                             (this.props.isShowingProject || this.props.isUpdating) && (
@@ -579,6 +710,7 @@ class MenuBar extends React.Component {
 
                 {/* show the proper UI in the account menu, given whether the user is
                 logged in, and whether a session is available to log in with */}
+                {(window.scratchConfig && window.scratchConfig.login) && (
                 <div className={styles.accountInfoGroup}>
                     <div className={styles.menuBarItem}>
                         {this.props.canSave && (
@@ -589,7 +721,7 @@ class MenuBar extends React.Component {
                         this.props.username ? (
                             // ************ user is logged in ************
                             <React.Fragment>
-                                <a href="/mystuff/">
+                                {/*<a href="/mystuff/">
                                     <div
                                         className={classNames(
                                             styles.menuBarItem,
@@ -602,7 +734,7 @@ class MenuBar extends React.Component {
                                             src={mystuffIcon}
                                         />
                                     </div>
-                                </a>
+                                </a>*/}
                                 <AccountNav
                                     className={classNames(
                                         styles.menuBarItem,
@@ -614,14 +746,14 @@ class MenuBar extends React.Component {
                                     menuBarMenuClassName={classNames(styles.menuBarMenu)}
                                     onClick={this.props.onClickAccount}
                                     onClose={this.props.onRequestCloseAccount}
-                                    onLogOut={this.props.onLogOut}
+                                    onLogOut={this.handleLogout}
                                 />
                             </React.Fragment>
                         ) : (
                             // ********* user not logged in, but a session exists
                             // ********* so they can choose to log in
                             <React.Fragment>
-                                <div
+                                {/*<div
                                     className={classNames(
                                         styles.menuBarItem,
                                         styles.hoverable
@@ -635,6 +767,7 @@ class MenuBar extends React.Component {
                                         id="gui.menuBar.joinScratch"
                                     />
                                 </div>
+                                */}
                                 <div
                                     className={classNames(
                                         styles.menuBarItem,
@@ -652,8 +785,9 @@ class MenuBar extends React.Component {
                                         className={classNames(styles.menuBarMenu)}
                                         isOpen={this.props.loginMenuOpen}
                                         isRtl={this.props.isRtl}
-                                        renderLogin={this.props.renderLogin}
+                                        //renderLogin={this.props.renderLogin}
                                         onClose={this.props.onRequestCloseLogin}
+                                        onLogin={this.handleRenderLogin}
                                     />
                                 </div>
                             </React.Fragment>
@@ -706,7 +840,7 @@ class MenuBar extends React.Component {
                         </React.Fragment>
                     )}
                 </div>
-
+                )}
                 {aboutButton}
             </Box>
         );
@@ -771,7 +905,8 @@ MenuBar.propTypes = {
     showComingSoon: PropTypes.bool,
     userOwnsProject: PropTypes.bool,
     username: PropTypes.string,
-    vm: PropTypes.instanceOf(VM).isRequired
+    vm: PropTypes.instanceOf(VM).isRequired,
+    onSetSession: PropTypes.func
 };
 
 MenuBar.defaultProps = {
@@ -818,7 +953,8 @@ const mapDispatchToProps = dispatch => ({
     onClickRemix: () => dispatch(remixProject()),
     onClickSave: () => dispatch(manualUpdateProject()),
     onClickSaveAsCopy: () => dispatch(saveProjectAsCopy()),
-    onSeeCommunity: () => dispatch(setPlayer(true))
+    onSeeCommunity: () => dispatch(setPlayer(true)),
+    onSetSession: s => dispatch(setSession(s)),
 });
 
 export default compose(

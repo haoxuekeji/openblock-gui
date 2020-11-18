@@ -46,6 +46,8 @@ import gdxforInsetIconURL from './gdxfor/gdxfor-small.svg';
 import gdxforConnectionIconURL from './gdxfor/gdxfor-illustration.svg';
 import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 
+import queIconURL from './que/que.jpg'
+import queInsetIconURL from './que/que-small.svg'
 export default [
     {
         name: (
@@ -317,5 +319,27 @@ export default [
             />
         ),
         helpLink: 'https://scratch.mit.edu/vernier'
+    },
+
+    {
+        name: (
+          <FormattedMessage
+              defaultMessage="question"
+              description="好学编程扩展库"
+              id="gui.extension.hx.name"
+          />
+        ),
+        extensionId: 'que',
+        collaborator: '好学科技',
+        iconURL: queIconURL,
+        insetIconURL: queInsetIconURL,
+        description: (
+          <FormattedMessage
+              defaultMessage="question blocks"
+              description="question blocks"
+              id="gui.extension.que.description"
+          />
+        ),
+        featured: true
     }
 ];

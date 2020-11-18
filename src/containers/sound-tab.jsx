@@ -24,7 +24,8 @@ import DragConstants from '../lib/drag-constants';
 import downloadBlob from '../lib/download-blob';
 
 import {connect} from 'react-redux';
-
+import hxlibIcon from '../components/action-menu/hx-logo.png'
+import HX_Lib from '../hx_tarin.js'
 import {
     closeSoundLibrary,
     openSoundLibrary,
@@ -180,7 +181,7 @@ class SoundTab extends React.Component {
             onNewSoundFromLibraryClick,
             onNewSoundFromRecordingClick
         } = this.props;
-
+        window.scratch.loadSound = this.handleSoundUpload
         if (!vm.editingTarget) {
             return null;
         }
@@ -216,6 +217,11 @@ class SoundTab extends React.Component {
                 defaultMessage: 'Choose a Sound',
                 description: 'Button to add a sound in the editor tab',
                 id: 'gui.soundTab.addSoundFromLibrary'
+            },
+            addFormLibSound: {
+                defaultMessage: '从素材库里选择声音',
+                description: 'Button to add a sound in the editor tab',
+                id: 'gui.soundTab.addSoundFromLib'
             }
         });
 
@@ -245,6 +251,10 @@ class SoundTab extends React.Component {
                     title: intl.formatMessage(messages.addSound),
                     img: searchIcon,
                     onClick: onNewSoundFromLibraryClick
+                }, {
+                    title: intl.formatMessage(messages.addFormLibSound),
+                    img: hxlibIcon,
+                    onClick: HX_Lib.onSoundClick
                 }]}
                 dragType={DragConstants.SOUND}
                 isRtl={isRtl}

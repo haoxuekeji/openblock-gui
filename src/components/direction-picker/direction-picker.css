@@ -30,3 +30,6 @@
 .icon-button.active > img {
     filter: none;
 }
+.direction-zindex {
+    z-index: 100;
+}

@@ -15,6 +15,91 @@
         <!-- /Sentry -->
     <% } %>
   </head>
+  <script>
+    window.scratchConfig = {
+      logo: {
+        show: true
+        , handleClickLogo: () => {
+          console.log('点击LOGO')
+        }
+      },
+      menuBar: {
+        color: 'hsla(215, 100%, 65%, 1)', //菜单栏颜色
+        //新建按钮
+        newButton:{
+          show: true,
+          handleBefore(){
+            return true
+          }
+        },
+        //从计算机加载按钮
+        loadFileButton:{
+          show: true,
+          handleBefore(){
+            return true
+          }
+        },
+        //保存到计算机按钮
+        saveFileButton:{
+          show: true,
+          handleBefore(){
+            return true
+          }
+        },
+        //加载库按钮
+        libButton:{
+          show: true
+        },
+        //教程按钮
+        helpButton:{
+          show: false
+        }
+      },
+
+      shareButton: {
+          show: true,
+          buttonName: "提交",
+          handleClick: () => {
+              console.log('分享按钮')
+          }
+      },
+      profileButton: {
+          show: true,
+          buttonName: "我的作品",
+          handleClick: () => {
+              //点击profile按钮
+              console.log('我的作品')
+          }
+      },
+      guideButton: {
+          show: true,
+          buttonName: '课程指导书',
+          handleClick: () => {
+              console.log('课程指导')
+          }
+      },
+      handleVmInitialized: (vm) => {
+        window.vm = vm
+        console.log("VM初始化完毕")
+      },
+      handleProjectLoaded: () => {
+        console.log("作品载入完毕")
+      },
+      handleDefaultProjectLoaded:() => {
+        //默认作品加载完毕，一般在这里控制项目加载
+        // window.scratch.setProjectName("默认项目")
+        //  window.scratch.loadProject("/project.sb3", () => {
+        //     console.log("项目加载完毕")
+        //     window.scratch.setProjectName("默认项目")
+        //  })
+      },
+      defaultProjectURL: "./static/project.sb3",
+      //若使用官方素材库请删除本配置项, 默认为/static下的素材库
+      assetCDN: '/scratch3/static',
+      projectHost: 'http://0.0.0.0:5000/api/v1/project',
+      login: true
+    }
+  </script>
   <body>
   </body>
 </html>

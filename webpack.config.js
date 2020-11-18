@@ -24,8 +24,9 @@ const base = {
     },
     output: {
         library: 'GUI',
-        filename: '[name].js',
-        chunkFilename: 'chunks/[name].js'
+        filename: 'static/[name].js',
+        chunkFilename: 'static/chunks/[name].js',
+        publicPath: '/scratch3/'
     },
     externals: {
         React: 'react',

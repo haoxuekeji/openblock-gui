@@ -1,0 +1,45 @@
+@import "../../css/colors.css";
+@import "../../css/units.css";
+.modal-content {
+    width: 560px;
+    background-repeat:no-repeat;
+    background-size:100% 100%;
+    -moz-background-size:100% 100%;
+}
+.box-padding {
+    width: 22rem;
+    height: 100%;
+    float: right;
+    padding: 2rem 2rem 3rem 6rem;
+    /*padding: 40px 40px 40px 230px;*/
+}
+.min-input, .max-input {
+    margin-bottom: 1.5rem;
+    /* width: 100%; */
+    border: 1px solid $ui-black-transparent;
+    border-radius: 5px;
+    padding: 0 1rem;
+    height: 2rem;
+    color: $text-primary-transparent;
+    font-size: .875rem;
+    margin-right: 0;
+    right: 0;
+}
+.submit-login-button {
+    background: $data-primary;
+}
+.btn-submit {
+    background: hsla(30, 100%, 55%, 1);
+    height: 2rem;
+    alignment: center;
+    cursor: pointer;
+    border-radius: $form-radius;
+    font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* padding-left: 9.75rem; */
+    user-select: none;
+    line-height: 2rem;
+    color: $ui-white;
+}

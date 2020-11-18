@@ -6,9 +6,11 @@ import AppStateHOC from '../lib/app-state-hoc.jsx';
 import GUI from '../containers/gui.jsx';
 import HashParserHOC from '../lib/hash-parser-hoc.jsx';
 import log from '../lib/log.js';
-
+import API from '../lib/api'
+window.api = API
 const onClickLogo = () => {
-    window.location = 'https://scratch.mit.edu';
+    //window.location = 'https://scratch.mit.edu';
+    console.log('logo')
 };
 
 const handleTelemetryModalCancel = () => {
@@ -75,8 +77,8 @@ export default appTarget => {
             /> :
             <WrappedGui
                 canEditTitle
-                backpackVisible
-                showComingSoon
+                //backpackVisible
+                //showComingSoon
                 backpackHost={backpackHost}
                 canSave={false}
                 onClickLogo={onClickLogo}
