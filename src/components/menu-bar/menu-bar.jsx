@@ -40,7 +40,8 @@ import {
     manualUpdateProject,
     requestNewProject,
     remixProject,
-    saveProjectAsCopy
+    saveProjectAsCopy,
+    createProject
 } from '../../reducers/project-state';
 import {
     openAccountMenu,
@@ -312,6 +313,7 @@ class MenuBar extends React.Component {
             this.props.onSetSession(data);
             window.localStorage.setItem('token', user.access_token)
             //this.props.onSetProjectId();
+            //this.props.onCreateProject();
             this.props.onRequestCloseAccount();//关闭登录后弹出账号菜单
 
             //restoreStateInLoginComponent()
@@ -331,7 +333,12 @@ class MenuBar extends React.Component {
         }
       }
       this.props.onSetSession(data);
-      localStorage.removeItem('token')
+      window.api.logout().then(res => {
+
+      }).finally(() =>{
+         localStorage.removeItem('token')
+      })
+      
       this.props.onRequestCloseAccount()
     }
 
@@ -955,6 +962,7 @@ const mapDispatchToProps = dispatch => ({
     onClickSaveAsCopy: () => dispatch(saveProjectAsCopy()),
     onSeeCommunity: () => dispatch(setPlayer(true)),
     onSetSession: s => dispatch(setSession(s)),
+    onCreateProject: () => dispatch(createProject()),
 });
 
 export default compose(

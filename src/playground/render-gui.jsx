@@ -24,6 +24,9 @@ const handleTelemetryModalOptIn = () => {
 const handleTelemetryModalOptOut = () => {
     log('User opted out of telemetry');
 };
+const handleUpdateProjectTitle = (title) => {
+    console.log(title)
+}
 
 /*
  * Render the GUI playground. This is a separate function because importing anything
@@ -82,6 +85,7 @@ export default appTarget => {
                 backpackHost={backpackHost}
                 canSave={false}
                 onClickLogo={onClickLogo}
+                onUpdateProjectTitle={handleUpdateProjectTitle}
             />,
         appTarget);
 };

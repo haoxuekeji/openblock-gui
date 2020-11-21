@@ -248,7 +248,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 .then(response => {
                     this.props.onSetProjectUnchanged();
                     const id = response.id.toString();
-                    if (id && this.props.onUpdateProjectThumbnail) {
+                    if (id) {
                         this.storeProjectThumbnail(id);
                     }
                     this.reportTelemetryEvent('projectDidSave');
@@ -268,7 +268,12 @@ const ProjectSaverHOC = function (WrappedComponent) {
         storeProjectThumbnail (projectId) {
             try {
                 this.getProjectThumbnail(dataURI => {
-                    this.props.onUpdateProjectThumbnail(projectId, dataURItoBlob(dataURI));
+                    //this.props.onUpdateProjectThumbnail(projectId, dataURItoBlob(dataURI));
+                  const blob = dataURItoBlob(dataURI)
+                  var formData = new FormData()
+                  formData.append('file', blob)
+                  formData.append('projectId', projectId)
+                  window.api.add_project_thumbnail(formData)
                 });
             } catch (e) {
                 log.error('Project thumbnail save error', e);
@@ -424,7 +429,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
             projectChanged: state.scratchGui.projectChanged,
             reduxProjectId: state.scratchGui.projectState.projectId,
             reduxProjectTitle: state.scratchGui.projectTitle,
-            vm: state.scratchGui.vm
+            vm: state.scratchGui.vm,
+            canCreateNew: state.session.session.user.username ? true:false,
         };
     };
     const mapDispatchToProps = dispatch => ({

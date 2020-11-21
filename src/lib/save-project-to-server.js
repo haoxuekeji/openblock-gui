@@ -15,11 +15,13 @@ import storage from '../lib/storage';
  * @return {Promise} A promise that resolves when the network request resolves.
  */
 export default function (projectId, vmState, params) {
+  let token = window.localStorage.getItem('token')
     const opts = {
         body: vmState,
         // If we set json:true then the body is double-stringified, so don't
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token,
         },
         withCredentials: true
     };

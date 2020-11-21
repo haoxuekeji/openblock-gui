@@ -16,6 +16,9 @@
     <% } %>
   </head>
   <script>
+    function handleProjectId(id) {
+      console.log(id)
+    }
     window.scratchConfig = {
       logo: {
         show: true
@@ -81,6 +84,7 @@
       handleVmInitialized: (vm) => {
         window.vm = vm
         console.log("VM初始化完毕")
+        vm.addListener('PROJECT_ID', handleProjectId);
       },
       handleProjectLoaded: () => {
         console.log("作品载入完毕")
@@ -95,10 +99,11 @@
       },
       defaultProjectURL: "./static/project.sb3",
       //若使用官方素材库请删除本配置项, 默认为/static下的素材库
-      assetCDN: '/scratch3/static',
-      projectHost: 'http://0.0.0.0:5000/api/v1/project',
+      assetCDN: '',
+      projectHost: '/api/v1/project',
       login: true
     }
+    
   </script>
   <body>
   </body>

@@ -158,13 +158,17 @@ class API extends baseModule {
     get_lessions(data) {
       return this.request('get', 'lessions', data)
     }
-    
+
     get_project(data) {
         return this.request('get', 'project', data)
     }
 
     get_topic_task(data) {
       return this.request('get', 'topic-task', data)
+    }
+
+    add_project_thumbnail(data) {
+        return this.post('project-thumbnail', data)
     }
 
 }

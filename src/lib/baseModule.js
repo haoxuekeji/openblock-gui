@@ -11,7 +11,7 @@ class baseModule {
       this.baseUrl = ''
     }
     else{
-      this.baseUrl = 'http://0.0.0.0:5000'
+      this.baseUrl = ''
     }
 
       this.$http = axios.create({

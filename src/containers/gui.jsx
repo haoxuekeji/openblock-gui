@@ -266,7 +266,9 @@ const mapStateToProps = state => {
         ),
         telemetryModalVisible: state.scratchGui.modals.telemetryModal,
         tipsLibraryVisible: state.scratchGui.modals.tipsLibrary,
-        vm: state.scratchGui.vm
+        vm: state.scratchGui.vm,
+        canSave: state.session.session.user.username ? true:false,
+        canCreateNew: state.session.session.user.username ? true:false,
     };
 };
 
