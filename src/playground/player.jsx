@@ -58,7 +58,7 @@ const WrappedPlayer = compose(
     HashParserHOC
 )(ConnectedPlayer);
 
-const appTarget = document.createElement('div');
-document.body.appendChild(appTarget);
+const appTarget = document.getElementById('scratch');
+//document.body.appendChild(appTarget);
 
 ReactDOM.render(<WrappedPlayer isPlayerOnly />, appTarget);
