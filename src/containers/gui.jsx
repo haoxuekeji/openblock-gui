@@ -9,7 +9,8 @@ import {injectIntl, intlShape} from 'react-intl';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
 import {
     getIsError,
-    getIsShowingProject
+    getIsShowingProject,
+    setProjectId
 } from '../reducers/project-state';
 import {
     activateTab,
@@ -77,8 +78,8 @@ class GUI extends React.Component {
         document.addEventListener("getProjectCover",function(e){
             that.getProjectCover(e.detail.callback)
         })
-        document.addEventListener("getProjectCoverBlob",function(e){
-            that.getProjectCoverBlob(e.detail.callback)
+        document.addEventListener("setProjectId",function(e){
+            that.setProjectId(e.detail.projectId)
         })
 
         window.scratch.getProjectCover = (callback)=>{
@@ -99,6 +100,11 @@ class GUI extends React.Component {
         window.scratch.loadProject = (url, callback)=>{
             var event = new CustomEvent('loadProject', {"detail": {url: url,callback:callback }});
                 document.dispatchEvent(event);
+        }
+
+        window.scratch.setProjectId = (projectId)=>{
+          var event = new CustomEvent('setProjectId', {"detail": {projectId: projectId}});
+              document.dispatchEvent(event);
         }
 
         if(window.scratchConfig && 'handleVmInitialized' in window.scratchConfig){
@@ -168,6 +174,9 @@ class GUI extends React.Component {
               };
               reader.readAsArrayBuffer(blob);
         });
+    }
+    setProjectId(projectId) {
+        this.props.onSetProjectId(projectId)
     }
     setSession(session) {
       this.props.onSetSession(session)
@@ -280,7 +289,8 @@ const mapDispatchToProps = dispatch => ({
     onRequestCloseBackdropLibrary: () => dispatch(closeBackdropLibrary()),
     onRequestCloseCostumeLibrary: () => dispatch(closeCostumeLibrary()),
     onRequestCloseTelemetryModal: () => dispatch(closeTelemetryModal()),
-    onSetSession: s => dispatch(setSession(s))
+    onSetSession: s => dispatch(setSession(s)),
+    onSetProjectId: id => dispatch(setProjectId(id))
 });
 
 const ConnectedGUI = injectIntl(connect(

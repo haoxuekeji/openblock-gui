@@ -50,7 +50,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
             bindAll(this, [
                 'getProjectThumbnail',
                 'leavePageConfirm',
-                'tryToAutoSave'
+                'tryToAutoSave',
+                'updateProjectId'
             ]);
         }
         componentWillMount () {
@@ -172,6 +173,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             return this.storeProject(null)
                 .then(response => {
                     this.props.onCreatedProject(response.id.toString(), this.props.loadingState);
+                    this.updateProjectId(response.id.toString())
                 })
                 .catch(err => {
                     this.props.onShowAlert('creatingError');
@@ -306,6 +308,12 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 log.error('Telemetry error', event, e);
                 // This is intentionally fire/forget because a failure
                 // to report telemetry should not block saving
+            }
+        }
+        
+        updateProjectId(id) {
+            if(window.scratchConfig && window.scratchConfig.handleProjectIdChange) {
+                 window.scratchConfig.handleProjectIdChange(id)
             }
         }
 

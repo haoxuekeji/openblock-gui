@@ -84,7 +84,12 @@
       handleVmInitialized: (vm) => {
         window.vm = vm
         console.log("VM初始化完毕")
-        vm.addListener('PROJECT_ID', handleProjectId);
+        //vm.addListener('PROJECT_ID', handleProjectId);
+        setTimeout(() => {
+          window.scratch.setProjectId(15)
+        }, 0)
+        
+        
       },
       handleProjectLoaded: () => {
         console.log("作品载入完毕")
@@ -96,6 +101,9 @@
         //     console.log("项目加载完毕")
         //     window.scratch.setProjectName("默认项目")
         //  })
+      },
+      handleProjectIdChange: id => {
+        console.log(id)
       },
       defaultProjectURL: "./static/project.sb3",
       //若使用官方素材库请删除本配置项, 默认为/static下的素材库
