@@ -85,16 +85,17 @@
         window.vm = vm
         console.log("VM初始化完毕")
         //vm.addListener('PROJECT_ID', handleProjectId);
-        setTimeout(() => {
-          window.scratch.setProjectId(15)
-        }, 0)
-        
-        
+        // setTimeout(() => {
+        //   window.scratch.setProjectId(15)
+        // }, 0)
+
+
       },
       handleProjectLoaded: () => {
         console.log("作品载入完毕")
       },
       handleDefaultProjectLoaded:() => {
+        console.log("默认作品载入完毕")
         //默认作品加载完毕，一般在这里控制项目加载
         // window.scratch.setProjectName("默认项目")
         //  window.scratch.loadProject("/project.sb3", () => {
@@ -104,6 +105,9 @@
       },
       handleProjectIdChange: id => {
         console.log(id)
+      },
+      handleUpdateProjectTitle: title => {
+        console.log(title)
       },
       defaultProjectURL: "./static/project.sb3",
       //若使用官方素材库请删除本配置项, 默认为/static下的素材库

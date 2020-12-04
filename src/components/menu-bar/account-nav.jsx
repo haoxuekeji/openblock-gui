@@ -64,19 +64,23 @@ const AccountNavComponent = ({
             place={isRtl ? 'right' : 'left'}
             onRequestClose={onClose}
         >
-            <MenuItemContainer href={profileUrl}>
+            {/*<MenuItemContainer href={profileUrl}>
                 <FormattedMessage
                     defaultMessage="Profile"
                     description="Text to link to my user profile, in the account navigation menu"
                     id="gui.accountMenu.profile"
                 />
-            </MenuItemContainer>
+            </MenuItemContainer>*/}
             <MenuItemContainer href="/mystuff/">
                 <FormattedMessage
                     defaultMessage="My Stuff"
                     description="Text to link to list of my projects, in the account navigation menu"
                     id="gui.accountMenu.myStuff"
                 />
+            </MenuItemContainer>
+
+            <MenuItemContainer href="/student/mytask/">
+                我的任务
             </MenuItemContainer>
             {isEducator ? (
                 <MenuItemContainer href="/educators/classes/">
@@ -96,7 +100,7 @@ const AccountNavComponent = ({
                     />
                 </MenuItemContainer>
             ) : null}
-            <MenuItemContainer href="/accounts/settings/">
+            <MenuItemContainer href="/student/accounts/settings/">
                 <FormattedMessage
                     defaultMessage="Account settings"
                     description="Text to link to my account settings, in the account navigation menu"

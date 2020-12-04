@@ -25,7 +25,9 @@ const handleTelemetryModalOptOut = () => {
     log('User opted out of telemetry');
 };
 const handleUpdateProjectTitle = (title) => {
-    console.log(title)
+    if(window.scratchConfig && window.scratchConfig.handleUpdateProjectTitle) {
+        window.scratchConfig.handleUpdateProjectTitle(title)
+    }
 }
 
 /*
