@@ -79,6 +79,9 @@ import scratchLogo from './scratch-logo.svg';
 import hxlogo from './hx-logo.png'
 import HXLib from '../../hx_tarin.js'
 
+import fullScreenIcon from './icon--fullscreen.svg';
+import unFullScreenIcon from './icon--unfullscreen.svg';
+
 import sharedMessages from '../../lib/shared-messages';
 
 const ariaMessages = defineMessages({
@@ -177,8 +180,12 @@ class MenuBar extends React.Component {
             'getSaveToComputerHandler',
             'restoreOptionMessage',
             'handleRenderLogin',
-            'handleLogout'
+            'handleLogout',
+            'handleFullscreen'
         ]);
+        this.state = {
+            isFullscreen: false
+        }
     }
     componentDidMount () {
         document.addEventListener('keydown', this.handleKeyPress);
@@ -338,8 +345,41 @@ class MenuBar extends React.Component {
       }).finally(() =>{
          localStorage.removeItem('token')
       })
-      
+
       this.props.onRequestCloseAccount()
+    }
+
+    handleFullscreen() {
+        if( document.fullscreen ||
+          document.mozFullScreen ||
+          document.webkitIsFullScreen ||
+          document.webkitFullScreen ||
+          document.msFullScreen ) {
+              if(document.exitFullScreen) {
+                document.exitFullScreen();
+              } else if(document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+              } else if(document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+              } else if(element.msExitFullscreen) {
+                element.msExitFullscreen();
+              }
+
+              this.setState({isFullscreen: false})
+        } else {
+            var ele = document.documentElement
+            if (ele.requestFullscreen) {
+              ele.requestFullscreen();
+            } else if (ele.mozRequestFullScreen) {
+               ele.mozRequestFullScreen();
+            } else if (ele.webkitRequestFullscreen) {
+              ele.webkitRequestFullscreen();
+            } else if (ele.msRequestFullscreen) {
+              ele.msRequestFullscreen();
+            }
+
+            this.setState({isFullscreen: true})
+        }
     }
 
     render () {
@@ -575,6 +615,7 @@ class MenuBar extends React.Component {
                             </MenuBarMenu>
                         </div>
                     </div>
+
                     {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
                                                 window.scratchConfig.menuBar.helpButton.show) && (
                     <Divider className={classNames(styles.divider)} />
@@ -617,6 +658,7 @@ class MenuBar extends React.Component {
                             username={this.props.authorUsername}
                         />
                     ) : null)}
+
                     <div className={classNames(styles.menuBarItem)}>
                         {this.props.canShare ? (
                             (this.props.isShowingProject || this.props.isUpdating) && (
@@ -689,6 +731,19 @@ class MenuBar extends React.Component {
                     )}
                     </div>
 
+
+                    <div aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
+                        className={classNames(styles.menuBarItem, styles.hoverable)}
+                        onClick={this.handleFullscreen}
+                    >
+                    <img
+                        className={styles.helpIcon}
+                        src={this.state.isFullscreen ? unFullScreenIcon:fullScreenIcon}
+                    />
+                    {this.state.isFullscreen ? '退出全屏': '全屏'}
+
+                    </div>
+
                     <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
                         {this.props.enableCommunity ? (
                             (this.props.isShowingProject || this.props.isUpdating) && (
@@ -714,6 +769,8 @@ class MenuBar extends React.Component {
                         ) : [])}
                     </div>
                 </div>
+
+
 
                 {/* show the proper UI in the account menu, given whether the user is
                 logged in, and whether a session is available to log in with */}

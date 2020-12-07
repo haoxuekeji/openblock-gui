@@ -71,7 +71,7 @@ const AccountNavComponent = ({
                     id="gui.accountMenu.profile"
                 />
             </MenuItemContainer>*/}
-            <MenuItemContainer href="/mystuff/">
+            <MenuItemContainer href="">
                 <FormattedMessage
                     defaultMessage="My Stuff"
                     description="Text to link to list of my projects, in the account navigation menu"
@@ -79,7 +79,7 @@ const AccountNavComponent = ({
                 />
             </MenuItemContainer>
 
-            <MenuItemContainer href="/student/mytask/">
+            <MenuItemContainer href="/student/task-list">
                 我的任务
             </MenuItemContainer>
             {isEducator ? (
@@ -100,7 +100,7 @@ const AccountNavComponent = ({
                     />
                 </MenuItemContainer>
             ) : null}
-            <MenuItemContainer href="/student/accounts/settings/">
+            <MenuItemContainer href="/student/">
                 <FormattedMessage
                     defaultMessage="Account settings"
                     description="Text to link to my account settings, in the account navigation menu"
