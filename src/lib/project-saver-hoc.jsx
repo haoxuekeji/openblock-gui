@@ -310,7 +310,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 // to report telemetry should not block saving
             }
         }
-        
+
         updateProjectId(id) {
             if(window.scratchConfig && window.scratchConfig.handleProjectIdChange) {
                  window.scratchConfig.handleProjectIdChange(id)
@@ -427,7 +427,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
             isCreatingCopy: getIsCreatingCopy(loadingState),
             isCreatingNew: getIsCreatingNew(loadingState),
             isRemixing: getIsRemixing(loadingState),
-            isShowingSaveable: ownProps.canSave && isShowingWithId,
+            //TODO 任务题下保存
+            isShowingSaveable: state.session.session.user.autosave && isShowingWithId,
             isShowingWithId: isShowingWithId,
             isShowingWithoutId: getIsShowingWithoutId(loadingState),
             isUpdating: getIsUpdating(loadingState),
@@ -439,6 +440,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             reduxProjectTitle: state.scratchGui.projectTitle,
             vm: state.scratchGui.vm,
             canCreateNew: state.session.session.user.username ? true:false,
+            //canSave: state.session.session.user.username ? true:false
         };
     };
     const mapDispatchToProps = dispatch => ({

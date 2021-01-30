@@ -84,8 +84,9 @@ export default appTarget => {
                 canEditTitle
                 //backpackVisible
                 //showComingSoon
-                backpackHost={backpackHost}
-                canSave={false}
+                //isPlayerOnly
+                //backpackHost={backpackHost}
+                //canSave={true}
                 onClickLogo={onClickLogo}
                 onUpdateProjectTitle={handleUpdateProjectTitle}
             />,
