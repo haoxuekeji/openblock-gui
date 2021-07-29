@@ -7,6 +7,7 @@ import VM from 'scratch-vm';
 import {injectIntl, intlShape} from 'react-intl';
 
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
+import {setPlayer} from '../reducers/mode';
 import {
     getIsError,
     getIsShowingProject,
@@ -30,6 +31,7 @@ import {setSession} from '../reducers/session'
 
 import FontLoaderHOC from '../lib/font-loader-hoc.jsx';
 import LocalizationHOC from '../lib/localization-hoc.jsx';
+import SBFileUploaderHOC from '../lib/sb-file-uploader-hoc.jsx';
 import ProjectFetcherHOC from '../lib/project-fetcher-hoc.jsx';
 import TitledHOC from '../lib/titled-hoc.jsx';
 import ProjectSaverHOC from '../lib/project-saver-hoc.jsx';
@@ -60,12 +62,17 @@ class GUI extends React.Component {
                 user: {
                   userid: user.id,
                   username: user.name,
-                  thumbnailUrl: user.avatar
+                  thumbnailUrl: user.avatar,
+                  token: localStorage.getItem("token")
                 }
               }
             }
             this.setSession(data)
+          }).catch(err => {
+              
           })
+
+         
         }
 
         var that = this
@@ -105,6 +112,9 @@ class GUI extends React.Component {
         window.scratch.setProjectId = (projectId)=>{
           var event = new CustomEvent('setProjectId', {"detail": {projectId: projectId}});
               document.dispatchEvent(event);
+        }
+        window.scratch.onSeeInside = (isPlayerOnly)=>{
+          this.onSeeInside(isPlayerOnly)
         }
 
         if(window.scratchConfig && 'handleVmInitialized' in window.scratchConfig){
@@ -180,6 +190,9 @@ class GUI extends React.Component {
     }
     setSession(session) {
       this.props.onSetSession(session)
+    }
+    onSeeInside(isPlayerOnly) {
+        this.props.onSeeInside(isPlayerOnly)
     }
     render () {
         if (this.props.isError) {
@@ -278,6 +291,9 @@ const mapStateToProps = state => {
         vm: state.scratchGui.vm,
         canSave: state.session.session.user.username ? true:false,
         canCreateNew: state.session.session.user.username ? true:false,
+
+        canUseCloud: state.session.session.user.username ? true:false,
+        backpackVisible: state.session.session.user.username ? true:false,
     };
 };
 
@@ -290,7 +306,8 @@ const mapDispatchToProps = dispatch => ({
     onRequestCloseCostumeLibrary: () => dispatch(closeCostumeLibrary()),
     onRequestCloseTelemetryModal: () => dispatch(closeTelemetryModal()),
     onSetSession: s => dispatch(setSession(s)),
-    onSetProjectId: id => dispatch(setProjectId(id))
+    onSetProjectId: id => dispatch(setProjectId(id)),
+    onSeeInside: s => dispatch(setPlayer(s))
 });
 
 const ConnectedGUI = injectIntl(connect(
@@ -311,6 +328,7 @@ const WrappedGui = compose(
     ProjectSaverHOC,
     vmListenerHOC,
     vmManagerHOC,
+    SBFileUploaderHOC,
     cloudManagerHOC
 )(ConnectedGUI);
 

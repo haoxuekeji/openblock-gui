@@ -67,7 +67,7 @@
           }
       },
       profileButton: {
-          show: true,
+          show: false,
           buttonName: "我的作品",
           handleClick: () => {
               //点击profile按钮
@@ -75,7 +75,7 @@
           }
       },
       guideButton: {
-          show: true,
+          show: false,
           buttonName: '课程指导书',
           handleClick: () => {
               console.log('课程指导')
@@ -112,9 +112,11 @@
       mobilePlayer: false,
       defaultProjectURL: "./static/project.sb3",
       //若使用官方素材库请删除本配置项, 默认为/static下的素材库
-      assetCDN: '',
+      assetCDN: location.origin,
       projectHost: '/api/v1/project',
-      login: true
+      login: true,
+      isPlayerOnly: true,
+      enableCommunity: true,
     }
 
   </script>

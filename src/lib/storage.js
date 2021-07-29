@@ -62,7 +62,6 @@ class Storage extends ScratchStorage {
         }
     }
     getAssetCreateConfig (asset) {
-        console.log(this.assetHost)
         let url 
         if('assetCDN' in window.scratchConfig){
           url = `${window.scratchConfig.assetCDN}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;

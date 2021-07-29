@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {compose} from 'redux';
-
+import {connect} from 'react-redux';
 import AppStateHOC from '../lib/app-state-hoc.jsx';
 import GUI from '../containers/gui.jsx';
 import HashParserHOC from '../lib/hash-parser-hoc.jsx';
 import log from '../lib/log.js';
 import API from '../lib/api'
+import Box from '../components/box/box.jsx';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import {setPlayer} from '../reducers/mode';
 window.api = API
+import styles from './player.css';
 const onClickLogo = () => {
     //window.location = 'https://scratch.mit.edu';
     console.log('logo')
@@ -41,14 +46,11 @@ export default appTarget => {
     // note that redux's 'compose' function is just being used as a general utility to make
     // the hierarchy of HOC constructor calls clearer here; it has nothing to do with redux's
     // ability to compose reducers.
-    const WrappedGui = compose(
-        AppStateHOC,
-        HashParserHOC
-    )(GUI);
+
 
     // TODO a hack for testing the backpack, allow backpack host to be set by url param
-    const backpackHostMatches = window.location.href.match(/[?&]backpack_host=([^&]*)&?/);
-    const backpackHost = backpackHostMatches ? backpackHostMatches[1] : null;
+    //const backpackHostMatches = window.location.href.match(/[?&]backpack_host=([^&]*)&?/);
+    //const backpackHost = backpackHostMatches ? backpackHostMatches[1] : null;
 
     const scratchDesktopMatches = window.location.href.match(/[?&]isScratchDesktop=([^&]+)/);
     let simulateScratchDesktop;
@@ -67,28 +69,71 @@ export default appTarget => {
         // Warn before navigating away
         window.onbeforeunload = () => true;
     }
+    const backpackHost = location.origin + '/api/v1/backpack'
+    // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
+    const Guier = (props) => (
+        <Box className={classNames(props.isPlayerOnly ? styles.stageOnly : styles.editor)}>
+        {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>}
 
-    ReactDOM.render(
-        // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
-        simulateScratchDesktop ?
-            <WrappedGui
-                canEditTitle
-                isScratchDesktop
-                showTelemetryModal
-                canSave={false}
-                onTelemetryModalCancel={handleTelemetryModalCancel}
-                onTelemetryModalOptIn={handleTelemetryModalOptIn}
-                onTelemetryModalOptOut={handleTelemetryModalOptOut}
-            /> :
-            <WrappedGui
-                canEditTitle
-                //backpackVisible
-                //showComingSoon
-                //isPlayerOnly
-                //backpackHost={backpackHost}
-                //canSave={true}
-                onClickLogo={onClickLogo}
-                onUpdateProjectTitle={handleUpdateProjectTitle}
-            />,
-        appTarget);
+        {simulateScratchDesktop ?
+        <GUI
+            canEditTitle
+            isScratchDesktop
+            showTelemetryModal
+            canSave={false}
+            onTelemetryModalCancel={handleTelemetryModalCancel}
+            onTelemetryModalOptIn={handleTelemetryModalOptIn}
+            onTelemetryModalOptOut={handleTelemetryModalOptOut}
+        />:
+        <GUI
+            canEditTitle
+            //showComingSoon
+
+            //canCreateCopy
+            isPlayerOnly={props.isPlayerOnly}
+            enableCommunity={props.enableCommunity}
+            //canRemix
+            //canManageFiles
+            backpackHost={backpackHost}
+            //canSave={true}
+            onClickLogo={onClickLogo}
+            onUpdateProjectTitle={handleUpdateProjectTitle}
+            canShare
+            cloudHost={location.origin}
+        />}
+        </Box>
+    );
+    Guier.propTypes = {
+        isPlayerOnly: PropTypes.bool,
+        onSeeInside: PropTypes.func,
+        projectId: PropTypes.string,
+        enableCommunity: PropTypes.bool,
+
+    };
+    Guier.defaultProps = {
+        isPlayerOnly: true,
+        enableCommunity: window.scratchConfig.enableCommunity ? true:false
+    };
+    const mapStateToProps = state => {
+        window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly
+        return {
+            isPlayerOnly: state.scratchGui.mode.isPlayerOnly
+        }
+
+    };
+
+    const mapDispatchToProps = dispatch => ({
+        onSeeInside: () => dispatch(setPlayer(false))
+    });
+    const ConnectedGUI = connect(
+        mapStateToProps,
+        mapDispatchToProps
+    )(Guier);
+
+    const WrappedGui = compose(
+        AppStateHOC,
+        HashParserHOC
+    )(ConnectedGUI);
+
+    ReactDOM.render(<WrappedGui isPlayerOnly={window.scratchConfig.isPlayerOnly}/>, appTarget);
 };

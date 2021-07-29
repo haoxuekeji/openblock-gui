@@ -8,6 +8,7 @@ const initialState = {
             thumbnailUrl: '',
             nickname: '',
             username: '',
+            token: ''
         }
     }
 };

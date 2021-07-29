@@ -53,10 +53,10 @@ class Backpack extends React.Component {
         // If a host is given, add it as a web source to the storage module
         // TODO remove the hacky flag that prevents double adding
         if (props.host && !storage._hasAddedBackpackSource) {
-            storage.addWebSource(
-                [storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound],
-                this.getBackpackAssetURL
-            );
+            // storage.addWebSource(
+            //     [storage.AssetType.ImageVector, storage.AssetType.ImageBitmap, storage.AssetType.Sound],
+            //     this.getBackpackAssetURL
+            // );
             storage._hasAddedBackpackSource = true;
         }
     }
@@ -69,6 +69,9 @@ class Backpack extends React.Component {
         this.props.vm.removeListener('BLOCK_DRAG_UPDATE', this.handleBlockDragUpdate);
     }
     getBackpackAssetURL (asset) {
+        if('assetCDN' in window.scratchConfig){
+            return `${window.scratchConfig.assetCDN}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
+        }
         return `${this.props.host}/${asset.assetId}.${asset.dataFormat}`;
     }
     handleToggle () {
@@ -247,7 +250,7 @@ const getTokenAndUsername = state => {
     if (state.session && state.session.session && state.session.session.user) {
         return {
             token: state.session.session.user.token,
-            username: state.session.session.user.username
+            username: state.session.session.user.userid
         };
     }
     // Otherwise try to pull testing params out of the URL, or return nulls
