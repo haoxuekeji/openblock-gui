@@ -54,7 +54,7 @@ class GUI extends React.Component {
 
         window.scratch = window.scratch || {}
 
-        if (window.scratchConfig.login) {
+        if (window.scratchConfig && window.scratchConfig.login) {
             window.api.getInfo().then(res => {
                 const user = res.data
                 let data = {

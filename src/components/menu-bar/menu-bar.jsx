@@ -639,7 +639,7 @@ class MenuBar extends React.Component {
             >
                 <div className={styles.mainMenu}>
                     <div className={styles.fileGroup}>
-                        {(window.scratchConfig.logo && window.scratchConfig.logo.show) && (
+                        {(window.scratchConfig && window.scratchConfig.logo && window.scratchConfig.logo.show) && (
                             <div className={classNames(styles.menuBarItem)}>
                                 <img
                                     alt="Scratch"
