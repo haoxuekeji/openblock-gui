@@ -2,16 +2,16 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import bindAll from 'lodash.bindall';
 
-import {connect} from 'react-redux';
-import {compose} from 'redux';
-import {injectIntl, intlShape, defineMessages} from 'react-intl';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+import { injectIntl, intlShape, defineMessages } from 'react-intl';
 
 import VM from 'openblock-vm';
 import analytics from '../lib/analytics';
-import {closeUploadProgress} from '../reducers/modals';
-import {showAlertWithTimeout} from '../reducers/alerts';
+import { closeUploadProgress } from '../reducers/modals';
+import { showAlertWithTimeout } from '../reducers/alerts';
 
-import UploadProgressComponent, {PHASES} from '../components/upload-progress/upload-progress.jsx';
+import UploadProgressComponent, { PHASES } from '../components/upload-progress/upload-progress.jsx';
 
 const messages = defineMessages({
     uploadErrorMessage: {
@@ -30,7 +30,7 @@ const messages = defineMessages({
 const UPLOAD_TIMEOUT_TIME = 60 * 1000;
 
 class UploadProgress extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleCancel',
@@ -49,61 +49,61 @@ class UploadProgress extends React.Component {
         // if the upload progress stack some seconds with out any info.
         // set state to timeout let user could colse the modal.
         this.uploadTimeout = setTimeout(() => this.handleUploadTimeout(), UPLOAD_TIMEOUT_TIME);
-        analytics.event({
-            category: 'devices',
-            action: 'uploading',
-            label: this.props.deviceId
-        });
+        // analytics.event({
+        //     category: 'devices',
+        //     action: 'uploading',
+        //     label: this.props.deviceId
+        // });
     }
-    componentDidMount () {
+    componentDidMount() {
         this.props.vm.on('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
         this.props.vm.on('PERIPHERAL_UPLOAD_ERROR', this.handleUploadError);
         this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleUploadError);
         this.props.vm.on('PERIPHERAL_UPLOAD_SUCCESS', this.handleUploadSuccess);
     }
-    componentWillUnmount () {
+    componentWillUnmount() {
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_ERROR', this.handleUploadError);
         this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleUploadError);
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_SUCCESS', this.handleUploadSuccess);
         clearTimeout(this.uploadTimeout);
     }
-    handleCancel () {
+    handleCancel() {
         this.props.oncloseUploadProgress();
     }
-    handleHelp () {
+    handleHelp() {
         window.open(this.state.extension.helpLink, '_blank');
-        analytics.event({
-            category: 'devices',
-            action: 'upload help',
-            label: this.props.deviceId
-        });
+        // analytics.event({
+        //     category: 'devices',
+        //     action: 'upload help',
+        //     label: this.props.deviceId
+        // });
     }
-    handleStdout (data) {
+    handleStdout(data) {
         this.setState({
             text: this.state.text + data.message
         });
         clearTimeout(this.uploadTimeout);
         this.uploadTimeout = setTimeout(() => this.handleUploadTimeout(), UPLOAD_TIMEOUT_TIME);
     }
-    handleUploadError (data) {
+    handleUploadError(data) {
         // if the upload progress has been in success don't handle the upload error.
-        if (this.state.phase !== PHASES.success){
+        if (this.state.phase !== PHASES.success) {
             this.setState({
                 text: `${this.state.text + data.message}\r\n` +
                     `${this.props.intl.formatMessage(messages.uploadErrorMessage)}`,
                 phase: PHASES.error
             });
             this.props.onUploadError();
-            analytics.event({
-                category: 'devices',
-                action: 'upload error',
-                label: this.props.deviceId
-            });
+            // analytics.event({
+            //     category: 'devices',
+            //     action: 'upload error',
+            //     label: this.props.deviceId
+            // });
             clearTimeout(this.uploadTimeout);
         }
     }
-    handleUploadSuccess () {
+    handleUploadSuccess() {
         this.setState({
             phase: PHASES.success
         });
@@ -111,21 +111,21 @@ class UploadProgress extends React.Component {
         this.handleCancel();
         clearTimeout(this.uploadTimeout);
     }
-    handleUploadTimeout () {
+    handleUploadTimeout() {
         this.setState({
             text: `${this.state.text}\r\n${this.props.intl.formatMessage(messages.uploadTimeout)}`,
             phase: PHASES.timeout
         });
         this.props.onUploadError();
-        analytics.event({
-            category: 'devices',
-            action: 'upload timeout',
-            label: this.props.deviceId
-        });
+        // analytics.event({
+        //     category: 'devices',
+        //     action: 'upload timeout',
+        //     label: this.props.deviceId
+        // });
         clearTimeout(this.uploadTimeout);
     }
 
-    render () {
+    render() {
         return (
             <UploadProgressComponent
                 connectionSmallIconURL={this.state.extension && this.state.extension.connectionSmallIconURL}

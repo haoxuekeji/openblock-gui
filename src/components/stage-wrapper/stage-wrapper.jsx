@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import VM from 'openblock-vm';
 
 import Box from '../box/box.jsx';
-import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants.js';
+import { STAGE_DISPLAY_SIZES } from '../../lib/layout-constants.js';
 import StageHeader from '../../containers/stage-header.jsx';
 import Stage from '../../containers/stage.jsx';
 import Loader from '../loader/loader.jsx';
@@ -25,16 +25,21 @@ const StageWrapperComponent = function (props) {
         <Box
             className={classNames(
                 styles.stageWrapper,
-                {[styles.fullScreen]: isFullScreen}
+                { [styles.fullScreen]: isFullScreen }
             )}
             dir={isRtl ? 'rtl' : 'ltr'}
         >
-            <Box className={styles.stageMenuWrapper}>
-                <StageHeader
-                    stageSize={stageSize}
-                    vm={vm}
-                />
-            </Box>
+
+            {
+                (window.scratchConfig && !window.scratchConfig.mobilePlayer) && (
+                    <Box className={styles.stageMenuWrapper}>
+                        <StageHeader
+                            stageSize={stageSize}
+                            vm={vm}
+                        />
+                    </Box>
+                )
+            }
             <Box className={styles.stageCanvasWrapper}>
                 {
                     isRendererSupported ?

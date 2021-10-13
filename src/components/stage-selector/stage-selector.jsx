@@ -1,18 +1,21 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {defineMessages, intlShape, injectIntl, FormattedMessage} from 'react-intl';
+import { defineMessages, intlShape, injectIntl, FormattedMessage } from 'react-intl';
 
 import Box from '../box/box.jsx';
 import ActionMenu from '../action-menu/action-menu.jsx';
 import styles from './stage-selector.css';
-import {isRtl} from 'openblock-l10n';
+import { isRtl } from 'openblock-l10n';
+
 
 import backdropIcon from '../action-menu/icon--backdrop.svg';
 import fileUploadIcon from '../action-menu/icon--file-upload.svg';
 import paintIcon from '../action-menu/icon--paint.svg';
 import surpriseIcon from '../action-menu/icon--surprise.svg';
 import searchIcon from '../action-menu/icon--search.svg';
+import hxlibIcon from '../action-menu/hx-logo.png'
+import HX_Lib from '../../hx_tarin.js'
 
 const messages = defineMessages({
     addBackdropFromLibrary: {
@@ -34,6 +37,11 @@ const messages = defineMessages({
         id: 'gui.stageSelector.addBackdropFromFile',
         description: 'Button to add a stage in the target pane from file',
         defaultMessage: 'Upload Backdrop'
+    },
+    addBackdropFromLib: {
+        id: 'gui.stageSelector.addBackdropFromLib',
+        description: 'Button to add a stage in the target pane from file',
+        defaultMessage: '从素材库选择背景'
     }
 });
 
@@ -119,6 +127,10 @@ const StageSelector = props => {
                         title: intl.formatMessage(messages.addBackdropFromLibrary),
                         img: searchIcon,
                         onClick: onNewBackdropClick
+                    }, {
+                        title: intl.formatMessage(messages.addBackdropFromLib),
+                        img: hxlibIcon,
+                        onClick: HX_Lib.onBackdropClick
                     }
                 ]}
                 title={intl.formatMessage(messages.addBackdropFromLibrary)}

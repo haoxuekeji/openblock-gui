@@ -1,7 +1,7 @@
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {defineMessages, injectIntl, intlShape, FormattedMessage} from 'react-intl';
+import { defineMessages, injectIntl, intlShape, FormattedMessage } from 'react-intl';
 import ReactModal from 'react-modal';
 
 import Box from '../box/box.jsx';
@@ -11,30 +11,32 @@ import styles from './telemetry-modal.css';
 const messages = defineMessages({
     label: {
         id: 'gui.telemetryOptIn.label',
-        defaultMessage: 'Report statistics to improve OpenBlock',
-        description: 'OpenBlock telemetry modal label - for accessibility'
+        defaultMessage: 'Report statistics to improve Scratch',
+        description: 'Scratch 3.0 telemetry modal label - for accessibility'
     },
     bodyText1: {
-        defaultMessage: 'The OpenBlock Team is always looking to better understand how OpenBlock is used around the ' +
-            'world. To help support this effort, you can allow OpenBlock to automatically send usage information to ' +
-            'the OpenBlock Team.',
+        // defaultMessage: 'The Scratch Team is always looking to better understand how Scratch is used around the ' +
+        //     'world. To help support this effort, you can allow Scratch to automatically send usage information to ' +
+        //     'the Scratch Team.',
+        defaultMessage: '允许好学图形化编程自动发送使用情况给好学团队，帮助我们了解软件的使用情况。',
         description: 'First paragraph of body text for telemetry opt-in modal',
-        id: 'gui.telemetryOptIn.body1'
+        id: 'gui.telemetryOptIn.body1_bak'
     },
     bodyText2: {
-        defaultMessage: 'The information we collect includes language selection, blocks usage, and some events like ' +
-            'saving, loading, and uploading a project. We DO NOT collect any personal information. Please see our ' +
-            '{privacyPolicyLink} for more information.',
+        // defaultMessage: 'The information we collect includes language selection, blocks usage, and some events like ' +
+        //     'saving, loading, and uploading a project. We DO NOT collect any personal information. Please see our ' +
+        //     '{privacyPolicyLink} for more information.',
+        defaultMessage: '我们收集的信息包括所选语言、积木使用情况以及诸如保存、加载和上传作品等功能的使用情况。我们不会收集任何个人信息。',
         description: 'First paragraph of body text for telemetry opt-in modal',
-        id: 'gui.telemetryOptIn.body2'
+        id: 'gui.telemetryOptIn.body2_bak'
     },
     privacyPolicyLink: {
         defaultMessage: 'Privacy Policy',
-        description: 'Link to the OpenBlock privacy policy',
+        description: 'Link to the Scratch privacy policy',
         id: 'gui.telemetryOptIn.privacyPolicyLink'
     },
     optInText: {
-        defaultMessage: 'Share my usage data with the Openblock Team',
+        defaultMessage: 'Share my usage data with the Scratch Team',
         description: 'Text for telemetry modal opt-in button',
         id: 'gui.telemetryOptIn.optInText'
     },
@@ -53,6 +55,11 @@ const messages = defineMessages({
         description: 'Tooltip for telemetry modal opt-out button',
         id: 'gui.telemetryOptIn.optOutTooltip'
     },
+    yesButton: {
+        defaultMessage: "好的，我愿意帮助改进",
+        description: 'Text for telemetry modal opt-in button',
+        id: 'gui.telemetryOptIn.buttonTextYes_bak'
+    },
     settingWasUpdated: {
         defaultMessage: 'Your setting was updated.',
         description: 'Message indicating that the telemetry setting was updated and saved',
@@ -69,7 +76,7 @@ const messages = defineMessages({
 const SETTING_WAS_UPDATED_DURATION_MS = 3000;
 
 class TelemetryModal extends React.PureComponent {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleCancel',
@@ -80,18 +87,18 @@ class TelemetryModal extends React.PureComponent {
             settingWasUpdatedTimer: null
         };
     }
-    componentWillUnmount () {
+    componentWillUnmount() {
         if (this.state.settingWasUpdatedTimer) {
             clearTimeout(this.state.settingWasUpdatedTimer);
         }
     }
-    handleCancel () {
+    handleCancel() {
         this.props.onRequestClose();
         if (this.props.onCancel) {
             this.props.onCancel();
         }
     }
-    handleOptInOutChanged (e) {
+    handleOptInOutChanged(e) {
         if (e.target.value === 'true') {
             if (this.props.onOptIn) {
                 this.props.onOptIn();
@@ -104,7 +111,7 @@ class TelemetryModal extends React.PureComponent {
             }
         }
     }
-    handleSettingWasUpdated () {
+    handleSettingWasUpdated() {
         if (this.state.settingWasUpdatedTimer) {
             clearTimeout(this.state.settingWasUpdatedTimer);
         }
@@ -116,7 +123,7 @@ class TelemetryModal extends React.PureComponent {
             settingWasUpdatedTimer: newTimer
         });
     }
-    handleSettingWasUpdatedTimeout (thisTimer) {
+    handleSettingWasUpdatedTimeout(thisTimer) {
         if (thisTimer !== this.state.settingWasUpdatedTimer) {
             // some other timer has taken over
             return;
@@ -125,7 +132,7 @@ class TelemetryModal extends React.PureComponent {
             settingWasUpdatedTimer: null
         });
     }
-    render () {
+    render() {
         const isUndecided = (typeof this.props.isTelemetryEnabled !== 'boolean');
         const isOff = (this.props.isTelemetryEnabled === false);
         const isOn = (this.props.isTelemetryEnabled === true);

@@ -142,11 +142,11 @@ const motion = function (isInitialSetup, isStage, targetId) {
 const xmlEscape = function (unsafe) {
     return unsafe.replace(/[<>&'"]/g, c => {
         switch (c) {
-        case '<': return '&lt;';
-        case '>': return '&gt;';
-        case '&': return '&amp;';
-        case '\'': return '&apos;';
-        case '"': return '&quot;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
         }
     });
 };

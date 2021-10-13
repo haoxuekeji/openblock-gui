@@ -2,15 +2,18 @@ import React from 'react';
 import bindAll from 'lodash.bindall';
 import VM from 'openblock-vm';
 import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import SB3Downloader from './sb3-downloader.jsx';
 import AlertComponent from '../components/alerts/alert.jsx';
-import {openConnectionModal, openUploadProgress} from '../reducers/modals';
-import {showAlertWithTimeout} from '../reducers/alerts';
-import {manualUpdateProject} from '../reducers/project-state';
+import { openConnectionModal, openUploadProgress } from '../reducers/modals';
+import { showAlertWithTimeout } from '../reducers/alerts';
+
+import { setConnectionModalExtensionId } from '../reducers/connection-modal';
+
+import { manualUpdateProject } from '../reducers/project-state';
 
 class Alert extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleOnCloseAlert',
@@ -18,10 +21,10 @@ class Alert extends React.Component {
             'handleOnReconnect'
         ]);
     }
-    handleOnCloseAlert () {
+    handleOnCloseAlert() {
         this.props.onCloseAlert(this.props.index);
     }
-    handleDownloadFirmware () {
+    handleDownloadFirmware() {
         if (this.props.deviceName) {
             this.props.vm.uploadFirmwareToPeripheral(this.props.deviceId);
             this.props.onOpenUploadProgress();
@@ -30,11 +33,12 @@ class Alert extends React.Component {
         }
         this.handleOnCloseAlert();
     }
-    handleOnReconnect () {
-        this.props.onOpenConnectionModal();
+    handleOnReconnect() {
+        //this.props.onOpenConnectionModal();
+        this.props.onOpenConnectionModal(this.props.extensionId);
         this.handleOnCloseAlert();
     }
-    render () {
+    render() {
         const {
             closeButton,
             content,
@@ -77,6 +81,7 @@ class Alert extends React.Component {
     }
 }
 
+
 const mapStateToProps = state => ({
     deviceId: state.scratchGui.device.deviceId,
     deviceName: state.scratchGui.device.deviceName
@@ -88,10 +93,19 @@ const mapDispatchToProps = dispatch => ({
     },
     onOpenUploadProgress: () => dispatch(openUploadProgress()),
     onNoPeripheralIsConnected: () => showAlertWithTimeout(dispatch, 'connectAPeripheralFirst'),
-    onSaveNow: () => {
-        dispatch(manualUpdateProject());
-    }
 });
+
+// const mapStateToProps = () => ({});
+
+// const mapDispatchToProps = dispatch => ({
+//     onOpenConnectionModal: id => {
+//         dispatch(setConnectionModalExtensionId(id));
+//         dispatch(openConnectionModal());
+//     },
+//     onSaveNow: () => {
+//         dispatch(manualUpdateProject());
+//     }
+// });
 
 Alert.propTypes = {
     closeButton: PropTypes.bool,
@@ -99,6 +113,7 @@ Alert.propTypes = {
     deviceId: PropTypes.string,
     extensionName: PropTypes.string,
     extensionMessage: PropTypes.string,
+    extensionId: PropTypes.string,
     iconSpinner: PropTypes.bool,
     iconURL: PropTypes.string,
     index: PropTypes.number,
