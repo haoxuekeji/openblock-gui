@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {compose} from 'redux';
+import { compose } from 'redux';
 
+import { connect } from 'react-redux';
 import AppStateHOC from '../lib/app-state-hoc.jsx';
 import GUI from '../containers/gui.jsx';
 import HashParserHOC from '../lib/hash-parser-hoc.jsx';
 import log from '../lib/log.js';
+
 import MessageBoxType from '../lib/message-box.js';
 
 const onClickLogo = () => {
-    window.location = 'https://openblockcc.github.io/wiki/';
+    //window.location = 'https://openblockcc.github.io/wiki/';
 };
 
 const onClickCheckUpdate = () => {
@@ -27,6 +29,14 @@ const onClickClearCache = () => {
 const onClickInstallDriver = () => {
     log('User click install driver');
 };
+import API from '../lib/api'
+import Box from '../components/box/box.jsx';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import { setPlayer } from '../reducers/mode';
+window.api = API
+import styles from './player.css';
+
 
 const handleTelemetryModalCancel = () => {
     log('User canceled telemetry modal');
@@ -48,6 +58,11 @@ const handleShowMessageBox = (type, message) => {
     }
 };
 
+const handleUpdateProjectTitle = (title) => {
+    if (window.scratchConfig && window.scratchConfig.handleUpdateProjectTitle) {
+        window.scratchConfig.handleUpdateProjectTitle(title)
+    }
+}
 /*
  * Render the GUI playground. This is a separate function because importing anything
  * that instantiates the VM causes unsupported browsers to crash
@@ -63,6 +78,7 @@ export default appTarget => {
         AppStateHOC,
         HashParserHOC
     )(GUI);
+
 
     // TODO a hack for testing the backpack, allow backpack host to be set by url param
     const backpackHostMatches = window.location.href.match(/[?&]backpack_host=([^&]*)&?/);
@@ -113,4 +129,5 @@ export default appTarget => {
                 onShowMessageBox={handleShowMessageBox}
             />,
         appTarget);
+
 };

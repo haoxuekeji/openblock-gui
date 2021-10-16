@@ -1,20 +1,132 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="google" value="notranslate">
-    <link rel="shortcut icon" href="static/favicon.ico">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-    <% if (htmlWebpackPlugin.options.sentryConfig) { %>
-        <!-- Sentry error logging to help with finding bugs -->
-        <script src="https://cdn.ravenjs.com/3.22.1/raven.min.js" crossorigin="anonymous"></script>
-        <script>
-            Raven.config(<%= htmlWebpackPlugin.options.sentryConfig %>).install();
-        </script>
-        <!-- /Sentry -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google" value="notranslate">
+  <link rel="shortcut icon" href="static/favicon.ico">
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+  <% if (htmlWebpackPlugin.options.sentryConfig) { %>
+    <!-- Sentry error logging to help with finding bugs -->
+    <script src="https://cdn.ravenjs.com/3.22.1/raven.min.js" crossorigin="anonymous"></script>
+    <script>
+      Raven.config(<%= htmlWebpackPlugin.options.sentryConfig %>).install();
+    </script>
+    <!-- /Sentry -->
     <% } %>
-  </head>
-  <body>
-  </body>
+</head>
+<script>
+  function handleProjectId(id) {
+    console.log(id)
+  }
+  window.scratchConfig = {
+    logo: {
+      show: true
+      , handleClickLogo: () => {
+        console.log('点击LOGO')
+      }
+    },
+    menuBar: {
+      color: 'hsla(215, 100%, 65%, 1)', //菜单栏颜色
+      //新建按钮
+      newButton: {
+        show: true,
+        handleBefore() {
+          return true
+        }
+      },
+      //从计算机加载按钮
+      loadFileButton: {
+        show: true,
+        handleBefore() {
+          return true
+        }
+      },
+      //保存到计算机按钮
+      saveFileButton: {
+        show: true,
+        handleBefore() {
+          return true
+        }
+      },
+      //加载库按钮
+      libButton: {
+        show: true
+      },
+      //教程按钮
+      helpButton: {
+        show: true
+      }
+    },
+
+    shareButton: {
+      show: true,
+      buttonName: "提交",
+      handleClick: () => {
+        console.log('分享按钮')
+      }
+    },
+    profileButton: {
+      show: false,
+      buttonName: "我的作品",
+      handleClick: () => {
+        //点击profile按钮
+        console.log('我的作品')
+      }
+    },
+    guideButton: {
+      show: false,
+      buttonName: '课程指导书',
+      handleClick: () => {
+        console.log('课程指导')
+      }
+    },
+    handleVmInitialized: (vm) => {
+      window.vm = vm
+      console.log("VM初始化完毕")
+      //vm.addListener('PROJECT_ID', handleProjectId);
+      // setTimeout(() => {
+      //   window.scratch.setProjectId(15)
+      // }, 0)
+
+
+    },
+    handleProjectLoaded: () => {
+      console.log("作品载入完毕")
+    },
+    handleDefaultProjectLoaded: () => {
+      console.log("默认作品载入完毕")
+      //默认作品加载完毕，一般在这里控制项目加载
+      // window.scratch.setProjectName("默认项目")
+      //  window.scratch.loadProject("/project.sb3", () => {
+      //     console.log("项目加载完毕")
+      //     window.scratch.setProjectName("默认项目")
+      //  })
+    },
+    handleProjectIdChange: id => {
+      console.log(id)
+    },
+    handleUpdateProjectTitle: title => {
+      console.log(title)
+    },
+    mobilePlayer: false,
+    defaultProjectURL: "./static/project.sb3",
+    //若使用官方素材库请删除本配置项, 默认为/static下的素材库
+    assetCDN: location.origin,
+    projectHost: '/api/v1/project',
+    login: true,
+    isPlayerOnly: false,
+    enableCommunity: true,
+    arduino: true,
+  }
+
+</script>
+
+<body>
+  <div id='scratch'></div>
+</body>
+
 </html>

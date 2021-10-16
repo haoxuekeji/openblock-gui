@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {defineMessages, injectIntl, intlShape} from 'react-intl';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 
 import LibraryItem from '../../containers/library-item.jsx';
 import Modal from '../../containers/modal.jsx';
@@ -27,7 +27,7 @@ const messages = defineMessages({
     }
 });
 
-const ALL_TAG = {tag: 'all', intlLabel: messages.allTag};
+const ALL_TAG = { tag: 'all', intlLabel: messages.allTag };
 const tagListPrefix = [ALL_TAG];
 
 /**
@@ -86,7 +86,7 @@ const getItemIcons = function (item) {
 };
 
 class LibraryComponent extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleClose',
@@ -106,29 +106,29 @@ class LibraryComponent extends React.Component {
             loaded: false
         };
     }
-    componentDidMount () {
+    componentDidMount() {
         // Allow the spinner to display before loading the content
         setTimeout(() => {
-            this.setState({loaded: true});
+            this.setState({ loaded: true });
         });
         if (this.props.setStopHandler) this.props.setStopHandler(this.handlePlayingEnd);
     }
-    componentDidUpdate (prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState) {
         if (prevState.filterQuery !== this.state.filterQuery ||
             prevState.selectedTag !== this.state.selectedTag) {
             this.scrollToTop();
         }
     }
-    handleSelect (id) {
+    handleSelect(id) {
         if (this.props.autoClose) {
             this.handleClose();
         }
         this.props.onItemSelected(this.getFilteredData()[id]);
     }
-    handleClose () {
+    handleClose() {
         this.props.onRequestClose();
     }
-    handleTagClick (tag) {
+    handleTagClick(tag) {
         if (this.state.playingItem === null) {
             this.setState({
                 filterQuery: '',
@@ -143,7 +143,7 @@ class LibraryComponent extends React.Component {
             });
         }
     }
-    handleMouseEnter (id) {
+    handleMouseEnter(id) {
         // don't restart if mouse over already playing item
         if (this.props.onItemMouseEnter && this.state.playingItem !== id) {
             this.props.onItemMouseEnter(this.getFilteredData()[id]);
@@ -152,7 +152,7 @@ class LibraryComponent extends React.Component {
             });
         }
     }
-    handleMouseLeave (id) {
+    handleMouseLeave(id) {
         if (this.props.onItemMouseLeave) {
             this.props.onItemMouseLeave(this.getFilteredData()[id]);
             this.setState({
@@ -160,14 +160,14 @@ class LibraryComponent extends React.Component {
             });
         }
     }
-    handlePlayingEnd () {
+    handlePlayingEnd() {
         if (this.state.playingItem !== null) {
             this.setState({
                 playingItem: null
             });
         }
     }
-    handleFilterChange (event) {
+    handleFilterChange(event) {
         if (this.state.playingItem === null) {
             this.setState({
                 filterQuery: event.target.value,
@@ -182,10 +182,10 @@ class LibraryComponent extends React.Component {
             });
         }
     }
-    handleFilterClear () {
-        this.setState({filterQuery: ''});
+    handleFilterClear() {
+        this.setState({ filterQuery: '' });
     }
-    getFilteredData () {
+    getFilteredData() {
         const data = this.props.data.filter(device => device.hide !== true);
         if (this.state.selectedTag === 'all') {
             if (!this.state.filterQuery) return data;
@@ -195,7 +195,7 @@ class LibraryComponent extends React.Component {
                     .map(String.prototype.toLowerCase.call, String.prototype.toLowerCase)
                     .concat(dataItem.name ?
                         (typeof dataItem.name === 'string' ?
-                        // Use the name if it is a string, else use formatMessage to get the translated name
+                            // Use the name if it is a string, else use formatMessage to get the translated name
                             dataItem.name : this.props.intl.formatMessage(dataItem.name.props)
                         ).toLowerCase() :
                         null)
@@ -210,13 +210,13 @@ class LibraryComponent extends React.Component {
                 .indexOf(this.state.selectedTag) !== -1
         ));
     }
-    scrollToTop () {
+    scrollToTop() {
         this.filteredDataRef.scrollTop = 0;
     }
-    setFilteredDataRef (ref) {
+    setFilteredDataRef(ref) {
         this.filteredDataRef = ref;
     }
-    render () {
+    render() {
         return (
             <Modal
                 fullScreen

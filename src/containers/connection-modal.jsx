@@ -1,16 +1,16 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import bindAll from 'lodash.bindall';
-import ConnectionModalComponent, {PHASES} from '../components/connection-modal/connection-modal.jsx';
+import ConnectionModalComponent, { PHASES } from '../components/connection-modal/connection-modal.jsx';
 import VM from 'openblock-vm';
 import analytics from '../lib/analytics';
 import extensionData from '../lib/libraries/extensions/index.jsx';
-import {connect} from 'react-redux';
-import {closeConnectionModal} from '../reducers/modals';
-import {setConnectionModalPeripheralName, setListAll} from '../reducers/connection-modal';
+import { connect } from 'react-redux';
+import { closeConnectionModal } from '../reducers/modals';
+import { setConnectionModalPeripheralName, setListAll } from '../reducers/connection-modal';
 
 class ConnectionModal extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleScanning',
@@ -29,20 +29,20 @@ class ConnectionModal extends React.Component {
             peripheralName: null
         };
     }
-    componentDidMount () {
+    componentDidMount() {
         this.props.vm.on('PERIPHERAL_CONNECTED', this.handleConnected);
         this.props.vm.on('PERIPHERAL_REQUEST_ERROR', this.handleError);
     }
-    componentWillUnmount () {
+    componentWillUnmount() {
         this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handleConnected);
         this.props.vm.removeListener('PERIPHERAL_REQUEST_ERROR', this.handleError);
     }
-    handleScanning () {
+    handleScanning() {
         this.setState({
             phase: PHASES.scanning
         });
     }
-    handleConnecting (peripheralId, peripheralName) {
+    handleConnecting(peripheralId, peripheralName) {
         if (this.props.isRealtimeMode) {
             this.props.vm.connectPeripheral(this.props.deviceId, peripheralId);
         } else {
@@ -52,20 +52,20 @@ class ConnectionModal extends React.Component {
             phase: PHASES.connecting,
             peripheralName: peripheralName
         });
-        analytics.event({
-            category: 'devices',
-            action: 'connecting',
-            label: this.props.deviceId
-        });
+        // analytics.event({
+        //     category: 'devices',
+        //     action: 'connecting',
+        //     label: this.props.deviceId
+        // });
     }
-    handleDisconnect () {
+    handleDisconnect() {
         try {
             this.props.vm.disconnectPeripheral(this.props.deviceId);
         } finally {
             this.props.onCancel();
         }
     }
-    handleCancel () {
+    handleCancel() {
         try {
             // If we're not connected to a peripheral, close the websocket so we stop scanning.
             if (!this.props.vm.getPeripheralIsConnected(this.props.deviceId)) {
@@ -76,7 +76,7 @@ class ConnectionModal extends React.Component {
             this.props.onCancel();
         }
     }
-    handleError () {
+    handleError() {
         // Assume errors that come in during scanning phase are the result of not
         // having scratch-link installed.
         if (this.state.phase === PHASES.scanning || this.state.phase === PHASES.unavailable) {
@@ -87,33 +87,33 @@ class ConnectionModal extends React.Component {
             this.setState({
                 phase: PHASES.error
             });
-            analytics.event({
-                category: 'devices',
-                action: 'connecting error',
-                label: this.props.deviceId
-            });
+            // analytics.event({
+            //     category: 'devices',
+            //     action: 'connecting error',
+            //     label: this.props.deviceId
+            // });
         }
     }
-    handleConnected () {
+    handleConnected() {
         this.setState({
             phase: PHASES.connected
         });
-        analytics.event({
-            category: 'devices',
-            action: 'connected',
-            label: this.props.deviceId
-        });
+        // analytics.event({
+        //     category: 'devices',
+        //     action: 'connected',
+        //     label: this.props.deviceId
+        // });
         this.props.onConnected(this.state.peripheralName);
     }
-    handleHelp () {
+    handleHelp() {
         window.open(this.state.extension.helpLink, '_blank');
-        analytics.event({
-            category: 'devices',
-            action: 'device help',
-            label: this.props.deviceId
-        });
+        // analytics.event({
+        //     category: 'devices',
+        //     action: 'device help',
+        //     label: this.props.deviceId
+        // });
     }
-    render () {
+    render() {
         return (
             <ConnectionModalComponent
                 connectingMessage={this.state.extension && this.state.extension.connectingMessage}

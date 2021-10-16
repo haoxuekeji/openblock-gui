@@ -1,8 +1,8 @@
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {connect} from 'react-redux';
-import {projectTitleInitialState} from '../reducers/project-title';
+import { connect } from 'react-redux';
+import { projectTitleInitialState } from '../reducers/project-title';
 import downloadBlob from '../lib/download-blob';
 /**
  * Project saver component passes a downloadProject function to its child.
@@ -19,13 +19,13 @@ import downloadBlob from '../lib/download-blob';
  * )}</SB3Downloader>
  */
 class SB3Downloader extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'downloadProject'
         ]);
     }
-    downloadProject () {
+    downloadProject() {
         this.props.saveProjectSb3().then(content => {
             if (this.props.onSaveFinished) {
                 this.props.onSaveFinished();
@@ -33,7 +33,7 @@ class SB3Downloader extends React.Component {
             downloadBlob(this.props.projectFilename, content);
         });
     }
-    render () {
+    render() {
         const {
             children
         } = this.props;
@@ -49,7 +49,7 @@ const getProjectFilename = (curTitle, defaultTitle) => {
     if (!filenameTitle || filenameTitle.length === 0) {
         filenameTitle = defaultTitle;
     }
-    return `${filenameTitle.substring(0, 100)}.ob`;
+    return `${filenameTitle.substring(0, 100)}.sb3`;
 };
 
 SB3Downloader.propTypes = {

@@ -21,12 +21,15 @@ const getBackpackContents = ({
 }) => new Promise((resolve, reject) => {
     xhr({
         method: 'GET',
-        uri: `${host}/${username}?limit=${limit}&offset=${offset}`,
+        uri: `${host}?user_id=${username}&limit=${limit}&offset=${offset}`,
         headers: {'x-token': token},
         json: true
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
+        }
+        if('assetCDN' in window.scratchConfig){
+            host = `${window.scratchConfig.assetCDN}/internalapi/asset`;
         }
         return resolve(response.body.map(item => includeFullUrls(item, host)));
     });
@@ -44,12 +47,15 @@ const saveBackpackObject = ({
 }) => new Promise((resolve, reject) => {
     xhr({
         method: 'POST',
-        uri: `${host}/${username}`,
+        uri: `${host}?user_id=${username}`,
         headers: {'x-token': token},
         json: {type, mime, name, body, thumbnail}
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
+        }
+        if('assetCDN' in window.scratchConfig){
+            host = `${window.scratchConfig.assetCDN}/internalapi/asset`;
         }
         return resolve(includeFullUrls(response.body, host));
     });
@@ -63,7 +69,7 @@ const deleteBackpackObject = ({
 }) => new Promise((resolve, reject) => {
     xhr({
         method: 'DELETE',
-        uri: `${host}/${username}/${id}`,
+        uri: `${host}?user_id=${username}&backpack_id=${id}`,
         headers: {'x-token': token}
     }, (error, response) => {
         if (error || response.statusCode !== 200) {

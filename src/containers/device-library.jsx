@@ -2,14 +2,14 @@ import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
 import VM from 'openblock-vm';
-import {connect} from 'react-redux';
-import {compose} from 'redux';
-import {defineMessages, injectIntl, intlShape} from 'react-intl';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
+import { defineMessages, injectIntl, intlShape } from 'react-intl';
 
 import analytics from '../lib/analytics';
-import {setDeviceData} from '../reducers/device-data';
+import { setDeviceData } from '../reducers/device-data';
 
-import {makeDeviceLibrary} from '../lib/libraries/devices/index.jsx';
+import { makeDeviceLibrary } from '../lib/libraries/devices/index.jsx';
 
 import LibraryComponent from '../components/library/library.jsx';
 import deviceIcon from '../components/action-menu/icon--sprite.svg';
@@ -42,19 +42,19 @@ const messages = defineMessages({
     }
 });
 
-const ARDUINO_TAG = {tag: 'Arduino', intlLabel: messages.arduinoTag};
-const MICROPYTHON_TAG = {tag: 'MicroPython', intlLabel: messages.microPythonTag};
-const KIT_TAG = {tag: 'Kit', intlLabel: messages.kitTag};
+const ARDUINO_TAG = { tag: 'Arduino', intlLabel: messages.arduinoTag };
+const MICROPYTHON_TAG = { tag: 'MicroPython', intlLabel: messages.microPythonTag };
+const KIT_TAG = { tag: 'Kit', intlLabel: messages.kitTag };
 const tagListPrefix = [ARDUINO_TAG, MICROPYTHON_TAG, KIT_TAG];
 
 class DeviceLibrary extends React.PureComponent {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleItemSelect'
         ]);
     }
-    componentDidMount () {
+    componentDidMount() {
         this.props.vm.extensionManager.getDeviceList().then(data => {
             if (data) {
                 this.props.onSetDeviceData(makeDeviceLibrary(data));
@@ -62,7 +62,7 @@ class DeviceLibrary extends React.PureComponent {
         });
     }
 
-    handleItemSelect (item) {
+    handleItemSelect(item) {
         const id = item.deviceId;
         const deviceType = item.type;
         const pnpidList = item.pnpidList;
@@ -80,17 +80,17 @@ class DeviceLibrary extends React.PureComponent {
                         this.props.vm.installDeviceExtensions(deviceExtensions);
                     });
                     this.props.onDeviceSelected(id);
-                    analytics.event({
-                        category: 'devices',
-                        action: 'select device',
-                        label: id
-                    });
+                    // analytics.event({
+                    //     category: 'devices',
+                    //     action: 'select device',
+                    //     label: id
+                    // });
                 });
             }
         }
     }
 
-    render () {
+    render() {
         const deviceLibraryThumbnailData = this.props.deviceData.map(device => ({
             rawURL: device.iconURL || deviceIcon,
             ...device

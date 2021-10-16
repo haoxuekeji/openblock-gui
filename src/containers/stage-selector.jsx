@@ -160,6 +160,7 @@ class StageSelector extends React.Component {
         const componentProps = omit(this.props, [
             'asset', 'dispatchSetHoveredSprite', 'id', 'intl',
             'onActivateTab', 'onSelect', 'onShowImporting', 'onCloseImporting']);
+            window.scratch.loadBackdrop = this.handleBackdropUpload
         return (
             <DroppableThrottledStage
                 componentRef={this.setRef}

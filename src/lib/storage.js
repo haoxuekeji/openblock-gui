@@ -54,16 +54,27 @@ class Storage extends ScratchStorage {
         this.assetHost = assetHost;
     }
     getAssetGetConfig (asset) {
-        return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+        //return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+        if('assetCDN' in window.scratchConfig){
+            return `${window.scratchConfig.assetCDN}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
+        }else{
+            return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+        }
     }
     getAssetCreateConfig (asset) {
+        let url 
+        if('assetCDN' in window.scratchConfig){
+          url = `${window.scratchConfig.assetCDN}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;
+        }else{
+            url = `${this.assetHost}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;
+        }
         return {
             // There is no such thing as updating assets, but storage assumes it
             // should update if there is an assetId, and the asset store uses the
             // assetId as part of the create URI. So, force the method to POST.
             // Then when storage finds this config to use for the "update", still POSTs
             method: 'post',
-            url: `${this.assetHost}/${asset.assetId}.${asset.dataFormat}`,
+            url: url,
             withCredentials: true
         };
     }

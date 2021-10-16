@@ -1,12 +1,12 @@
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {injectIntl} from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import LibraryItemComponent from '../components/library-item/library-item.jsx';
 
 class LibraryItem extends React.PureComponent {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleBlur',
@@ -29,20 +29,20 @@ class LibraryItem extends React.PureComponent {
             isProcessing: false
         };
     }
-    componentWillUpdate (newProps) {
+    componentWillUpdate(newProps) {
         if (this.props.isLoaded !== newProps.isLoaded) {
             this.setState({
                 isProcessing: false
             });
         }
     }
-    componentWillUnmount () {
+    componentWillUnmount() {
         clearInterval(this.intervalId);
     }
-    handleBlur (id) {
+    handleBlur(id) {
         this.handleMouseLeave(id);
     }
-    handleClick (e) {
+    handleClick(e) {
         if (!this.props.disabled) {
             if (!this.state.isProcessing) {
                 if (this.props.isUnloadble) {
@@ -55,21 +55,21 @@ class LibraryItem extends React.PureComponent {
         }
         e.preventDefault();
     }
-    handleClickLearnMore (e) {
+    handleClickLearnMore(e) {
         e.stopPropagation();
     }
-    handleFocus (id) {
+    handleFocus(id) {
         if (!this.props.showPlayButton) {
             this.handleMouseEnter(id);
         }
     }
-    handleKeyPress (e) {
+    handleKeyPress(e) {
         if (e.key === ' ' || e.key === 'Enter') {
             e.preventDefault();
             this.props.onSelect(this.props.id);
         }
     }
-    handleMouseEnter () {
+    handleMouseEnter() {
         // only show hover effects on the item if not showing a play button
         if (!this.props.showPlayButton) {
             this.props.onMouseEnter(this.props.id);
@@ -81,7 +81,7 @@ class LibraryItem extends React.PureComponent {
             }
         }
     }
-    handleMouseLeave () {
+    handleMouseLeave() {
         // only show hover effects on the item if not showing a play button
         if (!this.props.showPlayButton) {
             this.props.onMouseLeave(this.props.id);
@@ -92,26 +92,26 @@ class LibraryItem extends React.PureComponent {
             }
         }
     }
-    handlePlay () {
+    handlePlay() {
         this.props.onMouseEnter(this.props.id);
     }
-    handleStop () {
+    handleStop() {
         this.props.onMouseLeave(this.props.id);
     }
-    startRotatingIcons () {
+    startRotatingIcons() {
         this.rotateIcon();
         this.intervalId = setInterval(this.rotateIcon, 300);
     }
-    stopRotatingIcons () {
+    stopRotatingIcons() {
         if (this.intervalId) {
             this.intervalId = clearInterval(this.intervalId);
         }
     }
-    rotateIcon () {
+    rotateIcon() {
         const nextIconIndex = (this.state.iconIndex + 1) % this.props.icons.length;
-        this.setState({iconIndex: nextIconIndex});
+        this.setState({ iconIndex: nextIconIndex });
     }
-    curIconSource () {
+    curIconSource() {
         if (this.hasIconsArray) {
             if (this.state.isRotatingIcon &&
                 this.state.iconIndex < this.props.icons.length &&
@@ -125,7 +125,7 @@ class LibraryItem extends React.PureComponent {
         // single icon
         return this.props.icons;
     }
-    render () {
+    render() {
         const iconSource = this.curIconSource();
         return (
             <LibraryItemComponent

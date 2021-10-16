@@ -10,7 +10,6 @@ const MENU_LOGIN = 'loginMenu';
 const MENU_SERIALPORT = 'serialportMenu';
 const MENU_SETTING = 'setting';
 
-
 const initialState = {
     [MENU_ABOUT]: false,
     [MENU_ACCOUNT]: false,
@@ -25,16 +24,16 @@ const initialState = {
 const reducer = function (state, action) {
     if (typeof state === 'undefined') state = initialState;
     switch (action.type) {
-    case OPEN_MENU:
-        return Object.assign({}, state, {
-            [action.menu]: true
-        });
-    case CLOSE_MENU:
-        return Object.assign({}, state, {
-            [action.menu]: false
-        });
-    default:
-        return state;
+        case OPEN_MENU:
+            return Object.assign({}, state, {
+                [action.menu]: true
+            });
+        case CLOSE_MENU:
+            return Object.assign({}, state, {
+                [action.menu]: false
+            });
+        default:
+            return state;
     }
 };
 const openMenu = menu => ({
@@ -63,9 +62,9 @@ const languageMenuOpen = state => state.scratchGui.menus[MENU_LANGUAGE];
 const openLoginMenu = () => openMenu(MENU_LOGIN);
 const closeLoginMenu = () => closeMenu(MENU_LOGIN);
 const loginMenuOpen = state => state.scratchGui.menus[MENU_LOGIN];
-const openSerialportMenu = () => openMenu(MENU_LOGIN);
-const closeSerialportMenu = () => closeMenu(MENU_LOGIN);
-const serialportMenuOpen = state => state.scratchGui.menus[MENU_LOGIN];
+const openSerialportMenu = () => openMenu(MENU_SERIALPORT);
+const closeSerialportMenu = () => closeMenu(MENU_SERIALPORT);
+const serialportMenuOpen = state => state.scratchGui.menus[MENU_SERIALPORT];
 const openSettingMenu = () => openMenu(MENU_SETTING);
 const closeSettingMenu = () => closeMenu(MENU_SETTING);
 const settingMenuOpen = state => state.scratchGui.menus[MENU_SETTING];

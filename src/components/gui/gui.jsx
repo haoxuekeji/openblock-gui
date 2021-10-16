@@ -2,10 +2,10 @@ import classNames from 'classnames';
 import omit from 'lodash.omit';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {defineMessages, FormattedMessage, injectIntl, intlShape} from 'react-intl';
-import {connect} from 'react-redux';
+import { defineMessages, FormattedMessage, injectIntl, intlShape } from 'react-intl';
+import { connect } from 'react-redux';
 import MediaQuery from 'react-responsive';
-import {Tab, Tabs, TabList, TabPanel} from 'react-tabs';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import tabStyles from 'react-tabs/style/react-tabs.css';
 import VM from 'openblock-vm';
 import Renderer from 'scratch-render';
@@ -36,8 +36,8 @@ import UploadProgress from '../../containers/upload-progress.jsx';
 import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import UpdateModal from '../../containers/update-modal.jsx';
 
-import layout, {STAGE_SIZE_MODES} from '../../lib/layout-constants';
-import {resolveStageSize} from '../../lib/screen-utils';
+import layout, { STAGE_SIZE_MODES } from '../../lib/layout-constants';
+import { resolveStageSize } from '../../lib/screen-utils';
 
 import styles from './gui.css';
 import addExtensionIcon from './icon--extensions.svg';
@@ -67,9 +67,7 @@ const GUIComponent = props => {
         authorUsername,
         basePath,
         backdropLibraryVisible,
-        // eslint-disable-next-line no-unused-vars
         backpackHost,
-        // eslint-disable-next-line no-unused-vars
         backpackVisible,
         blocksTabVisible,
         cardsVisible,
@@ -276,6 +274,8 @@ const GUIComponent = props => {
                 />
                 <Box className={styles.bodyWrapper}>
                     <Box className={styles.flexWrapper}>
+
+
                         <Box className={styles.editorWrapper}>
                             <Tabs
                                 forceRenderTabPanel
@@ -368,25 +368,26 @@ const GUIComponent = props => {
                                     {costumesTabVisible ? <CostumeTab vm={vm} /> : null}
                                 </TabPanel>
                                 <TabPanel className={tabClassNames.tabPanel}>
-                                    {soundsTabVisible ? <SoundTab
-                                        vm={vm}
-                                        onShowMessageBox={onShowMessageBox}
-                                    /> : null}
+                                    {soundsTabVisible ? <SoundTab vm={vm} /> : null}
                                 </TabPanel>
                             </Tabs>
-                            {/*
-                                    backpackVisible ? (
-                                        <Backpack host={backpackHost} />
-                                    ) : null
-                                */}
+                            {backpackVisible ? (
+                                <Backpack host={backpackHost} />
+                            ) : null}
                         </Box>
 
-                        {/* stageAndTargetWrapper should use css to control show or hidden,
-                        prevent scratch-vm error due to unload StageWrapper */}
-                        <Box
-                            className={classNames(styles.stageAndTargetWrapper, styles[stageSize],
-                                isRealtimeMode ? styles.show : styles.hidden)}
-                        >
+                        {(isRealtimeMode === false) ? (
+                            <HardwareHeader
+                                vm={vm}
+                            />) : null
+                        }
+                        {((isRealtimeMode === false) && (stageSizeMode !== STAGE_SIZE_MODES.hide)) ? (
+                            <Hardware
+                                vm={vm}
+                            />) : null
+                        }
+                        <Box className={classNames(styles.stageAndTargetWrapper, styles[stageSize],
+                            isRealtimeMode ? styles.show : styles.hidden)}>
                             <StageWrapper
                                 isFullScreen={isFullScreen}
                                 isRendererSupported={isRendererSupported}
@@ -401,19 +402,10 @@ const GUIComponent = props => {
                                 />
                             </Box>
                         </Box>
-                        {(isRealtimeMode === false) ? (
-                            <HardwareHeader
-                                vm={vm}
-                            />) : null
-                        }
-                        {((isRealtimeMode === false) && (stageSizeMode !== STAGE_SIZE_MODES.hide)) ? (
-                            <Hardware
-                                vm={vm}
-                            />) : null
-                        }
+
                     </Box>
-                    <DragLayer />
                 </Box>
+                <DragLayer />
             </Box>
         );
     }}</MediaQuery>);
