@@ -15,21 +15,21 @@ import DeviceLibrary from './device-library.jsx';
 import extensionData from '../lib/libraries/extensions/index.jsx';
 import CustomProcedures from './custom-procedures.jsx';
 import errorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
-import {BLOCKS_DEFAULT_SCALE, STAGE_DISPLAY_SIZES} from '../lib/layout-constants';
+import { BLOCKS_DEFAULT_SCALE, STAGE_DISPLAY_SIZES } from '../lib/layout-constants';
 import DropAreaHOC from '../lib/drop-area-hoc.jsx';
 import DragConstants from '../lib/drag-constants';
 import defineDynamicBlock from '../lib/define-dynamic-block';
 
-import {connect} from 'react-redux';
-import {updateToolbox, setIsUpdating} from '../reducers/toolbox';
-import {activateColorPicker} from '../reducers/color-picker';
-import {closeExtensionLibrary, openSoundRecorder, openConnectionModal, closeDeviceLibrary} from '../reducers/modals';
-import {activateCustomProcedures, deactivateCustomProcedures} from '../reducers/custom-procedures';
-import {updateMetrics} from '../reducers/workspace-metrics';
-import {setCodeEditorValue} from '../reducers/code';
-import {setDeviceId, setDeviceName, setDeviceType} from '../reducers/device';
-import {setSupportSwitchMode} from '../reducers/program-mode';
-import {setBaudrate} from '../reducers/hardware-console';
+import { connect } from 'react-redux';
+import { updateToolbox, setIsUpdating } from '../reducers/toolbox';
+import { activateColorPicker } from '../reducers/color-picker';
+import { closeExtensionLibrary, openSoundRecorder, openConnectionModal, closeDeviceLibrary } from '../reducers/modals';
+import { activateCustomProcedures, deactivateCustomProcedures } from '../reducers/custom-procedures';
+import { updateMetrics } from '../reducers/workspace-metrics';
+import { setCodeEditorValue } from '../reducers/code';
+import { setDeviceId, setDeviceName, setDeviceType } from '../reducers/device';
+import { setSupportSwitchMode } from '../reducers/program-mode';
+import { setBaudrate } from '../reducers/hardware-console';
 
 import {
     activateTab,
@@ -50,7 +50,7 @@ const DroppableBlocks = DropAreaHOC([
 ])(BlocksComponent);
 
 class Blocks extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         this.ScratchBlocks = VMScratchBlocks(props.vm);
         bindAll(this, [
@@ -98,7 +98,7 @@ class Blocks extends React.Component {
         this.onTargetsUpdate = debounce(this.onTargetsUpdate, 100);
         this.toolboxUpdateQueue = [];
     }
-    componentDidMount () {
+    componentDidMount() {
         this.ScratchBlocks.FieldColourSlider.activateEyedropper_ = this.onActivateColorPicker;
         this.ScratchBlocks.Procedures.externalProcedureDefCallback = this.props.onActivateCustomProcedures;
         this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
@@ -106,7 +106,7 @@ class Blocks extends React.Component {
         const workspaceConfig = defaultsDeep({},
             Blocks.defaultOptions,
             this.props.options,
-            {rtl: this.props.isRtl, toolbox: this.props.toolboxXML}
+            { rtl: this.props.isRtl, toolbox: this.props.toolboxXML }
         );
         this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
 
@@ -153,7 +153,7 @@ class Blocks extends React.Component {
             this.setLocale();
         }
     }
-    shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
         return (
             this.state.prompt !== nextState.prompt ||
             this.props.isVisible !== nextProps.isVisible ||
@@ -166,7 +166,7 @@ class Blocks extends React.Component {
             this.props.isRealtimeMode !== nextProps.isRealtimeMode
         );
     }
-    componentDidUpdate (prevProps) {
+    componentDidUpdate(prevProps) {
         // If any modals are open, call hideChaff to close z-indexed field editors
         if (this.props.anyModalVisible && !prevProps.anyModalVisible) {
             this.ScratchBlocks.hideChaff();
@@ -211,19 +211,19 @@ class Blocks extends React.Component {
             this.workspace.setVisible(false);
         }
     }
-    componentWillUnmount () {
+    componentWillUnmount() {
         this.detachVM();
         this.workspace.dispose();
         clearTimeout(this.toolboxUpdateTimeout);
         clearTimeout(this.getXMLAndUpdateToolboxTimeout);
     }
-    requestToolboxUpdate () {
+    requestToolboxUpdate() {
         clearTimeout(this.toolboxUpdateTimeout);
         this.toolboxUpdateTimeout = setTimeout(() => {
             this.updateToolbox();
         }, 0);
     }
-    setLocale () {
+    setLocale() {
         this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
         this.props.vm.setLocale(this.props.locale, this.props.messages)
             .then(() => {
@@ -235,14 +235,14 @@ class Blocks extends React.Component {
                 });
             });
     }
-    onProgramModeUpdate () {
+    onProgramModeUpdate() {
         this._programMode = this.props.isRealtimeMode;
         const toolboxXML = this.getToolboxXML();
         if (toolboxXML) {
             this.props.updateToolboxState(toolboxXML);
         }
     }
-    updateToolbox () {
+    updateToolbox() {
         this.toolboxUpdateTimeout = false;
 
         this.props.onToolboxWillUpdate();
@@ -270,7 +270,7 @@ class Blocks extends React.Component {
         queue.forEach(fn => fn());
     }
 
-    withToolboxUpdates (fn) {
+    withToolboxUpdates(fn) {
         // if there is a queued toolbox update, we need to wait
         if (this.toolboxUpdateTimeout) {
             this.toolboxUpdateQueue.push(fn);
@@ -279,7 +279,7 @@ class Blocks extends React.Component {
         }
     }
 
-    attachVM () {
+    attachVM() {
         this.workspace.addChangeListener(this.props.vm.blockListener);
         this.flyoutWorkspace = this.workspace
             .getFlyout()
@@ -303,7 +303,7 @@ class Blocks extends React.Component {
         this.props.vm.addListener('CODE_NEED_UPDATE', this.handleCodeNeedUpdate);
         this.props.vm.addListener('TOOLBOX_UPLOAD_FINISH', this.handleToolboxUploadFinish);
     }
-    detachVM () {
+    detachVM() {
         this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
         this.props.vm.removeListener('SCRIPT_GLOW_OFF', this.onScriptGlowOff);
         this.props.vm.removeListener('BLOCK_GLOW_ON', this.onBlockGlowOn);
@@ -322,7 +322,7 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('TOOLBOX_UPLOAD_FINISH', this.handleToolboxUploadFinish);
     }
 
-    updateToolboxBlockValue (id, value) {
+    updateToolboxBlockValue(id, value) {
         this.withToolboxUpdates(() => {
             const block = this.workspace
                 .getFlyout()
@@ -334,7 +334,7 @@ class Blocks extends React.Component {
         });
     }
 
-    onTargetsUpdate () {
+    onTargetsUpdate() {
         if (this.props.vm.editingTarget && this.workspace.getFlyout()) {
             ['glide', 'move', 'set'].forEach(prefix => {
                 this.updateToolboxBlockValue(`${prefix}x`, Math.round(this.props.vm.editingTarget.x).toString());
@@ -342,7 +342,7 @@ class Blocks extends React.Component {
             });
         }
     }
-    onWorkspaceMetricsChange () {
+    onWorkspaceMetricsChange() {
         const target = this.props.vm.editingTarget;
         if (target && target.id) {
             // Dispatch updateMetrics later, since onWorkspaceMetricsChange may be (very indirectly)
@@ -358,32 +358,32 @@ class Blocks extends React.Component {
             }, 0);
         }
     }
-    onScriptGlowOn (data) {
+    onScriptGlowOn(data) {
         this.workspace.glowStack(data.id, true);
     }
-    onScriptGlowOff (data) {
+    onScriptGlowOff(data) {
         this.workspace.glowStack(data.id, false);
     }
-    onBlockGlowOn (data) {
+    onBlockGlowOn(data) {
         this.workspace.glowBlock(data.id, true);
     }
-    onBlockGlowOff (data) {
+    onBlockGlowOff(data) {
         this.workspace.glowBlock(data.id, false);
     }
-    onVisualReport (data) {
+    onVisualReport(data) {
         this.workspace.reportValue(data.id, data.value);
     }
-    onActivateColorPicker (callback) {
+    onActivateColorPicker(callback) {
         if (this.props.isRealtimeMode) {
             this.props.onActivateColorPicker(callback);
         }
     }
-    getToolboxXML () {
+    getToolboxXML() {
         // Use try/catch because this requires digging pretty deep into the VM
         // Code inside intentionally ignores several error situations (no stage, etc.)
         // Because they would get caught by this try/catch
         try {
-            let {editingTarget: target, runtime} = this.props.vm;
+            let { editingTarget: target, runtime } = this.props.vm;
             const stage = runtime.getTargetForStage();
             if (!target) target = stage; // If no editingTarget, use the stage
 
@@ -405,7 +405,7 @@ class Blocks extends React.Component {
             return null;
         }
     }
-    onWorkspaceUpdate (data) {
+    onWorkspaceUpdate(data) {
         // When we change sprites, update the toolbox to have the new sprite's blocks
         const toolboxXML = this.getToolboxXML();
         if (toolboxXML) {
@@ -439,7 +439,7 @@ class Blocks extends React.Component {
         this.workspace.addChangeListener(this.props.vm.blockListener);
 
         if (this.props.vm.editingTarget && this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
-            const {scrollX, scrollY, scale} = this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id];
+            const { scrollX, scrollY, scale } = this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id];
             this.workspace.scrollX = scrollX;
             this.workspace.scrollY = scrollY;
             this.workspace.scale = scale;
@@ -451,7 +451,7 @@ class Blocks extends React.Component {
         // workspace to be 'undone' here.
         this.workspace.clearUndo();
     }
-    handleExtensionAdded (categoryInfo) {
+    handleExtensionAdded(categoryInfo) {
         const defineBlocks = blockInfoArray => {
             if (blockInfoArray && blockInfoArray.length > 0) {
                 const staticBlocksJson = [];
@@ -493,8 +493,8 @@ class Blocks extends React.Component {
         }
     }
 
-    handleDeviceAdded (info) {
-        const {device, categoryInfoArray} = info;
+    handleDeviceAdded(info) {
+        const { device, categoryInfoArray } = info;
 
         if (device) {
             const dev = this.props.deviceData.find(ext => ext.deviceId === device);
@@ -573,20 +573,20 @@ class Blocks extends React.Component {
         // Update the toolbox with new blocks if possible, use timeout to let props update first
         this.requestGetXMLAndUpdateToolbox();
     }
-    requestGetXMLAndUpdateToolbox () {
+    requestGetXMLAndUpdateToolbox() {
         clearTimeout(this.getXMLAndUpdateToolboxTimeout);
         this.getXMLAndUpdateToolboxTimeout = setTimeout(() => {
             this.getXMLAndUpdateToolbox();
         }, 0);
     }
-    getXMLAndUpdateToolbox () {
+    getXMLAndUpdateToolbox() {
         this.getXMLAndUpdateToolboxTimeout = false;
         const toolboxXML = this.getToolboxXML();
         if (toolboxXML) {
             this.props.updateToolboxState(toolboxXML);
         }
     }
-    handleDeviceExtensionAdded (deviceExtensionsRegister) {
+    handleDeviceExtensionAdded(deviceExtensionsRegister) {
         if (deviceExtensionsRegister.addMsg) {
             this.ScratchBlocks = deviceExtensionsRegister.addMsg(this.ScratchBlocks);
         }
@@ -604,27 +604,28 @@ class Blocks extends React.Component {
             this.props.updateToolboxState(toolboxXML);
         }
     }
-    handleDeviceExtensionRemoved () {
+    handleDeviceExtensionRemoved() {
         const toolboxXML = this.getToolboxXML();
         if (toolboxXML) {
             this.props.updateToolboxState(toolboxXML);
         }
     }
-    handleBlocksInfoUpdate (categoryInfo) {
+    handleBlocksInfoUpdate(categoryInfo) {
         // @todo Later we should replace this to avoid all the warnings from redefining blocks.
         this.handleExtensionAdded(categoryInfo);
     }
-    handleCategorySelected (categoryId) {
+    handleCategorySelected(categoryId) {
         const extension = extensionData.find(ext => ext.extensionId === categoryId);
         if (extension && extension.launchPeripheralConnectionFlow) {
             this.handleConnectionModalStart();
+            this.props.onDeviceSelected(categoryId, null, null);
         }
 
         this.withToolboxUpdates(() => {
             this.workspace.toolbox_.setSelectedCategoryById(categoryId);
         });
     }
-    handleDeviceSelected (categoryId) {
+    handleDeviceSelected(categoryId) {
         const device = this.props.deviceData.find(ext => ext.deviceId === categoryId);
 
         if (device && device.launchPeripheralConnectionFlow) {
@@ -635,11 +636,11 @@ class Blocks extends React.Component {
             this.workspace.toolbox_.setSelectedCategoryById(categoryId);
         });
     }
-    setBlocks (blocks) {
+    setBlocks(blocks) {
         this.blocks = blocks;
     }
-    handlePromptStart (message, defaultValue, callback, optTitle, optVarType) {
-        const p = {prompt: {callback, message, defaultValue}};
+    handlePromptStart(message, defaultValue, callback, optTitle, optVarType) {
+        const p = { prompt: { callback, message, defaultValue } };
         p.prompt.title = optTitle ? optTitle :
             this.ScratchBlocks.Msg.VARIABLE_MODAL_TITLE;
         p.prompt.varType = typeof optVarType === 'string' ?
@@ -651,13 +652,13 @@ class Blocks extends React.Component {
         p.prompt.showCloudOption = (optVarType === this.ScratchBlocks.SCALAR_VARIABLE_TYPE) && this.props.canUseCloud;
         this.setState(p);
     }
-    handleConnectionModalStart () {
+    handleConnectionModalStart() {
         this.props.onOpenConnectionModal();
     }
-    handleStatusButtonUpdate () {
+    handleStatusButtonUpdate() {
         this.ScratchBlocks.refreshStatusButtons(this.workspace);
     }
-    workspaceToCode () {
+    workspaceToCode() {
         let code = '';
         try {
             const deviceType = this.props.deviceType;
@@ -671,15 +672,15 @@ class Blocks extends React.Component {
         }
         return code;
     }
-    handleToolboxUploadFinish () {
+    handleToolboxUploadFinish() {
         this.props.onToolboxDidUpdate();
     }
-    handleCodeNeedUpdate () {
+    handleCodeNeedUpdate() {
         if (this.props.isRealtimeMode === false) {
             this.props.onSetCodeEditorValue(this.workspaceToCode());
         }
     }
-    handleOpenSoundRecorder () {
+    handleOpenSoundRecorder() {
         this.props.onOpenSoundRecorder();
     }
 
@@ -688,23 +689,23 @@ class Blocks extends React.Component {
      * and additional potentially conflicting variable names from the VM
      * to the variable validation prompt callback used in openblock-blocks.
      */
-    handlePromptCallback (input, variableOptions) {
+    handlePromptCallback(input, variableOptions) {
         this.state.prompt.callback(
             input,
             this.props.vm.runtime.getAllVarNamesOfType(this.state.prompt.varType),
             variableOptions);
         this.handlePromptClose();
     }
-    handlePromptClose () {
-        this.setState({prompt: null});
+    handlePromptClose() {
+        this.setState({ prompt: null });
     }
-    handleCustomProceduresClose (data) {
+    handleCustomProceduresClose(data) {
         this.props.onRequestCloseCustomProcedures(data);
         const ws = this.workspace;
         ws.refreshToolboxSelection_();
         ws.toolbox_.scrollToCategoryById('myBlocks');
     }
-    handleDrop (dragInfo) {
+    handleDrop(dragInfo) {
         fetch(dragInfo.payload.bodyUrl)
             .then(response => response.json())
             .then(blocks => this.props.vm.shareBlocksToTarget(blocks, this.props.vm.editingTarget.id))
@@ -713,7 +714,7 @@ class Blocks extends React.Component {
                 this.updateToolbox(); // To show new variables/custom blocks
             });
     }
-    render () {
+    render() {
         /* eslint-disable no-unused-vars */
         const {
             anyModalVisible,
