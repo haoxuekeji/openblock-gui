@@ -102,8 +102,8 @@ export default function (vm) {
         if (vm.runtime.targets[0] && vm.runtime.targets[0].getCostumes().length > 0) {
             return vm.runtime.targets[0].getCostumes().map(costume => [costume.name, costume.name])
                 .concat([[next, 'next backdrop'],
-                    [previous, 'previous backdrop'],
-                    [random, 'random backdrop']]);
+                [previous, 'previous backdrop'],
+                [random, 'random backdrop']]);
         }
         return [['', '']];
     };
@@ -357,6 +357,11 @@ export default function (vm) {
     };
 
     ScratchBlocks.iconv = iconv;
+
+    ScratchBlocks.Arduino['arduino_sensor_systemUptime'] = function (block) {
+        var code = 'millis()';
+        return [code, ScratchBlocks.Arduino.ORDER_ATOMIC];
+    };
 
     return ScratchBlocks;
 }

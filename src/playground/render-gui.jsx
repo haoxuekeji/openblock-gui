@@ -34,6 +34,7 @@ import Box from '../components/box/box.jsx';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { setPlayer } from '../reducers/mode';
+import { setSession } from '../reducers/session';
 window.api = API
 import styles from './player.css';
 
@@ -64,6 +65,28 @@ const handleUpdateProjectTitle = (title) => {
     }
 }
 
+const handleLogOut = () => {
+    let data = {
+        session: {
+            user: {
+                username: ''
+            }
+        }
+    }
+    window.setSession(data);
+}
+const handleLogIn = (form, callback) => {
+    let data = {
+        session: {
+            user: {
+                userid: 11,
+                username: 'user.name',
+            }
+        }
+    }
+    window.setSession(data);
+    callback({ success: true })
+}
 /*
  * Render the GUI playground. This is a separate function because importing anything
  * that instantiates the VM causes unsupported browsers to crash
@@ -101,6 +124,13 @@ export default appTarget => {
 
     const backpackHost = location.origin + '/api/v1/backpack'
     // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
+
+    var logIn = handleLogIn
+    var logOut = handleLogOut
+    if (window.scratchConfig && window.scratchConfig.handleLogin) {
+        logIn = window.scratchConfig.onLogIn
+        logOut = window.scratchConfig.onLogOut
+    }
     const Guier = (props) => (
         <Box className={classNames(props.isPlayerOnly ? styles.stageOnly : styles.editor)}>
             {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>}
@@ -131,8 +161,12 @@ export default appTarget => {
                     onUpdateProjectTitle={handleUpdateProjectTitle}
                     //canShare
                     cloudHost={location.origin}
+                    onLogOut={logOut}
+                    renderLogin={logIn}
                 />}
+            {window.setSession = props.onSetSession}
         </Box>
+
     );
     Guier.propTypes = {
         isPlayerOnly: PropTypes.bool,
@@ -154,7 +188,8 @@ export default appTarget => {
     };
 
     const mapDispatchToProps = dispatch => ({
-        onSeeInside: () => dispatch(setPlayer(false))
+        onSeeInside: () => dispatch(setPlayer(false)),
+        onSetSession: s => dispatch(setSession(s)),
     });
     const ConnectedGUI = connect(
         mapStateToProps,
