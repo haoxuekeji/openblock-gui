@@ -34,6 +34,7 @@ import Box from '../components/box/box.jsx';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { setPlayer } from '../reducers/mode';
+import { setSession } from '../reducers/session';
 window.api = API
 import styles from './player.css';
 
@@ -62,6 +63,29 @@ const handleUpdateProjectTitle = (title) => {
     if (window.scratchConfig && window.scratchConfig.handleUpdateProjectTitle) {
         window.scratchConfig.handleUpdateProjectTitle(title)
     }
+}
+
+const handleLogOut = () => {
+    let data = {
+        session: {
+            user: {
+                username: ''
+            }
+        }
+    }
+    window.setSession(data);
+}
+const handleLogIn = (form, callback) => {
+    let data = {
+        session: {
+            user: {
+                userid: 11,
+                username: 'user.name',
+            }
+        }
+    }
+    window.setSession(data);
+    callback({ success: true })
 }
 /*
  * Render the GUI playground. This is a separate function because importing anything
@@ -102,32 +126,83 @@ export default appTarget => {
         window.onbeforeunload = () => true;
     }
 
-    ReactDOM.render(
-        // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
-        simulateScratchDesktop ?
-            <WrappedGui
-                canEditTitle
-                isScratchDesktop
-                showTelemetryModal
-                canSave={false}
-                onTelemetryModalCancel={handleTelemetryModalCancel}
-                onTelemetryModalOptIn={handleTelemetryModalOptIn}
-                onTelemetryModalOptOut={handleTelemetryModalOptOut}
-                onClickCheckUpdate={onClickCheckUpdate}
-                onClickUpgrade={onClickUpgrade}
-                onClickClearCache={onClickClearCache}
-                onClickInstallDriver={onClickInstallDriver}
-                onShowMessageBox={handleShowMessageBox}
-            /> :
-            <WrappedGui
-                canEditTitle
-                backpackVisible
-                showComingSoon
-                backpackHost={backpackHost}
-                canSave={false}
-                onClickLogo={onClickLogo}
-                onShowMessageBox={handleShowMessageBox}
-            />,
-        appTarget);
+    const backpackHost = location.origin + '/api/v1/backpack'
+    // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
+
+    var logIn = handleLogIn
+    var logOut = handleLogOut
+    if (window.scratchConfig && window.scratchConfig.handleLogin) {
+        logIn = window.scratchConfig.onLogIn
+        logOut = window.scratchConfig.onLogOut
+    }
+    const Guier = (props) => (
+        <Box className={classNames(props.isPlayerOnly ? styles.stageOnly : styles.editor)}>
+            {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>}
+
+            {simulateScratchDesktop ?
+                <GUI
+                    canEditTitle
+                    isScratchDesktop
+                    showTelemetryModal
+                    canSave={false}
+                    onTelemetryModalCancel={handleTelemetryModalCancel}
+                    onTelemetryModalOptIn={handleTelemetryModalOptIn}
+                    onTelemetryModalOptOut={handleTelemetryModalOptOut}
+                /> :
+                <GUI
+                    canEditTitle
+                    //showComingSoon
+
+                    //canCreateCopy
+                    isPlayerOnly={props.isPlayerOnly}
+                    //enableCommunity={props.enableCommunity}
+                    //canRemix
+                    //canManageFiles
+                    onShowMessageBox={handleShowMessageBox}
+                    backpackHost={backpackHost}
+                    //canSave={true}
+                    onClickLogo={onClickLogo}
+                    onUpdateProjectTitle={handleUpdateProjectTitle}
+                    //canShare
+                    cloudHost={location.origin}
+                    onLogOut={logOut}
+                    renderLogin={logIn}
+                />}
+            {window.setSession = props.onSetSession}
+        </Box>
+
+    );
+    Guier.propTypes = {
+        isPlayerOnly: PropTypes.bool,
+        onSeeInside: PropTypes.func,
+        projectId: PropTypes.string,
+        enableCommunity: PropTypes.bool,
+
+    };
+    Guier.defaultProps = {
+        isPlayerOnly: true,
+        enableCommunity: window.scratchConfig.enableCommunity ? true : false
+    };
+    const mapStateToProps = state => {
+        window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly
+        return {
+            isPlayerOnly: state.scratchGui.mode.isPlayerOnly
+        }
+
+    };
+
+    const mapDispatchToProps = dispatch => ({
+        onSeeInside: () => dispatch(setPlayer(false)),
+        onSetSession: s => dispatch(setSession(s)),
+    });
+    const ConnectedGUI = connect(
+        mapStateToProps,
+        mapDispatchToProps
+    )(Guier);
+
+    const WrappedGui = compose(
+        AppStateHOC,
+        HashParserHOC
+    )(ConnectedGUI);
 
 };

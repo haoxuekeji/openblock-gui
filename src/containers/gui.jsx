@@ -54,26 +54,24 @@ class GUI extends React.Component {
 
         window.scratch = window.scratch || {}
 
-        if (window.scratchConfig && window.scratchConfig.login) {
-            window.api.getInfo().then(res => {
-                const user = res.data
-                let data = {
-                    session: {
-                        user: {
-                            userid: user.id,
-                            username: user.name,
-                            thumbnailUrl: user.avatar,
-                            token: localStorage.getItem("token")
-                        }
-                    }
-                }
-                this.setSession(data)
-            }).catch(err => {
+        // if (window.scratchConfig && window.scratchConfig.login) {
+        //     window.api.getInfo().then(res => {
+        //         const user = res.data
+        //         let data = {
+        //             session: {
+        //                 user: {
+        //                     userid: user.id,
+        //                     username: user.name,
+        //                     thumbnailUrl: user.avatar,
+        //                     token: localStorage.getItem("token")
+        //                 }
+        //             }
+        //         }
+        //         this.setSession(data)
+        //     }).catch(err => {
 
-            })
-
-
-        }
+        //     })
+        // }
 
         var that = this
         document.addEventListener("loadProject", function (e) {

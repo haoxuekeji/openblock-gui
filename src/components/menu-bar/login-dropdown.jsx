@@ -7,7 +7,7 @@ eventually be consolidated.
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {defineMessages} from 'react-intl';
+import { defineMessages } from 'react-intl';
 
 import MenuBarMenu from './menu-bar-menu.jsx';
 
@@ -70,6 +70,7 @@ const LoginDropdown = ({
             })*/}
             <Login
                 onLogIn={onLogin}
+                onClose={onClose}
             />
         </div>
     </MenuBarMenu>

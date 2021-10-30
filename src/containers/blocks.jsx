@@ -618,7 +618,6 @@ class Blocks extends React.Component {
         const extension = extensionData.find(ext => ext.extensionId === categoryId);
         if (extension && extension.launchPeripheralConnectionFlow) {
             this.handleConnectionModalStart();
-            console.log(categoryId)
             this.props.onDeviceSelected(categoryId, null, null);
         }
 

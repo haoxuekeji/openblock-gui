@@ -977,48 +977,7 @@ class MenuBar extends React.Component {
                                 }
                             />
                         </div>
-                        {isScratchDesktop() ? (
-                            <div
-                                className={classNames(styles.menuBarItem, styles.hoverable, {
-                                    [styles.active]: this.props.settingMenuOpen
-                                })}
-                                onMouseUp={this.props.onClickSetting}
-                            >
-                                <img
-                                    className={styles.settingIcon}
-                                    src={settingIcon}
-                                />
-                                <MenuBarMenu
-                                    className={classNames(styles.menuBarMenu)}
-                                    open={this.props.settingMenuOpen}
-                                    place={'left'}
-                                    onRequestClose={this.props.onRequestCloseSetting}
-                                >
-                                    <MenuSection>
-                                        <MenuItem
-                                            isRtl={this.props.isRtl}
-                                            onClick={this.handleCheckUpdate}
-                                        >
-                                            {checkUpdate}
-                                        </MenuItem>
-                                        <MenuItem
-                                            isRtl={this.props.isRtl}
-                                            onClick={this.handleClearCache}
-                                        >
-                                            {clearCache}
-                                        </MenuItem>
-                                    </MenuSection>
-                                    <MenuSection>
-                                        <MenuItem
-                                            isRtl={this.props.isRtl}
-                                            onClick={this.props.onClickInstallDriver}
-                                        >
-                                            {installDriver}
-                                        </MenuItem>
-                                    </MenuSection>
-                                </MenuBarMenu>
-                            </div>
-                        ) : null}
+
                     </div>
                 )}
 
@@ -1095,17 +1054,19 @@ class MenuBar extends React.Component {
                 </div>
 
 
-                <div aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
-                    className={classNames(styles.menuBarItem, styles.hoverable)}
-                    onClick={this.handleFullscreen}
-                >
-                    <img
-                        className={styles.helpIcon}
-                        src={this.state.isFullscreen ? unFullScreenIcon : fullScreenIcon}
-                    />
-                    {this.state.isFullscreen ? '退出全屏' : '全屏'}
+                {!isScratchDesktop() ? (
+                    <div aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
+                        className={classNames(styles.menuBarItem, styles.hoverable)}
+                        onClick={this.handleFullscreen}
+                    >
+                        <img
+                            className={styles.helpIcon}
+                            src={this.state.isFullscreen ? unFullScreenIcon : fullScreenIcon}
+                        />
+                        {this.state.isFullscreen ? '退出全屏' : '全屏'}
 
-                </div>
+                    </div>
+                ) : null}
 
                 <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
                     {this.props.enableCommunity ? (
@@ -1171,7 +1132,7 @@ class MenuBar extends React.Component {
                                             menuBarMenuClassName={classNames(styles.menuBarMenu)}
                                             onClick={this.props.onClickAccount}
                                             onClose={this.props.onRequestCloseAccount}
-                                            onLogOut={this.handleLogout}
+                                            onLogOut={this.props.onLogOut}
                                         />
                                     </React.Fragment>
                                 ) : (
@@ -1212,7 +1173,7 @@ class MenuBar extends React.Component {
                                                 isRtl={this.props.isRtl}
                                                 //renderLogin={this.props.renderLogin}
                                                 onClose={this.props.onRequestCloseLogin}
-                                                onLogin={this.handleRenderLogin}
+                                                onLogin={this.props.renderLogin}
                                             />
                                         </div>
                                     </React.Fragment>
@@ -1267,6 +1228,49 @@ class MenuBar extends React.Component {
                         </div>
                     )
                 }
+
+                {isScratchDesktop() ? (
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, {
+                            [styles.active]: this.props.settingMenuOpen
+                        })}
+                        onMouseUp={this.props.onClickSetting}
+                    >
+                        <img
+                            className={styles.settingIcon}
+                            src={settingIcon}
+                        />
+                        <MenuBarMenu
+                            className={classNames(styles.menuBarMenu)}
+                            open={this.props.settingMenuOpen}
+                            place={'left'}
+                            onRequestClose={this.props.onRequestCloseSetting}
+                        >
+                            <MenuSection>
+                                <MenuItem
+                                    isRtl={this.props.isRtl}
+                                    onClick={this.handleCheckUpdate}
+                                >
+                                    {checkUpdate}
+                                </MenuItem>
+                                <MenuItem
+                                    isRtl={this.props.isRtl}
+                                    onClick={this.handleClearCache}
+                                >
+                                    {clearCache}
+                                </MenuItem>
+                            </MenuSection>
+                            <MenuSection>
+                                <MenuItem
+                                    isRtl={this.props.isRtl}
+                                    onClick={this.props.onClickInstallDriver}
+                                >
+                                    {installDriver}
+                                </MenuItem>
+                            </MenuSection>
+                        </MenuBarMenu>
+                    </div>
+                ) : null}
                 {aboutButton}
             </Box >
         );

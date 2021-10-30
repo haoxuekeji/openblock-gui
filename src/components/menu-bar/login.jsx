@@ -3,11 +3,11 @@ const FormattedMessage = require('react-intl').FormattedMessage;
 const PropTypes = require('prop-types');
 const React = require('react');
 
-const styles = require( './login.css');
+const styles = require('./login.css');
 //require('./login.scss');
 
 class Login extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleSubmit'
@@ -16,13 +16,22 @@ class Login extends React.Component {
             waiting: false
         };
     }
-    handleSubmit (formData) {
-        this.setState({waiting: true});
-        this.props.onLogIn(formData, () => {
-            this.setState({waiting: false});
+    handleSubmit(e) {
+        e.preventDefault();
+        let form = {
+            user: e.target.username.value,
+            pwd: e.target.password.value,
+        }
+        this.setState({ waiting: true });
+        this.props.onLogIn(form, this.props.onClose, (result) => {
+            if (result.success === true) {
+                this.props.onClose()
+
+            }
+            this.setState({ waiting: false });
         });
     }
-    render () {
+    render() {
         let error;
         if (this.props.error) {
             error = <div className="error">{this.props.error}</div>;
@@ -38,7 +47,7 @@ class Login extends React.Component {
                     </label>
                     <br />
                     <input
-                    className={styles.minInput}
+                        className={styles.minInput}
                         required
                         key="usernameInput"
                         maxLength="30"
@@ -61,8 +70,8 @@ class Login extends React.Component {
                     /><br />
 
                     <button
-                    className={styles.btnSubmit}
-                    type="subitm">登录</button>
+                        className={styles.btnSubmit}
+                        type="submit" disabled={this.state.waiting}>登录</button>
                 </form>
             </div>
         );
@@ -70,7 +79,8 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
-    onLogIn: PropTypes.func
+    onLogIn: PropTypes.func,
+    onClose: PropTypes.func,
 };
 
 module.exports = Login;
