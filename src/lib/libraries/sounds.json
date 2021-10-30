@@ -388,6 +388,17 @@
         "rate": 44100
     },
     {
+        "name": "Biberbi",
+        "tags": [
+            "animals"
+        ],
+        "assetId": "4e080acae1c3dc65eef30f07c2b0d4a5",
+        "dataFormat": "adpcm",
+        "md5ext": "4e080acae1c3dc65eef30f07c2b0d4a5.wav",
+        "sampleCount": 18688,
+        "rate": 22050
+    },
+    {
         "name": "Big Boing",
         "tags": [
             "wacky",

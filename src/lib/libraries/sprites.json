@@ -3315,6 +3315,47 @@
         "blocks": {}
     },
     {
+        "name": "Devil Bird",
+        "tags": [
+            "animals",
+            "fantasy"
+        ],
+        "isStage": false,
+        "variables": {},
+        "costumes": [
+            {
+                "assetId": "5de48e72637db4d7fc7f6bb526354114",
+                "name": "devil-bird-a",
+                "bitmapResolution": 1,
+                "md5ext": "5de48e72637db4d7fc7f6bb526354114.svg",
+                "dataFormat": "svg",
+                "rotationCenterX": 93,
+                "rotationCenterY": 80
+            },
+            {
+                "assetId": "48bbc82a10af3d0e0b7d5c677097df0e",
+                "name": "devil-bird-b",
+                "bitmapResolution": 1,
+                "md5ext": "48bbc82a10af3d0e0b7d5c677097df0e.svg",
+                "dataFormat": "svg",
+                "rotationCenterX": 93,
+                "rotationCenterY": 80
+            }
+        ],
+        "sounds": [
+            {
+                "assetId": "4e080acae1c3dc65eef30f07c2b0d4a5",
+                "name": "biberbi",
+                "dataFormat": "wav",
+                "format": "",
+                "rate": 18688,
+                "sampleCount": 22050,
+                "md5ext": "4e080acae1c3dc65eef30f07c2b0d4a5.wav"
+            }
+        ],
+        "blocks": {}
+    },
+    {
         "name": "Devin",
         "tags": [
             "people"
