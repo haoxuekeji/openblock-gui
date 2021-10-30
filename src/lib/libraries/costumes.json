@@ -2765,6 +2765,40 @@
         "rotationCenterY": 99
     },
     {
+        "name": "Devil-bird-a",
+        "tags": [
+            "fantasy",
+            "spooky",
+            "halloween",
+            "devil",
+            "bird",
+            "animals"
+        ],
+        "assetId": "5de48e72637db4d7fc7f6bb526354114",
+        "bitmapResolution": 1,
+        "dataFormat": "svg",
+        "md5ext": "5de48e72637db4d7fc7f6bb526354114.svg",
+        "rotationCenterX": 93,
+        "rotationCenterY": 80
+    },
+    {
+        "name": "Devil-bird-b",
+        "tags": [
+            "fantasy",
+            "spooky",
+            "halloween",
+            "devil",
+            "bird",
+            "animals"
+        ],
+        "assetId": "48bbc82a10af3d0e0b7d5c677097df0e",
+        "bitmapResolution": 1,
+        "dataFormat": "svg",
+        "md5ext": "48bbc82a10af3d0e0b7d5c677097df0e.svg",
+        "rotationCenterX": 93,
+        "rotationCenterY": 80
+    },
+    {
         "name": "Devin-a",
         "tags": [
             "people"
