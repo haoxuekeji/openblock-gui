@@ -21,10 +21,10 @@
   },
   "author": "Massachusetts Institute of Technology",
   "license": "BSD-3-Clause",
-  "homepage": "https://github.com/openblockcc/openblock-gui#readme",
+  "homepage": "https://github.com/haoxuekeji/openblock-gui#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/openblockcc/openblock-gui.git"
+    "url": "git+ssh://git@github.com/haoxuekeji/openblock-gui.git"
   },
   "dependencies": {
     "@ramonak/react-progress-bar": "^3.1.0",
@@ -58,10 +58,10 @@
     "mkdirp": "^0.5.1",
     "monaco-editor": "^0.15.1",
     "omggif": "1.0.9",
-    "openblock-blocks": "0.1.0-prerelease.20211025152811",
-    "openblock-l10n": "^3.10.20211005034110",
+    "openblock-blocks": "github:haoxuekeji/openblock-blocks#main",
+    "openblock-l10n": "github:haoxuekeji/openblock-l10n.git#main",
     "openblock-save-svg-as-png": "^1.4.18",
-    "openblock-vm": "^0.2.0-prerelease.20211025020434",
+    "openblock-vm": "github:haoxuekeji/openblock-vm.git#main",
     "papaparse": "5.3.0",
     "postcss-import": "^12.0.0",
     "postcss-loader": "^3.0.0",
