@@ -9,7 +9,7 @@ import localesReducer, { initLocale, localesInitialState } from '../reducers/loc
 import { setPlayer, setFullScreen } from '../reducers/mode.js';
 
 
-import locales from 'openblock-l10n';
+import locales from 'hxblock-l10n';
 import { detectLocale } from './detect-locale';
 
 import { initializedSession } from '../reducers/session'

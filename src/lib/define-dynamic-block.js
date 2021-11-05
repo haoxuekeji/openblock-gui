@@ -24,9 +24,9 @@ const defineDynamicBlock = (ScratchBlocks, categoryInfo, staticBlockInfo, extend
             colourSecondary: categoryInfo.color2,
             colourTertiary: categoryInfo.color3
         };
-        // There is a openblock-blocks / Blockly extension called "scratch_extension" which adjusts the styling of
+        // There is a hxblock-blocks / Blockly extension called "scratch_extension" which adjusts the styling of
         // blocks to allow for an icon, a feature of Scratch extension blocks. However, Scratch "core" extension
-        // blocks don't have icons and so they should not use 'scratch_extension'. Adding a openblock-blocks / Blockly
+        // blocks don't have icons and so they should not use 'scratch_extension'. Adding a hxblock-blocks / Blockly
         // extension after `jsonInit` isn't fully supported (?), so we decide now whether there will be an icon.
         if (staticBlockInfo.blockIconURI || categoryInfo.blockIconURI) {
             blockJson.extensions = ['scratch_extension'];
@@ -54,29 +54,29 @@ const defineDynamicBlock = (ScratchBlocks, categoryInfo, staticBlockInfo, extend
         const blockInfo = JSON.parse(blockInfoText);
 
         switch (blockInfo.blockType) {
-        case BlockType.COMMAND:
-        case BlockType.CONDITIONAL:
-        case BlockType.LOOP:
-            this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_SQUARE);
-            this.setPreviousStatement(true);
-            this.setNextStatement(!blockInfo.isTerminal);
-            break;
-        case BlockType.REPORTER:
-            this.setOutput(true);
-            this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_ROUND);
-            if (!blockInfo.disableMonitor) {
-                this.setCheckboxInFlyout(true);
-            }
-            break;
-        case BlockType.BOOLEAN:
-            this.setOutput(true);
-            this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_HEXAGONAL);
-            break;
-        case BlockType.HAT:
-        case BlockType.EVENT:
-            this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_SQUARE);
-            this.setNextStatement(true);
-            break;
+            case BlockType.COMMAND:
+            case BlockType.CONDITIONAL:
+            case BlockType.LOOP:
+                this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_SQUARE);
+                this.setPreviousStatement(true);
+                this.setNextStatement(!blockInfo.isTerminal);
+                break;
+            case BlockType.REPORTER:
+                this.setOutput(true);
+                this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_ROUND);
+                if (!blockInfo.disableMonitor) {
+                    this.setCheckboxInFlyout(true);
+                }
+                break;
+            case BlockType.BOOLEAN:
+                this.setOutput(true);
+                this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_HEXAGONAL);
+                break;
+            case BlockType.HAT:
+            case BlockType.EVENT:
+                this.setOutputShape(ScratchBlocks.OUTPUT_SHAPE_SQUARE);
+                this.setNextStatement(true);
+                break;
         }
 
         if (blockInfo.color1 || blockInfo.color2 || blockInfo.color3) {
@@ -92,12 +92,12 @@ const defineDynamicBlock = (ScratchBlocks, categoryInfo, staticBlockInfo, extend
         const scratchBlocksStyleText = blockText.replace(/\[(.+?)]/g, (match, argName) => {
             const arg = blockInfo.arguments[argName];
             switch (arg.type) {
-            case ArgumentType.STRING:
-                args.push({type: 'input_value', name: argName});
-                break;
-            case ArgumentType.BOOLEAN:
-                args.push({type: 'input_value', name: argName, check: 'Boolean'});
-                break;
+                case ArgumentType.STRING:
+                    args.push({ type: 'input_value', name: argName });
+                    break;
+                case ArgumentType.BOOLEAN:
+                    args.push({ type: 'input_value', name: argName, check: 'Boolean' });
+                    break;
             }
             return `%${++argCount}`;
         });

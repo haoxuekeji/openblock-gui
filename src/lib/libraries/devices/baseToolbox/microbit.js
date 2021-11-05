@@ -1,4 +1,4 @@
-import ScratchBlocks from 'openblock-blocks';
+import ScratchBlocks from 'hxblock-blocks';
 
 const categorySeparator = '<sep gap="36"/>';
 
