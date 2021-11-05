@@ -1,7 +1,7 @@
-import {addLocaleData} from 'react-intl';
+import { addLocaleData } from 'react-intl';
 
-import {localeData, isRtl} from 'openblock-l10n';
-import editorMessages from 'openblock-l10n/locales/editor-msgs';
+import { localeData, isRtl } from 'hxblock-l10n';
+import editorMessages from 'hxblock-l10n/locales/editor-msgs';
 
 addLocaleData(localeData);
 
@@ -18,22 +18,22 @@ const initialState = {
 const reducer = function (state, action) {
     if (typeof state === 'undefined') state = initialState;
     switch (action.type) {
-    case SELECT_LOCALE:
-        return Object.assign({}, state, {
-            isRtl: isRtl(action.locale),
-            locale: action.locale,
-            messagesByLocale: state.messagesByLocale,
-            messages: state.messagesByLocale[action.locale]
-        });
-    case UPDATE_LOCALES:
-        return Object.assign({}, state, {
-            isRtl: state.isRtl,
-            locale: state.locale,
-            messagesByLocale: action.messagesByLocale,
-            messages: action.messagesByLocale[state.locale]
-        });
-    default:
-        return state;
+        case SELECT_LOCALE:
+            return Object.assign({}, state, {
+                isRtl: isRtl(action.locale),
+                locale: action.locale,
+                messagesByLocale: state.messagesByLocale,
+                messages: state.messagesByLocale[action.locale]
+            });
+        case UPDATE_LOCALES:
+            return Object.assign({}, state, {
+                isRtl: state.isRtl,
+                locale: state.locale,
+                messagesByLocale: action.messagesByLocale,
+                messages: action.messagesByLocale[state.locale]
+            });
+        default:
+            return state;
     }
 };
 

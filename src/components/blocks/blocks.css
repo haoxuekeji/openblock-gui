@@ -87,7 +87,7 @@
 /*
     Shrink category font to fit "My Blocks" for now.
     Probably will need different solutions for language support later, so
-    make the change here instead of in openblock-blocks.
+    make the change here instead of in hxblock-blocks.
 */
 .blocks :global(.scratchCategoryMenuItemLabel) {
     font-size: 0.75rem;

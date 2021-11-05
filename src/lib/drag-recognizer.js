@@ -1,22 +1,22 @@
 import bindAll from 'lodash.bindall';
-import {getEventXY} from '../lib/touch-utils';
+import { getEventXY } from '../lib/touch-utils';
 
 class DragRecognizer {
     /* Gesture states */
-    static get STATE_UNIDENTIFIED () {
+    static get STATE_UNIDENTIFIED() {
         return 'unidentified';
     }
-    static get STATE_SCROLL () {
+    static get STATE_SCROLL() {
         return 'scroll';
     }
-    static get STATE_DRAG () {
+    static get STATE_DRAG() {
         return 'drag';
     }
 
-    constructor ({
-        onDrag = (() => {}),
-        onDragEnd = (() => {}),
-        touchDragAngle = 70, // Angle and distance thresholds are the same as openblock-blocks
+    constructor({
+        onDrag = (() => { }),
+        onDragEnd = (() => { }),
+        touchDragAngle = 70, // Angle and distance thresholds are the same as hxblock-blocks
         distanceThreshold = 3
     }) {
         this._onDrag = onDrag;
@@ -36,16 +36,16 @@ class DragRecognizer {
         ]);
     }
 
-    start (event) {
+    start(event) {
         this._initialOffset = getEventXY(event);
         this._bindListeners();
     }
 
-    gestureInProgress () {
+    gestureInProgress() {
         return this._gestureState !== DragRecognizer.STATE_UNIDENTIFIED;
     }
 
-    reset () {
+    reset() {
         this._unbindListeners();
         this._initialOffset = null;
         this._gestureState = DragRecognizer.STATE_UNIDENTIFIED;
@@ -55,22 +55,22 @@ class DragRecognizer {
     // Internal functions
     //
 
-    _bindListeners () {
+    _bindListeners() {
         window.addEventListener('mouseup', this._handleEnd);
         window.addEventListener('mousemove', this._handleMove);
         window.addEventListener('touchend', this._handleEnd);
         // touchmove must be marked as non-passive, or else it cannot prevent scrolling
-        window.addEventListener('touchmove', this._handleMove, {passive: false});
+        window.addEventListener('touchmove', this._handleMove, { passive: false });
     }
 
-    _unbindListeners () {
+    _unbindListeners() {
         window.removeEventListener('mouseup', this._handleEnd);
         window.removeEventListener('mousemove', this._handleMove);
         window.removeEventListener('touchend', this._handleEnd);
-        window.removeEventListener('touchmove', this._handleMove, {passive: false});
+        window.removeEventListener('touchmove', this._handleMove, { passive: false });
     }
 
-    _handleMove (event) {
+    _handleMove(event) {
         // For gestures identified as vertical scrolls, do not process movement events
         if (this._isScroll()) return;
 
@@ -108,18 +108,18 @@ class DragRecognizer {
         }
     }
 
-    _handleEnd () {
+    _handleEnd() {
         this.reset();
         // Call the callback after reset to make sure if gestureInProgress()
         // is used in response, it get the correct value (i.e. no gesture in progress)
         this._onDragEnd();
     }
 
-    _isDrag () {
+    _isDrag() {
         return this._gestureState === DragRecognizer.STATE_DRAG;
     }
 
-    _isScroll () {
+    _isScroll() {
         return this._gestureState === DragRecognizer.STATE_SCROLL;
     }
 }
