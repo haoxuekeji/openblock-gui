@@ -68,6 +68,7 @@ class Storage extends ScratchStorage {
         } else {
             url = `${this.assetHost}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;
         }
+        let token = window.localStorage.getItem('token')
         return {
             // There is no such thing as updating assets, but storage assumes it
             // should update if there is an assetId, and the asset store uses the
@@ -75,7 +76,10 @@ class Storage extends ScratchStorage {
             // Then when storage finds this config to use for the "update", still POSTs
             method: 'post',
             url: url,
-            withCredentials: true
+            withCredentials: true,
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
         };
     }
     setTranslatorFunction(translator) {
