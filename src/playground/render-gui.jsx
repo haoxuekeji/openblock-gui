@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { compose } from 'redux';
+import {compose} from 'redux';
+import {FormattedMessage} from 'react-intl';
 
 import { connect } from 'react-redux';
 import AppStateHOC from '../lib/app-state-hoc.jsx';
@@ -18,8 +19,12 @@ const onClickCheckUpdate = () => {
     log('User click check update');
 };
 
-const onClickUpgrade = () => {
-    log('User click upgrade');
+const onClickUpdate = () => {
+    log('User click update');
+};
+
+const onAbortUpdate = () => {
+    log('User click abort update');
 };
 
 const onClickClearCache = () => {
@@ -50,6 +55,33 @@ const handleTelemetryModalOptIn = () => {
 const handleTelemetryModalOptOut = () => {
     log('User opted out of telemetry');
 };
+
+const onClickAbout = [
+    {
+        title: (<FormattedMessage
+            defaultMessage="About"
+            description="Menu bar item for about"
+            id="gui.desktopMenuBar.about"
+        />),
+        onClick: () => log('About')
+    },
+    {
+        title: (<FormattedMessage
+            defaultMessage="Privacy policy"
+            description="Menu bar item for privacy policy"
+            id="gui.menuBar.privacyPolicy"
+        />),
+        onClick: () => log('Privacy Policy')
+    },
+    {
+        title: (<FormattedMessage
+            defaultMessage="Data settings"
+            description="Menu bar item for data settings"
+            id="gui.menuBar.dataSettings"
+        />),
+        onClick: () => log('Data Settings')
+    }
+];
 
 const handleShowMessageBox = (type, message) => {
     if (type === MessageBoxType.confirm) {
@@ -144,6 +176,16 @@ export default appTarget => {
                     onTelemetryModalCancel={handleTelemetryModalCancel}
                     onTelemetryModalOptIn={handleTelemetryModalOptIn}
                     onTelemetryModalOptOut={handleTelemetryModalOptOut}
+                    onClickAbout={onClickAbout}
+                    onTelemetryModalCancel={handleTelemetryModalCancel}
+                    onTelemetryModalOptIn={handleTelemetryModalOptIn}
+                    onTelemetryModalOptOut={handleTelemetryModalOptOut}
+                    onAbortUpdate={onAbortUpdate}
+                    onClickCheckUpdate={onClickCheckUpdate}
+                    onClickUpdate={onClickUpdate}
+                    onClickClearCache={onClickClearCache}
+                    onClickInstallDriver={onClickInstallDriver}
+                    onShowMessageBox={handleShowMessageBox}
                 /> :
                 <GUI
                     canEditTitle

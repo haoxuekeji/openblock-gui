@@ -3,6 +3,7 @@
 
 .modal-content {
     width: 480px;
+    margin: 50px auto; /* This modal is taller than most, reduce top margin */
 }
 
 .body {
@@ -28,14 +29,16 @@
     justify-content: flex-start;
     padding: 1rem 2.5rem 1rem 2.5rem;
     white-space: pre-line;
-    max-height: 240px;
+    max-height: 480px;
     overflow-y: auto;
     position: relative;
     font-size: 0.85rem;
 }
 
-.bold {
+.update-info-sub-title {
     font-weight: 600;
+    height: 0.85rem;
+    margin: 0 0 0.85rem 0;
 }
 
 .bottom-area {
@@ -65,7 +68,7 @@
     margin-left: 1.5rem;
 }
 
-.upgrade-button {
+.update-button {
     padding: 0.6rem 0.75rem;
     border-radius: 0.5rem;
     background: $motion-primary;
@@ -77,6 +80,11 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+}
+
+.update-button[disabled]{
+    background: $ui-tertiary;
+    border: 2px solid $ui-tertiary;
 }
 
 .primary {
@@ -91,10 +99,10 @@
     flex-direction: column;
 }
 
-.upgrade-info-wrapper{
+.update-info-wrapper {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
     font-size: 0.85rem;
-    margin-top: 0.4rem;
+    margin: 0.4rem 0;
 }

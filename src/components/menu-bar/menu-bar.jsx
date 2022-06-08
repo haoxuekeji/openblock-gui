@@ -33,8 +33,8 @@ import SB3Downloader from '../../containers/sb3-downloader.jsx';
 import DeletionRestorer from '../../containers/deletion-restorer.jsx';
 import TurboMode from '../../containers/turbo-mode.jsx';
 import MenuBarHOC from '../../containers/menu-bar-hoc.jsx';
-
-import { isScratchDesktop } from '../../lib/isScratchDesktop';
+import {isScratchDesktop} from '../../lib/isScratchDesktop';
+import {UPDATE_MODAL_STATE} from '../../lib/update-state.js';
 
 import {
     openTipsLibrary,
@@ -100,7 +100,7 @@ import remixIcon from './icon--remix.svg';
 import dropdownCaret from './dropdown-caret.svg';
 import languageIcon from '../language-selector/language-icon.svg';
 import aboutIcon from './icon--about.svg';
-
+import saveIcon from './icon--save.svg';
 import linkSocketIcon from './icon--link-socket.svg'; // eslint-disable-line no-unused-vars
 
 import scratchLogo from './scratch-logo.svg';
@@ -112,11 +112,10 @@ import Switch from 'react-switch';
 import deviceIcon from './icon--device.svg';
 import unconnectedIcon from './icon--unconnected.svg';
 import connectedIcon from './icon--connected.svg';
-import fileIcon from './icon--file.svg';
 import screenshotIcon from './icon--screenshot.svg';
 import settingIcon from './icon--setting.svg';
 
-import downloadFirmwareIcon from './icon--download-firmware.svg';
+import uploadFirmwareIcon from './icon--upload-firmware.svg';
 import saveSvgAsPng from 'openblock-save-svg-as-png';
 import { showAlertWithTimeout } from '../../reducers/alerts';
 
@@ -223,7 +222,7 @@ class MenuBar extends React.Component {
             'getSaveToComputerHandler',
             'restoreOptionMessage',
             'handleConnectionMouseUp',
-            'handleDownloadFirmware',
+            'handleUploadFirmware',
             'handleSelectDeviceMouseUp',
             'handleProgramModeSwitchOnChange',
             'handleProgramModeUpdate',
@@ -390,7 +389,7 @@ class MenuBar extends React.Component {
             this.props.onSetUploadMode();
         }
     }
-    handleDownloadFirmware() {
+    handleUploadFirmware () {
         if (this.props.deviceId) {
             this.props.vm.uploadFirmwareToPeripheral(this.props.deviceId);
             this.props.onSetRealtimeConnection(false);
@@ -418,8 +417,8 @@ class MenuBar extends React.Component {
             });
         }
     }
-    handleCheckUpdate() {
-        this.props.onSetUpdate({ phase: 'checking' });
+    handleCheckUpdate () {
+        this.props.onSetUpdate({phase: UPDATE_MODAL_STATE.checkingApplication});
         this.props.onClickCheckUpdate();
     }
     handleClearCache() {
@@ -527,35 +526,15 @@ class MenuBar extends React.Component {
         // each item must have a 'title' FormattedMessage and a 'handleClick' function
         // generate a menu with items for each object in the array
         return (
-            <div
-                className={classNames(styles.menuBarItem, styles.hoverable, {
-                    [styles.active]: this.props.aboutMenuOpen
-                })}
-                onMouseUp={this.props.onRequestOpenAbout}
-            >
-                <img
-                    className={styles.aboutIcon}
-                    src={aboutIcon}
-                />
-                <MenuBarMenu
-                    className={classNames(styles.menuBarMenu)}
-                    open={this.props.aboutMenuOpen}
-                    place={this.props.isRtl ? 'right' : 'left'}
-                    onRequestClose={this.props.onRequestCloseAbout}
+            onClickAbout.map(itemProps => (
+                <MenuItem
+                    key={itemProps.title}
+                    isRtl={this.props.isRtl}
+                    onClick={this.wrapAboutMenuCallback(itemProps.onClick)}
                 >
-                    {
-                        onClickAbout.map(itemProps => (
-                            <MenuItem
-                                key={itemProps.title}
-                                isRtl={this.props.isRtl}
-                                onClick={this.wrapAboutMenuCallback(itemProps.onClick)}
-                            >
-                                {itemProps.title}
-                            </MenuItem>
-                        ))
-                    }
-                </MenuBarMenu>
-            </div>
+                    {itemProps.title}
+                </MenuItem>
+            ))
         );
     }
     wrapAboutMenuCallback(callback) {
@@ -638,173 +617,174 @@ class MenuBar extends React.Component {
                 )}
             >
                 <div className={styles.mainMenu}>
-                    <div className={styles.fileGroup}>
-                        {(window.scratchConfig && window.scratchConfig.logo && window.scratchConfig.logo.show) && (
-                            <div className={classNames(styles.menuBarItem)}>
-                                <img
-                                    alt="Scratch"
-                                    className={classNames(styles.scratchLogo, {
-                                        [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
-                                    })}
-                                    draggable={false}
-                                    src={window.scratchConfig.logo.url || this.props.logo}
-                                    onClick={this.props.onClickLogo}
-                                />
-                            </div>
-                        )}
-                        {(this.props.canChangeLanguage) && (<div
-                            className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
-                        >
-                            <div>
-                                <img
-                                    className={styles.languageIcon}
-                                    src={languageIcon}
-                                />
-                                <img
-                                    className={styles.languageCaret}
-                                    src={dropdownCaret}
-                                />
-                            </div>
-                            <LanguageSelector label={this.props.intl.formatMessage(ariaMessages.language)} />
-                        </div>)}
-                        {(this.props.canManageFiles) && (
-                            <div
-                                className={classNames(styles.menuBarItem, styles.hoverable, {
-                                    [styles.active]: this.props.fileMenuOpen
-                                })}
-                                onMouseUp={this.props.onClickFile}
-                            >
-                                <FormattedMessage
-                                    defaultMessage="File"
-                                    description="Text for file dropdown menu"
-                                    id="gui.menuBar.file"
-                                />
-                                <MenuBarMenu
-                                    className={classNames(styles.menuBarMenu)}
-                                    open={this.props.fileMenuOpen}
-                                    place={this.props.isRtl ? 'left' : 'right'}
-                                    onRequestClose={this.props.onRequestCloseFile}
-                                >
-                                    <MenuSection>
-                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.newButton &&
-                                            window.scratchConfig.menuBar.newButton.show) && (
-                                                <MenuItem
-                                                    isRtl={this.props.isRtl}
-                                                    onClick={this.handleClickNew}
-                                                >
-                                                    {newProjectMessage}
-                                                </MenuItem>
-                                            )}
-                                    </MenuSection>
-                                    {(this.props.canSave || this.props.canCreateCopy || this.props.canRemix) && (
-                                        <MenuSection>
-                                            {this.props.canSave && (
-                                                <MenuItem onClick={this.handleClickSave}>
-                                                    {saveNowMessage}
-                                                </MenuItem>
-                                            )}
-                                            {this.props.canCreateCopy && (
-                                                <MenuItem onClick={this.handleClickSaveAsCopy}>
-                                                    {createCopyMessage}
-                                                </MenuItem>
-                                            )}
-                                            {this.props.canRemix && (
-                                                <MenuItem onClick={this.handleClickRemix}>
-                                                    {remixMessage}
-                                                </MenuItem>
-                                            )}
-                                        </MenuSection>
-                                    )}
-                                    <MenuSection>
-                                        <MenuItem
-                                            onClick={this.props.onStartSelectingFileUpload}
-                                        >
-                                            {this.props.intl.formatMessage(sharedMessages.loadFromComputerTitle)}
-                                        </MenuItem>
-                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.saveFileButton &&
-                                            window.scratchConfig.menuBar.saveFileButton.show) && (
-                                                <SB3Downloader>{(className, downloadProjectCallback) => (
-                                                    <MenuItem
-                                                        className={className}
-                                                        onClick={this.getSaveToComputerHandler(downloadProjectCallback)}
-                                                    >
-                                                        <FormattedMessage
-                                                            defaultMessage="Save to your computer"
-                                                            description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
-                                                            id="gui.menuBar.downloadToComputer"
-                                                        />
-                                                    </MenuItem>
-                                                )}</SB3Downloader>
-                                            )}
+                    <div className={classNames(styles.menuBarItem)}>
+                        <img
+                            alt="OpenBlock"
+                            className={classNames(styles.scratchLogo, {
+                                [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
+                            })}
+                            draggable={false}
+                            src={this.props.logo}
+                            onClick={this.props.onClickLogo}
+                        />
+                    </div>
+        
+                    <Divider className={classNames(styles.divider)} />
 
-                                        {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.libButton &&
-                                            window.scratchConfig.menuBar.libButton.show) && (
-                                                <SB3Downloader>{(className, downloadProjectCallback) => (
-                                                    <MenuItem
-                                                        className={className}
-                                                        onClick={HXLib.opProjectClick}
-                                                    >
-                                                        <FormattedMessage
-                                                            defaultMessage="从库中选取"
-                                                            description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
-                                                            id="gui.menuBar.downloadToComputer2"
-                                                        />
-                                                    </MenuItem>
-                                                )}</SB3Downloader>
-                                            )}
-                                    </MenuSection>
-                                </MenuBarMenu>
-                            </div>
-                        )}
+   
+                    {(this.props.canChangeLanguage) && (<div
+                        className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
+                    >
+                        <div>
+                            <img
+                                className={styles.languageIcon}
+                                src={languageIcon}
+                            />
+                            <img
+                                className={styles.languageCaret}
+                                src={dropdownCaret}
+                            />
+                        </div>
+                        <LanguageSelector label={this.props.intl.formatMessage(ariaMessages.language)} />
+                    </div>)}
+                    {(this.props.canManageFiles) && (
                         <div
                             className={classNames(styles.menuBarItem, styles.hoverable, {
-                                [styles.active]: this.props.editMenuOpen
+                                [styles.active]: this.props.fileMenuOpen
                             })}
-                            onMouseUp={this.props.onClickEdit}
+                            onMouseUp={this.props.onClickFile}
                         >
-                            <div className={classNames(styles.editMenu)}>
-                                <FormattedMessage
-                                    defaultMessage="Edit"
-                                    description="Text for edit dropdown menu"
-                                    id="gui.menuBar.edit"
-                                />
-                            </div>
+                            <FormattedMessage
+                                defaultMessage="File"
+                                description="Text for file dropdown menu"
+                                id="gui.menuBar.file"
+                            />
                             <MenuBarMenu
                                 className={classNames(styles.menuBarMenu)}
-                                open={this.props.editMenuOpen}
+                                open={this.props.fileMenuOpen}
                                 place={this.props.isRtl ? 'left' : 'right'}
-                                onRequestClose={this.props.onRequestCloseEdit}
+                                onRequestClose={this.props.onRequestCloseFile}
                             >
-                                <DeletionRestorer>{(handleRestore, { restorable, deletedItem }) => (
-                                    <MenuItem
-                                        className={classNames({ [styles.disabled]: !restorable })}
-                                        onClick={this.handleRestoreOption(handleRestore)}
-                                    >
-                                        {this.restoreOptionMessage(deletedItem)}
-                                    </MenuItem>
-                                )}</DeletionRestorer>
                                 <MenuSection>
-                                    <TurboMode>{(toggleTurboMode, { turboMode }) => (
-                                        <MenuItem onClick={toggleTurboMode}>
-                                            {turboMode ? (
-                                                <FormattedMessage
-                                                    defaultMessage="Turn off Turbo Mode"
-                                                    description="Menu bar item for turning off turbo mode"
-                                                    id="gui.menuBar.turboModeOff"
-                                                />
-                                            ) : (
-                                                <FormattedMessage
-                                                    defaultMessage="Turn on Turbo Mode"
-                                                    description="Menu bar item for turning on turbo mode"
-                                                    id="gui.menuBar.turboModeOn"
-                                                />
-                                            )}
+                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.newButton &&
+                                        window.scratchConfig.menuBar.newButton.show) && (
+                                        <MenuItem
+                                            isRtl={this.props.isRtl}
+                                            onClick={this.handleClickNew}
+                                        >
+                                            {newProjectMessage}
                                         </MenuItem>
-                                    )}</TurboMode>
+                                    )}
+                                </MenuSection>
+                                {(this.props.canSave || this.props.canCreateCopy || this.props.canRemix) && (
+                                    <MenuSection>
+                                        {this.props.canSave && (
+                                            <MenuItem onClick={this.handleClickSave}>
+                                                {saveNowMessage}
+                                            </MenuItem>
+                                        )}
+                                        {this.props.canCreateCopy && (
+                                            <MenuItem onClick={this.handleClickSaveAsCopy}>
+                                                {createCopyMessage}
+                                            </MenuItem>
+                                        )}
+                                        {this.props.canRemix && (
+                                            <MenuItem onClick={this.handleClickRemix}>
+                                                {remixMessage}
+                                            </MenuItem>
+                                        )}
+                                    </MenuSection>
+                                )}
+                                <MenuSection>
+                                    <MenuItem
+                                        onClick={this.props.onStartSelectingFileUpload}
+                                    >
+                                        {this.props.intl.formatMessage(sharedMessages.loadFromComputerTitle)}
+                                    </MenuItem>
+                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.saveFileButton &&
+                                        window.scratchConfig.menuBar.saveFileButton.show) && (
+                                        <SB3Downloader>{(className, downloadProjectCallback) => (
+                                            <MenuItem
+                                                className={className}
+                                                onClick={this.getSaveToComputerHandler(downloadProjectCallback)}
+                                            >
+                                                <FormattedMessage
+                                                    defaultMessage="Save to your computer"
+                                                    description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
+                                                    id="gui.menuBar.downloadToComputer"
+                                                />
+                                            </MenuItem>
+                                        )}</SB3Downloader>
+                                    )}
+
+                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.libButton &&
+                                        window.scratchConfig.menuBar.libButton.show) && (
+                                        <SB3Downloader>{(className, downloadProjectCallback) => (
+                                            <MenuItem
+                                                className={className}
+                                                onClick={HXLib.opProjectClick}
+                                            >
+                                                <FormattedMessage
+                                                    defaultMessage="从库中选取"
+                                                    description="Menu bar item for downloading a project to your computer" // eslint-disable-line max-len
+                                                    id="gui.menuBar.downloadToComputer2"
+                                                />
+                                            </MenuItem>
+                                        )}</SB3Downloader>
+                                    )}
                                 </MenuSection>
                             </MenuBarMenu>
                         </div>
+                    )}
+                    <div
+                        className={classNames(styles.menuBarItem, styles.hoverable, {
+                            [styles.active]: this.props.editMenuOpen
+                        })}
+                        onMouseUp={this.props.onClickEdit}
+                    >
+                        <div className={classNames(styles.editMenu)}>
+                            <FormattedMessage
+                                defaultMessage="Edit"
+                                description="Text for edit dropdown menu"
+                                id="gui.menuBar.edit"
+                            />
+                        </div>
+                        <MenuBarMenu
+                            className={classNames(styles.menuBarMenu)}
+                            open={this.props.editMenuOpen}
+                            place={this.props.isRtl ? 'left' : 'right'}
+                            onRequestClose={this.props.onRequestCloseEdit}
+                        >
+                            <DeletionRestorer>{(handleRestore, { restorable, deletedItem }) => (
+                                <MenuItem
+                                    className={classNames({ [styles.disabled]: !restorable })}
+                                    onClick={this.handleRestoreOption(handleRestore)}
+                                >
+                                    {this.restoreOptionMessage(deletedItem)}
+                                </MenuItem>
+                            )}</DeletionRestorer>
+                            <MenuSection>
+                                <TurboMode>{(toggleTurboMode, { turboMode }) => (
+                                    <MenuItem onClick={toggleTurboMode}>
+                                        {turboMode ? (
+                                            <FormattedMessage
+                                                defaultMessage="Turn off Turbo Mode"
+                                                description="Menu bar item for turning off turbo mode"
+                                                id="gui.menuBar.turboModeOff"
+                                            />
+                                        ) : (
+                                            <FormattedMessage
+                                                defaultMessage="Turn on Turbo Mode"
+                                                description="Menu bar item for turning on turbo mode"
+                                                id="gui.menuBar.turboModeOn"
+                                            />
+                                        )}
+                                    </MenuItem>
+                                )}</TurboMode>
+                            </MenuSection>
+                        </MenuBarMenu>
                     </div>
+
 
                     {/* <Divider className={classNames(styles.divider)} /> */}
                     {(window.scratchConfig && window.scratchConfig.arduino) && (
@@ -871,28 +851,26 @@ class MenuBar extends React.Component {
 
                     {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
                         window.scratchConfig.menuBar.helpButton.show) && (
-                            <Divider className={classNames(styles.divider)} />
-                        )}
+                        <Divider className={classNames(styles.divider)} />
+                    )}
                     {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
                         window.scratchConfig.menuBar.helpButton.show) && (
-                            <div
-                                aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
-                                className={classNames(styles.menuBarItem, styles.hoverable)}
-                                onClick={this.props.onOpenTipLibrary}
-                            >
-                                <img
-                                    className={styles.helpIcon}
-                                    src={helpIcon}
-                                />
-                                <FormattedMessage {...ariaMessages.tutorials} />
-                            </div>
-                        )}
+                        <div
+                            aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
+                            className={classNames(styles.menuBarItem, styles.hoverable)}
+                            onClick={this.props.onOpenTipLibrary}
+                        >
+                            <img
+                                className={styles.helpIcon}
+                                src={helpIcon}
+                            />
+                            <FormattedMessage {...ariaMessages.tutorials} />
+                        </div>
+                    )}
                     {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.helpButton &&
                         window.scratchConfig.menuBar.helpButton.show) && (
-                            <Divider className={classNames(styles.divider)} />
-                        )}
-
-
+                        <Divider className={classNames(styles.divider)} />
+                    )}
 
                     {this.props.canEditTitle ? (
                         <div className={classNames(styles.menuBarItem, styles.growable)}>
@@ -930,7 +908,7 @@ class MenuBar extends React.Component {
                             />
                         </div>
                         <Divider className={classNames(styles.divider)} />
-                        <div
+                        {/* <div
                             className={classNames(styles.menuBarItem, this.props.isRealtimeMode &&
                                 this.props.peripheralName ? styles.hoverable : styles.disabled)}
                             onMouseUp={this.props.isRealtimeMode && this.props.peripheralName ?
@@ -947,7 +925,7 @@ class MenuBar extends React.Component {
                                 description="Button to download the realtime firmware"
                                 id="gui.menuBar.downloadFirmware"
                             />
-                        </div>
+                        </div> */}
 
                         <div className={classNames(styles.menuBarItem, styles.programModeGroup)}>
                             <Switch
@@ -1009,8 +987,22 @@ class MenuBar extends React.Component {
                             <MenuBarItemTooltip id="share-button">
                                 <ShareButton className={styles.menuBarButton} />
                             </MenuBarItemTooltip>
-                        ) : []
-                    )}
+                        ) : [])
+                    }
+
+                    {/* {(this.props.canManageFiles) && (
+                        <SB3Downloader>{(className, downloadProjectCallback) => (
+                            <div
+                                className={classNames(styles.menuBarItem, styles.hoverable)}
+                                onClick={this.getSaveToComputerHandler(downloadProjectCallback)}
+                            >
+                                <img
+                                    className={styles.saveIcon}
+                                    src={saveIcon}
+                                />
+                            </div>
+                        )}</SB3Downloader>
+                    )} */}
                     {this.props.canRemix ? remixButton : []}
                 </div>
 
@@ -1019,6 +1011,7 @@ class MenuBar extends React.Component {
                     { //提交
                         (window.scratchConfig && window.scratchConfig.shareButton && window.scratchConfig.shareButton.show) && (<ProfileButton
                             className={styles.menuBarButton}
+                            // eslint-disable-next-line react/jsx-no-bind
                             onClick={
                                 () => {
                                     window.scratchConfig.shareButton.handleClick();
@@ -1033,6 +1026,7 @@ class MenuBar extends React.Component {
                     { //我的作品
                         (window.scratchConfig && window.scratchConfig.profileButton && window.scratchConfig.profileButton.show) && (<ProfileButton
                             className={styles.menuBarButton}
+                            // eslint-disable-next-line react/jsx-no-bind
                             onClick={
                                 () => {
                                     window.scratchConfig.profileButton.handleClick();
@@ -1047,19 +1041,39 @@ class MenuBar extends React.Component {
                     {
                         (window.scratchConfig && window.scratchConfig.guideButton && window.scratchConfig.guideButton.show) && (<ProfileButton
                             className={styles.menuBarButton}
+                            // eslint-disable-next-line react/jsx-no-bind
                             onClick={
                                 () => {
                                     window.scratchConfig.guideButton.handleClick();
                                 }
                             }
                             buttonName={window.scratchConfig.guideButton.buttonName}
-                        />
-                        )}
+                        />)
+                    }
+                </div>
+                <Divider className={classNames(styles.divider)} />
+                <div
+                    className={classNames(styles.menuBarItem, this.props.isRealtimeMode &&
+                        this.props.peripheralName ? styles.hoverable : styles.disabled)}
+                    onMouseUp={this.props.isRealtimeMode && this.props.peripheralName ?
+                        this.handleUploadFirmware : null}
+                >
+                    <img
+                        alt="UploadFirmware"
+                        className={classNames(styles.uploadFirmwareLogo)}
+                        draggable={false}
+                        src={uploadFirmwareIcon}
+                    />
+                    <FormattedMessage
+                        defaultMessage="Upload firmware"
+                        description="Button to upload the realtime firmware"
+                        id="gui.menuBar.uploadFirmware"
+                    />
                 </div>
 
-
                 {!isScratchDesktop() ? (
-                    <div aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
+                    <div
+                        aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
                         className={classNames(styles.menuBarItem, styles.hoverable)}
                         onClick={this.handleFullscreen}
                     >
@@ -1250,34 +1264,46 @@ class MenuBar extends React.Component {
                             place={'left'}
                             onRequestClose={this.props.onRequestCloseSetting}
                         >
-                            <MenuSection>
-                                <MenuItem
-                                    isRtl={this.props.isRtl}
-                                    onClick={this.handleCheckUpdate}
-                                >
-                                    {checkUpdate}
-                                </MenuItem>
-                                <MenuItem
-                                    isRtl={this.props.isRtl}
-                                    onClick={this.handleClearCache}
-                                >
-                                    {clearCache}
-                                </MenuItem>
-                            </MenuSection>
-                            <MenuSection>
-                                <MenuItem
-                                    isRtl={this.props.isRtl}
-                                    onClick={this.props.onClickInstallDriver}
-                                >
-                                    {installDriver}
-                                </MenuItem>
-                            </MenuSection>
+                            <img
+                                className={styles.settingIcon}
+                                src={settingIcon}
+                            />
+                            <MenuBarMenu
+                                className={classNames(styles.menuBarMenu)}
+                                open={this.props.settingMenuOpen}
+                                place={this.props.isRtl ? 'right' : 'left'}
+                                onRequestClose={this.props.onRequestCloseSetting}
+                            >
+                                <MenuSection>
+                                    <MenuItem
+                                        isRtl={this.props.isRtl}
+                                        onClick={this.handleCheckUpdate}
+                                    >
+                                        {checkUpdate}
+                                    </MenuItem>
+                                    <MenuItem
+                                        isRtl={this.props.isRtl}
+                                        onClick={this.handleClearCache}
+                                    >
+                                        {clearCache}
+                                    </MenuItem>
+                                </MenuSection>
+                                <MenuSection>
+                                    <MenuItem
+                                        isRtl={this.props.isRtl}
+                                        onClick={this.props.onClickInstallDriver}
+                                    >
+                                        {installDriver}
+                                    </MenuItem>
+                                </MenuSection>
+                                <MenuSection>
+                                    {typeof this.props.onClickAbout === 'object' ? aboutButton : null}
+                                </MenuSection>
+                            </MenuBarMenu>
                         </MenuBarMenu>
-                    </div>
-                ) : null}
-
-                {aboutButton}
-            </Box >
+                    </div>) : null}
+                { (typeof this.props.onClickAbout === 'function') ? aboutButton : null}
+            </Box>
         );
     }
 }

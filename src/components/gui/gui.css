@@ -188,6 +188,14 @@
     display: flex;
 }
 
+.show-custom-and-sound-tab {
+    visibility: hidden;
+}
+
+.hide-custom-and-sound-tab {
+    visibility: visible;
+}
+
 .blocks-wrapper {
     flex-grow: 1;
     position: relative;
@@ -318,12 +326,12 @@ $fade-out-distance: 15px;
     overflow: hidden;
 }
 
-.show {
+.show-stage {
     padding-left: $space;
     padding-right: $space;
 }
 
-.hidden {
+.hide-stage {
     width: 0;
     padding-left: 0;
     padding-right: 0;
