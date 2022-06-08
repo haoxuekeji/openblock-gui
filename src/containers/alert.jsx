@@ -14,14 +14,14 @@ class Alert extends React.Component {
         super(props);
         bindAll(this, [
             'handleOnCloseAlert',
-            'handleDownloadFirmware',
+            'handleUploadFirmware',
             'handleOnReconnect'
         ]);
     }
     handleOnCloseAlert() {
         this.props.onCloseAlert(this.props.index);
     }
-    handleDownloadFirmware() {
+    handleUploadFirmware () {
         if (this.props.deviceName) {
             this.props.vm.uploadFirmwareToPeripheral(this.props.deviceId);
             this.props.onOpenUploadProgress();
@@ -47,7 +47,7 @@ class Alert extends React.Component {
             message,
             onSaveNow,
             showDownload,
-            showDownloadFirmware,
+            showUploadFirmware,
             showReconnect,
             showSaveNow
         } = this.props;
@@ -63,13 +63,13 @@ class Alert extends React.Component {
                     level={level}
                     message={message}
                     showDownload={showDownload}
-                    showDownloadFirmware={showDownloadFirmware}
+                    showUploadFirmware={showUploadFirmware}
                     showReconnect={showReconnect}
                     showSaveNow={showSaveNow}
                     onCloseAlert={this.handleOnCloseAlert}
                     onDownload={downloadProject}
                     onReconnect={this.handleOnReconnect}
-                    onDownloadFirmware={this.handleDownloadFirmware}
+                    onUploadFirmware={this.handleUploadFirmware}
                     onSaveNow={onSaveNow}
                 />
             )}</SB3Downloader>
@@ -123,7 +123,7 @@ Alert.propTypes = {
     onSaveNow: PropTypes.func,
     deviceName: PropTypes.string,
     showDownload: PropTypes.bool,
-    showDownloadFirmware: PropTypes.bool,
+    showUploadFirmware: PropTypes.bool,
     showReconnect: PropTypes.bool,
     showSaveNow: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired

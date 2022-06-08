@@ -29,8 +29,8 @@ const AlertComponent = ({
     onDownload,
     onSaveNow,
     onReconnect,
-    onDownloadFirmware,
-    showDownloadFirmware,
+    onUploadFirmware,
+    showUploadFirmware,
     showReconnect
 }) => (
     <Box
@@ -108,15 +108,15 @@ const AlertComponent = ({
                     />
                 </button>
             )}
-            {showDownloadFirmware && (
+            {showUploadFirmware && (
                 <button
-                    className={styles.alertDownloadFirmware}
-                    onClick={onDownloadFirmware}
+                    className={styles.alertUploadFirmware}
+                    onClick={onUploadFirmware}
                 >
                     <FormattedMessage
-                        defaultMessage="Download firmware"
-                        description="Button to download the realtime firmware"
-                        id="gui.alerts.downloadFirmware"
+                        defaultMessage="Upload firmware"
+                        description="Button to upload the realtime firmware"
+                        id="gui.alerts.uploadFirmware"
                     />
                 </button>
             )}
@@ -146,11 +146,11 @@ AlertComponent.propTypes = {
     level: PropTypes.string,
     onCloseAlert: PropTypes.func.isRequired,
     onDownload: PropTypes.func,
-    onDownloadFirmware: PropTypes.func,
+    onUploadFirmware: PropTypes.func,
     onReconnect: PropTypes.func,
     onSaveNow: PropTypes.func,
     showDownload: PropTypes.func,
-    showDownloadFirmware: PropTypes.bool,
+    showUploadFirmware: PropTypes.bool,
     showReconnect: PropTypes.bool,
     showSaveNow: PropTypes.bool
 };

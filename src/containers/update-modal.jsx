@@ -11,61 +11,23 @@ import {setUpdate, clearUpdate} from '../reducers/update';
 
 import UpdateModalComponent from '../components/update-modal/update-modal.jsx';
 import MessageBoxType from '../lib/message-box.js';
+import {UPDATE_MODAL_STATE} from '../lib/update-state.js';
 
 const messages = defineMessages({
-    upgradeWarning: {
-        id: 'gui.updateModal.upgradeWarning',
-        defaultMessage: 'Currently unsaved projects will be lost, continue upgrade and restart?',
-        description: 'Confirmation that user wants upgrade'
+    updateWarning: {
+        id: 'gui.updateModal.updateWarning',
+        defaultMessage: 'Currently unsaved projects will be lost, continue update and restart?',
+        description: 'Confirmation that user wants update'
     }
 });
-
-const progressBarPhase = {
-    idle: 0,
-    downloading: 10,
-    extracting: 80,
-    covering: 90
-};
 
 class UpdateModal extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, [
             'handleCancel',
-            'handleClickUpgrade'
+            'handleClickUpdate'
         ]);
-        this.state = {
-            progressBarCompleted: progressBarPhase.idle
-        };
-    }
-
-    componentWillUpdate (newProps) {
-        if (this.props.updateState.phase !== newProps.updateState.phase) {
-            if (newProps.updateState.phase === 'downloading') {
-                this.setState({
-                    progressBarCompleted: progressBarPhase.downloading
-                });
-                this.downloadInterval = setInterval(() => {
-                    if (this.state.progressBarCompleted < (progressBarPhase.extracting - 1)) {
-                        this.setState({
-                            progressBarCompleted: this.state.progressBarCompleted + 1
-                        });
-                    }
-                }, 2000);
-            } else {
-                clearInterval(this.downloadInterval);
-
-                if (newProps.updateState.phase === 'extracting') {
-                    this.setState({
-                        progressBarCompleted: progressBarPhase.extracting
-                    });
-                } else if (newProps.updateState.phase === 'covering') {
-                    this.setState({
-                        progressBarCompleted: progressBarPhase.covering
-                    });
-                }
-            }
-        }
     }
     componentWillUnmount () {
         clearInterval(this.downloadInterval);
@@ -73,26 +35,25 @@ class UpdateModal extends React.Component {
 
     handleCancel () {
         this.props.onClearUpdate();
+        this.props.onAbortUpdate();
     }
 
-    handleClickUpgrade () {
-        const confirmUpgrade = this.props.onShowMessageBox(MessageBoxType.confirm,
-            this.props.intl.formatMessage(messages.upgradeWarning));
-        if (confirmUpgrade) {
+    handleClickUpdate () {
+        const confirmUpdate = this.props.onShowMessageBox(MessageBoxType.confirm,
+            this.props.intl.formatMessage(messages.updateWarning));
+        if (confirmUpdate) {
             this.props.onSetUpdate({phase: 'downloading', speed: 0, transferred: 0});
-            if (typeof this.props.onClickUpgrade !== 'undefined') {
-                this.props.onClickUpgrade();
-            }
+            this.props.onClickUpdate();
         }
     }
 
     render () {
         return (
             <UpdateModalComponent
-                onClickUpgrade={this.handleClickUpgrade}
+                intl={this.props.intl}
+                onClickUpdate={this.handleClickUpdate}
                 onCancel={this.handleCancel}
                 updateState={this.props.updateState}
-                progressBarCompleted={this.state.progressBarCompleted}
             />
         );
     }
@@ -100,15 +61,26 @@ class UpdateModal extends React.Component {
 
 UpdateModal.propTypes = {
     intl: intlShape,
-    onClickUpgrade: PropTypes.func.isRequired,
+    onAbortUpdate: PropTypes.func.isRequired,
+    onClickUpdate: PropTypes.func.isRequired,
     onClearUpdate: PropTypes.func.isRequired,
     onSetUpdate: PropTypes.func.isRequired,
     onShowMessageBox: PropTypes.func.isRequired,
     updateState: PropTypes.shape({
-        phase: PropTypes.oneOf(['idle', 'downloading', 'covering', 'checking', 'error', 'latest']),
-        version: PropTypes.string,
-        describe: PropTypes.string,
-        message: PropTypes.string
+        phase: PropTypes.oneOf(Object.keys(UPDATE_MODAL_STATE)),
+        info:
+            PropTypes.shape({
+                version: PropTypes.string,
+                message: PropTypes.oneOf([PropTypes.object, PropTypes.string]),
+                phase: PropTypes.string,
+                progress: PropTypes.number,
+                state: PropTypes.shape({
+                    name: PropTypes.string,
+                    speed: PropTypes.string,
+                    total: PropTypes.string,
+                    done: PropTypes.string
+                })
+            })
     })
 };
 

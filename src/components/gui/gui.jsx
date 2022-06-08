@@ -103,12 +103,13 @@ const GUIComponent = props => {
         onLogOut,
         onOpenRegistration,
         onToggleLoginOpen,
+        onAbortUpdate,
         onActivateCostumesTab,
         onActivateSoundsTab,
         onActivateTab,
         onClickLogo,
         onClickCheckUpdate,
-        onClickUpgrade,
+        onClickUpdate,
         onClickClearCache,
         onClickInstallDriver,
         onExtensionButtonClick,
@@ -233,7 +234,8 @@ const GUIComponent = props => {
                 {updateModalVisible ? (
                     <UpdateModal
                         vm={vm}
-                        onClickUpgrade={onClickUpgrade}
+                        onAbortUpdate={onAbortUpdate}
+                        onClickUpdate={onClickUpdate}
                         onShowMessageBox={onShowMessageBox}
                     />
                 ) : null}
@@ -298,7 +300,9 @@ const GUIComponent = props => {
                                         />
                                     </Tab>
                                     <Tab
-                                        className={tabClassNames.tab}
+                                        className={classNames(tabClassNames.tab,
+                                            isRealtimeMode ? styles.hideCustomAndSoundTab :
+                                                styles.showCustomAndSoundTab)}
                                         onClick={onActivateCostumesTab}
                                     >
                                         <img
@@ -320,7 +324,9 @@ const GUIComponent = props => {
                                         )}
                                     </Tab>
                                     <Tab
-                                        className={tabClassNames.tab}
+                                        className={classNames(tabClassNames.tab,
+                                            isRealtimeMode ? styles.hideCustomAndSoundTab :
+                                                styles.showCustomAndSoundTab)}
                                         onClick={onActivateSoundsTab}
                                     >
                                         <img
@@ -375,7 +381,6 @@ const GUIComponent = props => {
                                 <Backpack host={backpackHost} />
                             ) : null}
                         </Box>
-
                         {(isRealtimeMode === false) ? (
                             <HardwareHeader
                                 vm={vm}
@@ -386,8 +391,10 @@ const GUIComponent = props => {
                                 vm={vm}
                             />) : null
                         }
-                        <Box className={classNames(styles.stageAndTargetWrapper, styles[stageSize],
-                            isRealtimeMode ? styles.show : styles.hidden)}>
+                        <Box
+                            className={classNames(styles.stageAndTargetWrapper, styles[stageSize],
+                                isRealtimeMode ? styles.showStage : styles.hideStage)}
+                        >
                             <StageWrapper
                                 isFullScreen={isFullScreen}
                                 isRendererSupported={isRendererSupported}
@@ -450,7 +457,8 @@ GUIComponent.propTypes = {
     onClickAccountNav: PropTypes.func,
     onClickLogo: PropTypes.func,
     onClickCheckUpdate: PropTypes.func,
-    onClickUpgrade: PropTypes.func,
+    onAbortUpdate: PropTypes.func,
+    onClickUpdate: PropTypes.func,
     onClickClearCache: PropTypes.func,
     onClickInstallDriver: PropTypes.func,
     onCloseAccountNav: PropTypes.func,

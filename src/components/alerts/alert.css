@@ -89,7 +89,7 @@
     outline-style:none;
 }
 
-.alert-download-firmware {
+.alert-upload-firmware {
     min-height: 2rem;
     /* width: 6.5rem; */
     padding: 0.55rem 0.9rem;

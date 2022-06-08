@@ -105,7 +105,7 @@ const reducer = function (state, action) {
             extensionMessage: action.device.message,
             iconURL: action.device.connectionSmallIconURL,
             level: AlertLevels.WARN,
-            showDownloadFirmware: true
+            showUploadFirmware: true
         };
         newList.push(newAlert);
 

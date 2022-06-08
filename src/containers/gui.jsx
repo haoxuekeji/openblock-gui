@@ -141,6 +141,9 @@ class GUI extends React.Component {
                 }
             }
         }
+        if (this.props.isRealtimeMode !== true) {
+            this.props.onActivateBlocksTab();
+        }
     }
     getProjectFile(callback) {
         this.props.vm.saveProjectSb3().then(res => {
@@ -205,6 +208,7 @@ class GUI extends React.Component {
             isError,
             isScratchDesktop,
             isShowingProject,
+            onActivateBlocksTab,
             onProjectLoaded,
             onStorageInit,
             onUpdateProjectId,
@@ -241,6 +245,7 @@ GUI.propTypes = {
     isScratchDesktop: PropTypes.bool,
     isShowingProject: PropTypes.bool,
     loadingStateVisible: PropTypes.bool,
+    onActivateBlocksTab: PropTypes.func,
     onProjectLoaded: PropTypes.func,
     onSeeCommunity: PropTypes.func,
     onStorageInit: PropTypes.func,
@@ -302,6 +307,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     onExtensionButtonClick: () => dispatch(openExtensionLibrary()),
     onActivateTab: tab => dispatch(activateTab(tab)),
+    onActivateBlocksTab: () => dispatch(activateTab(BLOCKS_TAB_INDEX)),
     onActivateCostumesTab: () => dispatch(activateTab(COSTUMES_TAB_INDEX)),
     onActivateSoundsTab: () => dispatch(activateTab(SOUNDS_TAB_INDEX)),
     onRequestCloseBackdropLibrary: () => dispatch(closeBackdropLibrary()),
