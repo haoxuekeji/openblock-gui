@@ -626,9 +626,6 @@ class MenuBar extends React.Component {
                         />
                     </div>
         
-                    <Divider className={classNames(styles.divider)} />
-
-   
                     {(this.props.canChangeLanguage) && (<div
                         className={classNames(styles.menuBarItem, styles.hoverable, styles.languageMenu)}
                     >
@@ -904,7 +901,7 @@ class MenuBar extends React.Component {
                                 src={screenshotIcon}
                             />
                         </div>
-                        <Divider className={classNames(styles.divider)} />
+                        {/* <Divider className={classNames(styles.divider)} /> */}
                         {/* <div
                             className={classNames(styles.menuBarItem, this.props.isRealtimeMode &&
                                 this.props.peripheralName ? styles.hoverable : styles.disabled)}
@@ -1258,45 +1255,34 @@ class MenuBar extends React.Component {
                         <MenuBarMenu
                             className={classNames(styles.menuBarMenu)}
                             open={this.props.settingMenuOpen}
-                            place={'left'}
+                            place={this.props.isRtl ? 'right' : 'left'}
                             onRequestClose={this.props.onRequestCloseSetting}
                         >
-                            <img
-                                className={styles.settingIcon}
-                                src={settingIcon}
-                            />
-                            <MenuBarMenu
-                                className={classNames(styles.menuBarMenu)}
-                                open={this.props.settingMenuOpen}
-                                place={this.props.isRtl ? 'right' : 'left'}
-                                onRequestClose={this.props.onRequestCloseSetting}
-                            >
-                                <MenuSection>
-                                    <MenuItem
-                                        isRtl={this.props.isRtl}
-                                        onClick={this.handleCheckUpdate}
-                                    >
-                                        {checkUpdate}
-                                    </MenuItem>
-                                    <MenuItem
-                                        isRtl={this.props.isRtl}
-                                        onClick={this.handleClearCache}
-                                    >
-                                        {clearCache}
-                                    </MenuItem>
-                                </MenuSection>
-                                <MenuSection>
-                                    <MenuItem
-                                        isRtl={this.props.isRtl}
-                                        onClick={this.props.onClickInstallDriver}
-                                    >
-                                        {installDriver}
-                                    </MenuItem>
-                                </MenuSection>
-                                <MenuSection>
-                                    {typeof this.props.onClickAbout === 'object' ? aboutButton : null}
-                                </MenuSection>
-                            </MenuBarMenu>
+                            <MenuSection>
+                                <MenuItem
+                                    isRtl={this.props.isRtl}
+                                    onClick={this.handleCheckUpdate}
+                                >
+                                    {checkUpdate}
+                                </MenuItem>
+                                <MenuItem
+                                    isRtl={this.props.isRtl}
+                                    onClick={this.handleClearCache}
+                                >
+                                    {clearCache}
+                                </MenuItem>
+                            </MenuSection>
+                            <MenuSection>
+                                <MenuItem
+                                    isRtl={this.props.isRtl}
+                                    onClick={this.props.onClickInstallDriver}
+                                >
+                                    {installDriver}
+                                </MenuItem>
+                            </MenuSection>
+                            <MenuSection>
+                                {typeof this.props.onClickAbout === 'object' ? aboutButton : null}
+                            </MenuSection>
                         </MenuBarMenu>
                     </div>) : null}
                 { (typeof this.props.onClickAbout === 'function') ? aboutButton : null}
