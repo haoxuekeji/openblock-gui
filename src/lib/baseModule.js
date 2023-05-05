@@ -27,7 +27,7 @@ class baseModule {
             // let each request carry token
             // ['X-Token'] is a custom headers key
             // please modify it according to the actual situation
-            //config.headers['X-Token'] = getToken()
+            config.headers['x-token'] = token
             token & (config.headers.Authorization = 'Bearer ' + token)
           }
           return config
@@ -123,7 +123,7 @@ class baseModule {
   }
 
   post(url, data) {
-    return this.$http.post(this.baseUrl + '/api/v1/' + url, data, {headers: { 'content-type': 'application/x-www-form-urlencoded' }})
+    return this.$http.post(this.baseUrl + '/api/v2/' + url, data, {headers: { 'content-type': 'application/x-www-form-urlencoded' }})
   }
 //
 //   put(url, data = undefined, config = {}) {
