@@ -79,7 +79,7 @@ class DeviceLibrary extends React.PureComponent {
                         // TODO: Add a event for install device extension
                         // the large extensions will take many times to load
                         // A loading interface should be launched.
-                        this.props.vm.installDeviceExtensions(deviceExtensions);
+                        this.props.vm.installDeviceExtensions(Object.assign([], deviceExtensions));
                     });
                     this.props.onDeviceSelected(id);
                     // analytics.event({

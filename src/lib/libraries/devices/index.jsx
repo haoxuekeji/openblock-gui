@@ -1,6 +1,6 @@
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
-import defaultsDeep from 'lodash.defaultsdeep';
+import {defaults} from 'lodash';
 import log from '../../log';
 import {DeviceType} from '../../device';
 
@@ -38,9 +38,21 @@ import esp32IconURL from './esp32/esp32.png';
 import esp32ConnectionIconURLL from './esp32/esp32-illustration.svg';
 import esp32ConnectionSmallIconURL from './esp32/esp32-small.svg';
 
-import esp8266IconURL from './esp8266/esp8266.png';
-import esp8266ConnectionIconURL from './esp8266/esp8266-illustration.svg';
-import esp8266ConnectionSmallIconURL from './esp8266/esp8266-small.svg';
+import esp8266NodeMCUIconURL from './esp8266NodeMCU/esp8266NodeMCU.png';
+import esp8266NodeMCUConnectionIconURL from './esp8266NodeMCU/esp8266NodeMCU-illustration.svg';
+import esp8266NodeMCUConnectionSmallIconURL from './esp8266NodeMCU/esp8266NodeMCU-small.svg';
+
+import k210MaixDockIconURL from './k210MaixDock/k210MaixDock.png';
+import k210MaixDockConnectionIconURLL from './k210MaixDock/k210MaixDock-illustration.svg';
+import k210MaixDockConnectionSmallIconURL from './k210MaixDock/k210MaixDock-small.svg';
+
+import k210MaixduinoIconURL from './k210Maixduino/k210Maixduino.png';
+import k210MaixduinoConnectionIconURLL from './k210Maixduino/k210Maixduino-illustration.svg';
+import k210MaixduinoConnectionSmallIconURL from './k210Maixduino/k210Maixduino-small.svg';
+
+import raspberryPiPicoIconURL from './raspberryPiPico/raspberryPiPico.png';
+import raspberryPiPicoConnectionIconURL from './raspberryPiPico/raspberryPiPico-illustration.svg';
+import raspberryPiPicoConnectionSmallIconURL from './raspberryPiPico/raspberryPiPico-small.svg';
 
 import makeymakeyIconURL from './makeymakey/makeymakey.png';
 import makeymakeyConnectionIconURL from './makeymakey/makeymakey-illustration.svg';
@@ -58,7 +70,7 @@ const deviceData = [
                 id="gui.device.unselectDevice.name"
             />
         ),
-        deviceId: 'unselectDevice',
+        deviceId: 'null',
         iconURL: unselectDeviceIconURL,
         description: (
             <FormattedMessage
@@ -253,23 +265,23 @@ const deviceData = [
             />
         ),
         baseToolBoxXml: arduinoBaseToolBox,
-        programMode: ['upload'],
+        programMode: ['upload', 'realtime'],
         programLanguage: ['block', 'c', 'cpp'],
         tags: ['arduino'],
         helpLink: 'https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/hw-reference/esp32/get-started-devkitc.html'
     },
     {
-        name: 'ESP8266',
-        deviceId: 'arduinoEsp8266',
+        name: 'NodeMCU',
+        deviceId: 'arduinoEsp8266NodeMCU',
         manufactor: 'espressif',
-        learnMore: 'https://www.espressif.com/',
+        learnMore: 'https://www.nodemcu.com',
         type: DeviceType.arduino,
-        iconURL: esp8266IconURL,
+        iconURL: esp8266NodeMCUIconURL,
         description: (
             <FormattedMessage
                 defaultMessage="Low-cost Wi-Fi SOC control board."
-                description="Description for the esp8266 device"
-                id="gui.device.esp8266.description"
+                description="Description for the esp8266 NodeMCU device"
+                id="gui.device.esp8266NodeMCU.description"
             />
         ),
         featured: true,
@@ -280,20 +292,132 @@ const deviceData = [
         internetConnectionRequired: false,
         launchPeripheralConnectionFlow: true,
         useAutoScan: false,
-        connectionIconURL: esp8266ConnectionIconURL,
-        connectionSmallIconURL: esp8266ConnectionSmallIconURL,
+        connectionIconURL: esp8266NodeMCUConnectionIconURL,
+        connectionSmallIconURL: esp8266NodeMCUConnectionSmallIconURL,
         connectingMessage: (
             <FormattedMessage
                 defaultMessage="Connecting"
                 description="Message to help people connect to their device."
-                id="gui.device.esp8266.connectingMessage"
+                id="gui.device.esp8266NodeMCU.connectingMessage"
+            />
+        ),
+        baseToolBoxXml: arduinoBaseToolBox,
+        deviceExtensionsCompatible: 'arduinoEsp8266',
+        programMode: ['upload'],
+        programLanguage: ['block', 'c', 'cpp'],
+        tags: ['arduino'],
+        helpLink: 'https://arduino-esp8266.readthedocs.io/en/3.0.0/index.html'
+    },
+    {
+        name: 'MaixDock',
+        deviceId: 'arduinoK210MaixDock',
+        manufactor: 'sipeed',
+        learnMore: 'https://wiki.sipeed.com/',
+        type: DeviceType.arduino,
+        iconURL: k210MaixDockIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="A control board based on the K210 RISC-V chip that only has basic functions and leads out all IO pins." // eslint-disable-line max-len
+                description="Description for the K210 MaixDock device"
+                id="gui.device.k210MaixDock.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        defaultBaudRate: '115200',
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: k210MaixDockConnectionIconURLL,
+        connectionSmallIconURL: k210MaixDockConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.k210MaixDock.connectingMessage"
             />
         ),
         baseToolBoxXml: arduinoBaseToolBox,
         programMode: ['upload'],
         programLanguage: ['block', 'c', 'cpp'],
         tags: ['arduino'],
-        helpLink: 'https://arduino-esp8266.readthedocs.io/en/3.0.0/index.html'
+        helpLink: 'https://wiki.sipeed.com/hardware/zh/maix/maixpy_develop_kit_board/Maix_dock.html'
+    },
+    {
+        name: 'Maixduino',
+        deviceId: 'arduinoK210Maixduino',
+        manufactor: 'sipeed',
+        learnMore: 'https://maixduino.sipeed.com/',
+        type: DeviceType.arduino,
+        iconURL: k210MaixduinoIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="The K210 RISC-V board with ESP32 inside."
+                description="Description for the K210 maixduino device"
+                id="gui.device.k210Maixduino.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        defaultBaudRate: '115200',
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: k210MaixduinoConnectionIconURLL,
+        connectionSmallIconURL: k210MaixduinoConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.k210Maixduino.connectingMessage"
+            />
+        ),
+        baseToolBoxXml: arduinoBaseToolBox,
+        programMode: ['upload'],
+        programLanguage: ['block', 'c', 'cpp'],
+        tags: ['arduino'],
+        helpLink: 'https://wiki.sipeed.com/soft/maixpy/en/develop_kit_board/maix_duino.html'
+    },
+    {
+        name: 'Raspberry Pi Pico',
+        deviceId: 'arduinoRaspberryPiPico',
+        manufactor: 'Raspberry Pi Foundation',
+        learnMore: 'https://www.raspberrypi.com/',
+        type: DeviceType.arduino,
+        iconURL: raspberryPiPicoIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="The powerful, flexible microcontroller board."
+                description="Description for the Raspberry Pi Pico device"
+                id="gui.device.raspberryPiPicoIconURL.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        defaultBaudRate: '9600',
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: raspberryPiPicoConnectionIconURL,
+        connectionSmallIconURL: raspberryPiPicoConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.raspberryPiPicoIconURL.connectingMessage"
+            />
+        ),
+        baseToolBoxXml: arduinoBaseToolBox,
+        programMode: ['upload'],
+        programLanguage: ['block', 'c', 'cpp'],
+        tags: ['arduino'],
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/raspberry-pi-pico'
     },
     {
         name: 'Micro:bit',
@@ -416,6 +540,22 @@ const deviceData = [
         disabled: false,
         hide: true,
         baseToolBoxXml: arduinoBaseToolBox
+    },
+    {
+        deviceId: 'arduinoSE',
+        type: DeviceType.arduino,
+        featured: true,
+        disabled: false,
+        hide: true,
+        baseToolBoxXml: arduinoBaseToolBox
+    },
+    {
+        deviceId: 'arduinoEsp8266',
+        type: DeviceType.arduino,
+        featured: true,
+        disabled: false,
+        hide: true,
+        baseToolBoxXml: arduinoBaseToolBox
     }
 ];
 
@@ -446,6 +586,13 @@ const makeDeviceLibrary = (deviceList = null) => {
 
     if (deviceList) {
         deviceList.forEach(dev => {
+            // Because the micropython framework is not included in the community version,
+            // for a control board that supports multiple programming frameworks, if it
+            // also supports arduino, then we only load the arduino version of the device.
+            if ((typeof dev.typeList !== 'undefined') && (dev.deviceId.indexOf('arduino') !== -1)) {
+                dev.hide = false;
+            }
+
             // Check if this is a build-in device.
             const matchedDevice = deviceData.find(item => dev.deviceId === item.deviceId);
             if (matchedDevice) {
@@ -457,7 +604,7 @@ const makeDeviceLibrary = (deviceList = null) => {
             if (realDeviceId) {
                 const parentDevice = deviceData.find(item => realDeviceId === item.deviceId);
                 if (parentDevice) {
-                    return regeneratedDeviceData.push(defaultsDeep({}, dev, {hide: false}, parentDevice));
+                    return regeneratedDeviceData.push(defaults({}, dev, {hide: false}, parentDevice));
                 }
             }
             log.warn('Cannot find this device or it\'s parent device :', dev.deviceId);

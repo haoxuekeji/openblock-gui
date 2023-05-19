@@ -17,7 +17,8 @@ const PHASES = keyMirror({
     uploading: null,
     success: null,
     error: null,
-    timeout: null
+    timeout: null,
+    aborted: null
 });
 
 const UploadProgressComponent = props => (
@@ -28,14 +29,18 @@ const UploadProgressComponent = props => (
         headerImage={props.connectionSmallIconURL}
         id="connectionModal"
         onHelp={props.onHelp}
-        shouldCloseOnOverlayClick={false}
+        onRequestClose={props.onStopAutoClose}
+        shouldCloseOnOverlayClick
         closeButtonVisible={false}
     >
-        <Box className={styles.body}>
+        <Box
+            className={styles.body}
+            onClick={props.onStopAutoClose}
+        >
             <Box className={styles.terminalWarper}>
                 <ScrollableFeed
                     className={styles.terminalText}
-                    forceScroll
+                    ref={props.scrollableRef}
                 >
                     <Ansi>
                         {props.text}
@@ -77,18 +82,43 @@ const UploadProgressComponent = props => (
                             id="gui.uploadProgress.uploadTimeout"
                         />
                     ) : null}
+                    {props.phase === PHASES.aborted ? (
+                        <FormattedMessage
+                            defaultMessage="Upload aborted"
+                            description="Prompt for upload aborted"
+                            id="gui.uploadProgress.uploadAborted"
+                        />
+                    ) : null}
                 </Box>
-                <button
-                    className={classNames(styles.bottomAreaItem, styles.connectionButton)}
-                    onClick={props.onCancel}
-                    disabled={props.phase === PHASES.uploading}
-                >
-                    <FormattedMessage
-                        defaultMessage="Close"
-                        description="Button in bottom to close after upload"
-                        id="gui.uploadProgress.close"
-                    />
-                </button>
+                {
+                    (props.phase === PHASES.uploading && props.abortEnabled) ?
+                        <button
+                            className={classNames(styles.bottomAreaItem, styles.connectionButton)}
+                            onClick={props.onAbort}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Abort"
+                                description="Button in bottom to abort upload process"
+                                id="gui.uploadProgress.abort"
+                            />
+                        </button> :
+                        <button
+                            className={classNames(styles.bottomAreaItem, styles.connectionButton)}
+                            onClick={props.onCancel}
+                            disabled={props.phase === PHASES.uploading}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Close"
+                                description="Button in bottom to close after upload"
+                                id="gui.uploadProgress.close"
+                            />
+                            &nbsp;
+                            {((props.phase === PHASES.success ||
+                                props.phase === PHASES.aborted) &&
+                                props.autoCloseCount !== 0) ?
+                                `(${props.autoCloseCount / 1000}s)` : null}
+                        </button>
+                }
             </Box>
         </Box>
     </Modal>
@@ -97,10 +127,15 @@ const UploadProgressComponent = props => (
 UploadProgressComponent.propTypes = {
     connectionSmallIconURL: PropTypes.string,
     name: PropTypes.node,
+    abortEnabled: PropTypes.bool.isRequired,
+    autoCloseCount: PropTypes.number.isRequired,
+    onAbort: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
     onHelp: PropTypes.func.isRequired,
+    onStopAutoClose: PropTypes.func.isRequired,
     text: PropTypes.string.isRequired,
-    phase: PropTypes.oneOf(Object.keys(PHASES)).isRequired
+    phase: PropTypes.oneOf(Object.keys(PHASES)).isRequired,
+    scrollableRef: PropTypes.object // eslint-disable-line react/forbid-prop-types
 };
 
 UploadProgressComponent.defaultProps = {
