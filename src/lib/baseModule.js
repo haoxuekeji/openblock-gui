@@ -123,7 +123,7 @@ class baseModule {
   }
 
   post(url, data) {
-    return this.$http.post(this.baseUrl + '/api/v2/' + url, data, {headers: { 'content-type': 'application/x-www-form-urlencoded' }})
+    return this.$http.post(this.baseUrl + '/api/v1/' + url, data, {headers: { 'content-type': 'application/x-www-form-urlencoded' }})
   }
 //
 //   put(url, data = undefined, config = {}) {

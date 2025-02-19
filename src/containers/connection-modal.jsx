@@ -4,6 +4,8 @@ import bindAll from 'lodash.bindall';
 import ConnectionModalComponent, { PHASES } from '../components/connection-modal/connection-modal.jsx';
 import VM from 'openblock-vm';
 //import analytics from '../lib/analytics';
+import extensionData from '../lib/libraries/extensions/index.jsx';
+
 import {connect} from 'react-redux';
 import {closeConnectionModal} from '../reducers/modals';
 import {setConnectionModalPeripheralName, setListAll} from '../reducers/connection-modal';
@@ -21,12 +23,20 @@ class ConnectionModal extends React.Component {
             'handleHelp'
         ]);
         this.state = {
+            //device: extensionData.find(device => device.extensionId === props.deviceId),
             device: this.props.deviceData.find(device => device.deviceId === props.deviceId),
             phase: props.vm.getPeripheralIsConnected(props.deviceId) ?
                 PHASES.connected : PHASES.scanning,
             peripheralName: null,
             errorMessage: null
         };
+        // if(this.state.device == undefined) {
+        //     this.state.device = extensionData.find(device => device.extensionId === props.deviceId)
+        //     this.state.device.deviceId = this.state.device.extensionId
+        // }
+        // console.log(extensionData)
+        // console.log(this.state.device)
+        // console.log(props.deviceId)
     }
     componentDidMount() {
         this.props.vm.on('PERIPHERAL_CONNECTED', this.handleConnected);
@@ -43,6 +53,8 @@ class ConnectionModal extends React.Component {
     }
     handleConnecting(peripheralId, peripheralName) {
         if (this.props.isRealtimeMode) {
+            console.log(peripheralId, peripheralName)
+            console.log(this.props)
             this.props.vm.connectPeripheral(this.props.deviceId, peripheralId);
         } else {
             this.props.vm.connectPeripheral(this.props.deviceId, peripheralId, parseInt(this.props.baudrate, 10));

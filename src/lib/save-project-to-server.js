@@ -58,7 +58,11 @@ export default function (projectId, vmState, params) {
             }
             body.id = projectId;
             if (creatingProject) {
-                body.id = body['data']['id'];
+                if(body['content-name']) {
+                   body.id = body['content-name']; 
+                } else {
+                    body.id = body['data']['id'];
+                }               
             }
             resolve(body);
         });
