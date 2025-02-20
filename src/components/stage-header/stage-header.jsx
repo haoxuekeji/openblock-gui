@@ -18,7 +18,7 @@ import unFullScreenIcon from './icon--unfullscreen.svg';
 
 import signalIcon from './icon--signal.svg';
 
-import scratchLogo from '../menu-bar/scratch-logo.svg';
+import openblockLogo from '../menu-bar/openblock-logo.svg';
 import styles from './stage-header.css';
 
 const messages = defineMessages({
@@ -69,7 +69,7 @@ const StageHeaderComponent = function (props) {
     if (isFullScreen) {
         const stageDimensions = getStageDimensions(null, true);
         const stageButton = showBranding ? (
-            <div className={styles.embedScratchLogo}>
+            <div className={styles.embedOpenblockLogo}>
                 <a
                     href="https://openblock.cc"
                     rel="noopener noreferrer"
@@ -77,7 +77,7 @@ const StageHeaderComponent = function (props) {
                 >
                     <img
                         alt="OpenBlock"
-                        src={scratchLogo}
+                        src={openblockLogo}
                     />
                 </a>
             </div>
@@ -163,6 +163,7 @@ const StageHeaderComponent = function (props) {
                             className={styles.signalIcon}
                             draggable={false}
                             src={signalIcon}
+                            hidden={!props.deviceId}
                         />
                     </Box>
                     <div className={styles.stageSizeRow}>
@@ -191,12 +192,14 @@ const StageHeaderComponent = function (props) {
 };
 
 const mapStateToProps = state => ({
+    deviceId: state.scratchGui.device.deviceId,
     realtimeConnection: state.scratchGui.connectionModal.realtimeConnection,
     // This is the button's mode, as opposed to the actual current state
     stageSizeMode: state.scratchGui.stageSize.stageSize
 });
 
 StageHeaderComponent.propTypes = {
+    deviceId: PropTypes.string,
     intl: intlShape,
     isFullScreen: PropTypes.bool.isRequired,
     isPlayerOnly: PropTypes.bool.isRequired,

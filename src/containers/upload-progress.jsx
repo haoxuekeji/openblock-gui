@@ -35,6 +35,7 @@ class UploadProgress extends React.Component {
         bindAll(this, [
             'handleAbort',
             'handleCancel',
+            'handleConnectionLostError',
             'handleHelp',
             'handleSetUploadAbortEnabled',
             'handleStdout',
@@ -64,14 +65,14 @@ class UploadProgress extends React.Component {
     componentDidMount() {
         this.props.vm.on('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
         this.props.vm.on('PERIPHERAL_UPLOAD_ERROR', this.handleUploadError);
-        this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleUploadError);
+        this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleConnectionLostError);
         this.props.vm.on('PERIPHERAL_UPLOAD_SUCCESS', this.handleUploadSuccess);
         this.props.vm.on('PERIPHERAL_SET_UPLOAD_ABORT_ENABLED', this.handleSetUploadAbortEnabled);
     }
     componentWillUnmount() {
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_ERROR', this.handleUploadError);
-        this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleUploadError);
+        this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleConnectionLostError);
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_SUCCESS', this.handleUploadSuccess);
         this.props.vm.removeListener('PERIPHERAL_SET_UPLOAD_ABORT_ENABLED', this.handleSetUploadAbortEnabled);
         clearTimeout(this.uploadTimeout);
@@ -107,12 +108,18 @@ class UploadProgress extends React.Component {
             this.setState({abortEnabled: false});
         }
     }
+    handleConnectionLostError (data) {
+        this.setState({
+            text: `${this.state.text + data.message} ${data.deviceId}\r\n`,
+            phase: PHASES.error
+        });
+    }
     handleUploadError (data) {
         // if the upload progress has been in success don't handle the upload error.
         if (this.state.phase !== PHASES.success) {
             this.setState({
                 text: `${this.state.text + data.message}\r\n` +
-                    `${this.props.intl.formatMessage(messages.uploadErrorMessage)}`,
+                    `${this.props.intl.formatMessage(messages.uploadErrorMessage)}\r\n`,
                 phase: PHASES.error
             });
             this.props.onUploadError();

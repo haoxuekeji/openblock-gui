@@ -9,6 +9,7 @@ import {injectIntl} from 'react-intl';
 import {showAlertWithTimeout} from '../reducers/alerts';
 import {setCodeEditorValue, toggleLock} from '../reducers/code';
 
+import {STAGE_DISPLAY_SIZES} from '../lib/layout-constants.js';
 import {getLanguageFromDeviceType} from '../lib/device';
 
 import HardwareComponent from '../components/hardware/hardware.jsx';
@@ -84,14 +85,14 @@ Hardware.propTypes = {
     isCodeEditorLocked: PropTypes.bool.isRequired,
     onCodeEditorIsLocked: PropTypes.func.isRequired,
     onSetCodeEditorValue: PropTypes.func.isRequired,
-    onToggleCodeEditorLock: PropTypes.func.isRequired
+    onToggleCodeEditorLock: PropTypes.func.isRequired,
+    stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired
 };
 
 const mapStateToProps = state => ({
     codeEditorValue: state.scratchGui.code.codeEditorValue,
     deviceType: state.scratchGui.device.deviceType,
-    isCodeEditorLocked: state.scratchGui.code.isCodeEditorLocked,
-    stageSizeMode: state.scratchGui.stageSize.stageSize
+    isCodeEditorLocked: state.scratchGui.code.isCodeEditorLocked
 });
 
 const mapDispatchToProps = dispatch => ({

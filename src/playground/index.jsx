@@ -14,8 +14,6 @@ import BrowserModalComponent from '../components/browser-modal/browser-modal.jsx
 import supportedBrowser from '../lib/supported-browser';
 
 import styles from './index.css';
-
-
 // Register "base" page view
 //analytics.pageview('/');
 

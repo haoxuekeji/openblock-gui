@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import Box from '../box/box.jsx';
 import classNames from 'classnames';
 
-import {STAGE_SIZE_MODES} from '../../lib/layout-constants';
+import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants.js';
+import {getStageDimensions} from '../../lib/screen-utils.js';
 import CodeEditor from '../../containers/code-editor.jsx';
 import HardwareConsole from '../../containers/hardware-console.jsx';
 
@@ -23,8 +24,9 @@ const HardwareComponent = props => {
         onCodeEditorDidMount,
         onCodeEditorChange,
         onClickCodeEditorLock,
-        stageSizeMode
+        stageSize
     } = props;
+    const stageDimensions = getStageDimensions(stageSize, null);
     return (
         <Box className={styles.hardwareWrapper}>
             <Box className={classNames(styles.codeEditorWrapper)}>
@@ -39,7 +41,7 @@ const HardwareComponent = props => {
                     />
                 </button>
                 <CodeEditor
-                    width={(stageSizeMode === STAGE_SIZE_MODES.large) ? 480 : 240}
+                    width={stageDimensions.width}
                     value={codeEditorValue}
                     language={codeEditorLanguage}
                     editorWillMount={onCodeEditorWillMount}
@@ -50,8 +52,8 @@ const HardwareComponent = props => {
                 />
             </Box>
             <Box
-                className={classNames(styles.hardwareConsoleWrapper,
-                    (stageSizeMode === STAGE_SIZE_MODES.large) ? styles.wideWrapper : styles.narrowWrapper)}
+                className={classNames(styles.hardwareConsoleWrapper)}
+                style={{width: stageDimensions.width + 2}}
             >
                 <HardwareConsole
                     {...props}
@@ -79,11 +81,7 @@ HardwareComponent.propTypes = {
     onCodeEditorDidMount: PropTypes.func,
     onCodeEditorChange: PropTypes.func,
     onClickCodeEditorLock: PropTypes.func,
-    stageSizeMode: PropTypes.oneOf(Object.keys(STAGE_SIZE_MODES))
-};
-
-HardwareComponent.defaultProps = {
-    stageSizeMode: STAGE_SIZE_MODES.large
+    stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired
 };
 
 export default HardwareComponent;

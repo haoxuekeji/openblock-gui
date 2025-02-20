@@ -52,6 +52,10 @@ class ScanningStep extends React.Component {
     handleClickListAll() {
         this.props.onClickListAll(!this.props.isListAll);
         this.scanForPeripheral(!this.props.isListAll);
+        this.setState({
+            scanning: true,
+            peripheralList: []
+        });
     }
     handleRefresh() {
         this.scanForPeripheral(this.props.isListAll);

@@ -46,7 +46,7 @@ jobs:
       - name: Build
         env:
           NODE_ENV: production
-          GA_ID: ${{ secrets.GA_ID_ONLINE }}
+          GA_ID: ${{ secrets.GA_ID }}
           NODE_OPTIONS: --max-old-space-size=4000
         run: npm run build
 
@@ -76,7 +76,7 @@ jobs:
 
       - run: npm ci
 
-    # Don't push translations to TX. The push step will be run by the enterprise edition repository.
+    # Don't push translations to TX. The push step will be run by the distro repository.
     #   - name: Push i18n
     #     if: ${{ github.ref == 'refs/heads/main' }}
     #     run: |
@@ -104,12 +104,13 @@ jobs:
           git add .
           git commit -m '[skip ci] Update translations from transifex'
           git remote add origin-translation https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git push --set-upstream origin-translation develop
+          git pull
+          git push --set-upstream origin-translation main
 
       - name: Build
         env:
           NODE_ENV: production
-          GA_ID: ${{ secrets.GA_ID_ONLINE }}
+          GA_ID: ${{ secrets.GA_ID }}
           NODE_OPTIONS: --max-old-space-size=4000
         run: npm run build
 

@@ -44,6 +44,10 @@
     padding: 0 0.75rem;
 }
 
+.main-menu span{
+    margin-left: 0.35rem;
+}
+
 .file-menu {
     display: flex;
     flex-direction: row;
@@ -70,7 +74,11 @@
     padding: 0 0.75rem;
 }
 
-.scratch-logo {
+.tail-menu span{
+    margin-left: 0.35rem;
+}
+
+.openblock-logo {
     height:  1.6rem;
     vertical-align: middle;
 }
@@ -80,13 +88,12 @@
     vertical-align: middle;
 }
 
-.scratch-logo.clickable {
+.openblock-logo.clickable {
     cursor: pointer;
 }
 
 .upload-firmware-logo {
     height:  20px;
-    margin-right: 0.35rem;
     vertical-align: middle;
 }
 
@@ -139,6 +146,7 @@
 .title-field-growable {
     flex-grow: 1;
     width: 2rem;
+    min-width: 6rem;
 }
 
 .file-group {
@@ -203,7 +211,16 @@
 }
 
 .help-icon {
-    margin-right: 0.35rem;
+    height: 20px;
+}
+
+.file-icon {
+    height: 20px;
+}
+
+.edit-icon {
+    padding-top: 1px;
+    height: 20px;
 }
 
 .setting-icon {
@@ -213,17 +230,14 @@
 
 .unconnected-icon {
     width: 20px;
-    margin-right: 0.35rem;
 }
 
 .connected-icon {
     height: 20px;
-    margin-right: 0.35rem;
 }
 
 .device-icon {
     height: 20px;
-    margin-right: 0.35rem;
 }
 
 .save-icon {
@@ -254,12 +268,10 @@
 
 .community-icon{
     height: 20px;
-    margin-right: 0.35rem;
 }
 
 .wiki-icon{
     height: 1.4rem;
-    margin-right: 0.35rem;
 }
 
 .account-nav-menu, .mystuff-button {
@@ -321,6 +333,11 @@
     padding-left: 2rem;
 }
 
+.program-mode-group span{
+    margin-left: 0;
+    margin-right: 0.7rem;
+}
+
 .program-mode-switch {
   vertical-align: middle;
 }
@@ -332,15 +349,15 @@
   height: 100%;
   vertical-align: middle;
   padding-right: 2rem;
-  white-space: nowrap;
 }
 
 .program-mode-switch .mode-switch-upload {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  vertical-align: middle;
-  padding-left: 2rem;
-  white-space: nowrap;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    vertical-align: middle;
+    padding-left: 2rem;
+    white-space: nowrap;
+  }
+  

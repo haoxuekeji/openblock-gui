@@ -99,7 +99,7 @@
     */
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
     min-width: 0;
     color: $text-primary;
     text-decoration:none;
