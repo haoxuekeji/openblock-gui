@@ -1,7 +1,7 @@
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { injectIntl } from 'react-intl';
+import {injectIntl, intlShape} from 'react-intl';
 
 import LibraryItemComponent from '../components/library-item/library-item.jsx';
 
@@ -191,6 +191,7 @@ LibraryItem.propTypes = {
     id: PropTypes.number.isRequired,
     insetIconURL: PropTypes.string,
     internetConnectionRequired: PropTypes.bool,
+    intl: intlShape.isRequired,
     isLoaded: PropTypes.bool,
     isUnloadble: PropTypes.bool,
     isPlaying: PropTypes.bool,

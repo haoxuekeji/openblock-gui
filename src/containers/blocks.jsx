@@ -64,12 +64,12 @@ class Blocks extends React.Component {
             'handleBlocksInfoUpdate',
             'handleCategorySelected',
             'handleConnectionModalStart',
-            'handleDeviceAdded',
             'handleDeviceExtensionAdded',
             'handleDeviceExtensionRemoved',
             'handleDeviceSelected',
             'handleDrop',
-            'handleExtensionAdded',
+            'handleScratchExtensionAdded',
+            'handleScratchExtensionRemoved',
             'handleStatusButtonUpdate',
             'handleOpenSoundRecorder',
             'handlePromptStart',
@@ -238,19 +238,26 @@ class Blocks extends React.Component {
             this.updateToolbox();
         }, 0);
     }
-    setLocale() {
+    setLocale (refreshWorkspace = true) {
         this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
         this.props.vm.setLocale(this.props.locale, this.props.messages)
             .then(() => {
                 this.workspace.getFlyout().setRecyclingEnabled(false);
-                this.props.vm.refreshWorkspace();
+                if (refreshWorkspace) {
+                    this.props.vm.refreshWorkspace();
+                }
                 this.requestToolboxUpdate();
                 this.withToolboxUpdates(() => {
                     this.workspace.getFlyout().setRecyclingEnabled(true);
                 });
             });
     }
-    onProgramModeUpdate() {
+    onProgramModeUpdate () {
+        if (this.props.isRealtimeMode) {
+            this.ScratchBlocks.ProgramMode.setProgramMode(this.ScratchBlocks.ProgramMode.REALTIME);
+        } else {
+            this.ScratchBlocks.ProgramMode.setProgramMode(this.ScratchBlocks.ProgramMode.UPLOAD);
+        }
         this._programMode = this.props.isRealtimeMode;
         const toolboxXML = this.getToolboxXML();
         if (toolboxXML) {
@@ -308,10 +315,10 @@ class Blocks extends React.Component {
         this.props.vm.addListener('VISUAL_REPORT', this.onVisualReport);
         this.props.vm.addListener('workspaceUpdate', this.onWorkspaceUpdate);
         this.props.vm.addListener('targetsUpdate', this.onTargetsUpdate);
-        this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
-        this.props.vm.addListener('DEVICE_EXTENSION_REMOVED', this.handleDeviceExtensionRemoved);
-        this.props.vm.addListener('DEVICE_ADDED', this.handleDeviceAdded);
+        this.props.vm.addListener('SCRATCH_EXTENSION_ADDED', this.handleScratchExtensionAdded);
+        this.props.vm.addListener('SCRATCH_EXTENSION_REMOVED', this.handleScratchExtensionRemoved);
         this.props.vm.addListener('DEVICE_EXTENSION_ADDED', this.handleDeviceExtensionAdded);
+        this.props.vm.addListener('DEVICE_EXTENSION_REMOVED', this.handleDeviceExtensionRemoved);
         this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
         this.props.vm.addListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
         this.props.vm.addListener('PERIPHERAL_DISCONNECTED', this.handleStatusButtonUpdate);
@@ -326,8 +333,8 @@ class Blocks extends React.Component {
         this.props.vm.removeListener('VISUAL_REPORT', this.onVisualReport);
         this.props.vm.removeListener('workspaceUpdate', this.onWorkspaceUpdate);
         this.props.vm.removeListener('targetsUpdate', this.onTargetsUpdate);
-        this.props.vm.removeListener('EXTENSION_ADDED', this.handleExtensionAdded);
-        this.props.vm.removeListener('DEVICE_ADDED', this.handleDeviceAdded);
+        this.props.vm.removeListener('SCRATCH_EXTENSION_ADDED', this.handleScratchExtensionAdded);
+        this.props.vm.removeListener('SCRATCH_EXTENSION_REMOVED', this.handleScratchExtensionRemoved);
         this.props.vm.removeListener('DEVICE_EXTENSION_ADDED', this.handleDeviceExtensionAdded);
         this.props.vm.removeListener('DEVICE_EXTENSION_REMOVED', this.handleDeviceExtensionRemoved);
         this.props.vm.removeListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
@@ -466,53 +473,11 @@ class Blocks extends React.Component {
         // workspace to be 'undone' here.
         this.workspace.clearUndo();
     }
-    handleExtensionAdded(categoryInfo) {
-        const defineBlocks = blockInfoArray => {
-            if (blockInfoArray && blockInfoArray.length > 0) {
-                const staticBlocksJson = [];
-                const dynamicBlocksInfo = [];
-                blockInfoArray.forEach(blockInfo => {
-                    if (blockInfo.info && blockInfo.info.isDynamic) {
-                        dynamicBlocksInfo.push(blockInfo);
-                    } else if (blockInfo.json) {
-                        staticBlocksJson.push(blockInfo.json);
-                    }
-                    // otherwise it's a non-block entry such as '---'
-                });
+    handleScratchExtensionAdded (extensionInfo) {
+        const {deviceId, categoryInfoArray} = extensionInfo;
 
-                this.ScratchBlocks.defineBlocksWithJsonArray(staticBlocksJson);
-                dynamicBlocksInfo.forEach(blockInfo => {
-                    // This is creating the block factory / constructor -- NOT a specific instance of the block.
-                    // The factory should only know static info about the block: the category info and the opcode.
-                    // Anything else will be picked up from the XML attached to the block instance.
-                    const extendedOpcode = `${categoryInfo.id}_${blockInfo.info.opcode}`;
-                    const blockDefinition =
-                        defineDynamicBlock(this.ScratchBlocks, categoryInfo, blockInfo, extendedOpcode);
-                    this.ScratchBlocks.Blocks[extendedOpcode] = blockDefinition;
-                });
-            }
-        };
-
-        // hxblock-blocks implements a menu or custom field as a special kind of block ("shadow" block)
-        // these actually define blocks and MUST run regardless of the UI state
-        defineBlocks(
-            Object.getOwnPropertyNames(categoryInfo.customFieldTypes)
-                .map(fieldTypeName => categoryInfo.customFieldTypes[fieldTypeName].scratchBlocksDefinition));
-        defineBlocks(categoryInfo.menus);
-        defineBlocks(categoryInfo.blocks);
-
-        // Update the toolbox with new blocks if possible
-        const toolboxXML = this.getToolboxXML();
-        if (toolboxXML) {
-            this.props.updateToolboxState(toolboxXML);
-        }
-    }
-
-    handleDeviceAdded(info) {
-        const { device, categoryInfoArray } = info;
-
-        if (device) {
-            const dev = this.props.deviceData.find(ext => ext.deviceId === device);
+        if (deviceId) {
+            const dev = this.props.deviceData.find(ext => ext.deviceId === deviceId);
             this.props.onDeviceSelected(dev.deviceId, dev.name, dev.type);
             this.ScratchBlocks.Device.setDevice(dev.deviceId, dev.type);
             if (dev.defaultBaudRate) {
@@ -542,55 +507,48 @@ class Blocks extends React.Component {
                 this.props.onSetSupportSwitchMode(false);
             }
 
-            categoryInfoArray.forEach(categoryInfo => {
-                const defineBlocks = blockInfoArray => {
-                    if (blockInfoArray && blockInfoArray.length > 0) {
-                        const staticBlocksJson = [];
-                        const dynamicBlocksInfo = [];
-                        blockInfoArray.forEach(blockInfo => {
-                            if (blockInfo.info && blockInfo.info.isDynamic) {
-                                dynamicBlocksInfo.push(blockInfo);
-                            } else if (blockInfo.json) {
-                                staticBlocksJson.push(blockInfo.json);
-                            }
-                            // otherwise it's a non-block entry such as '---'
-                        });
-
-                        this.ScratchBlocks.defineBlocksWithJsonArray(staticBlocksJson);
-                        dynamicBlocksInfo.forEach(blockInfo => {
-                            // This is creating the block factory / constructor -- NOT a specific instance of the
-                            // block.
-                            // The factory should only know static info about the block: the category info and the
-                            // opcode.
-                            // Anything else will be picked up from the XML attached to the block instance.
-                            const extendedOpcode = `${categoryInfo.id}_${blockInfo.info.opcode}`;
-                            const blockDefinition =
-                                defineDynamicBlock(this.ScratchBlocks, categoryInfo, blockInfo, extendedOpcode);
-                            this.ScratchBlocks.Blocks[extendedOpcode] = blockDefinition;
-                        });
-                    }
-                };
-
-                // hxblock-blocks implements a menu or custom field as a special kind of block ("shadow" block)
-                // these actually define blocks and MUST run regardless of the UI state
-                defineBlocks(
-                    Object.getOwnPropertyNames(categoryInfo.customFieldTypes)
-                        .map(fieldTypeName => categoryInfo.customFieldTypes[fieldTypeName].scratchBlocksDefinition));
-                defineBlocks(categoryInfo.menus);
-                defineBlocks(categoryInfo.blocks);
-            });
-
-        } else {
-            this.props.onDeviceSelected(null, null, null);
-            this.props.vm.runtime.setRealtimeMode(true);
-            this.props.onSetSupportSwitchMode(false);
+            if (this.deviceFakeToolboxHead) {
+                this.deviceFakeToolboxHead = '';
+            } else {
+                this.deviceFakeToolboxHead = ' ';
+            }
         }
 
-        if (this.deviceFakeToolboxHead) {
-            this.deviceFakeToolboxHead = '';
-        } else {
-            this.deviceFakeToolboxHead = ' ';
-        }
+        categoryInfoArray.forEach(categoryInfo => {
+            const defineBlocks = blockInfoArray => {
+                if (blockInfoArray && blockInfoArray.length > 0) {
+                    const staticBlocksJson = [];
+                    const dynamicBlocksInfo = [];
+                    blockInfoArray.forEach(blockInfo => {
+                        if (blockInfo.info && blockInfo.info.isDynamic) {
+                            dynamicBlocksInfo.push(blockInfo);
+                        } else if (blockInfo.json) {
+                            staticBlocksJson.push(blockInfo.json);
+                        }
+                        // otherwise it's a non-block entry such as '---'
+                    });
+
+                    this.ScratchBlocks.defineBlocksWithJsonArray(staticBlocksJson);
+                    dynamicBlocksInfo.forEach(blockInfo => {
+                        // This is creating the block factory / constructor -- NOT a specific instance of the block.
+                        // The factory should only know static info about the block: the category info and the opcode.
+                        // Anything else will be picked up from the XML attached to the block instance.
+                        const extendedOpcode = `${categoryInfo.id}_${blockInfo.info.opcode}`;
+                        const blockDefinition =
+                            defineDynamicBlock(this.ScratchBlocks, categoryInfo, blockInfo, extendedOpcode);
+                        this.ScratchBlocks.Blocks[extendedOpcode] = blockDefinition;
+                    });
+                }
+            };
+
+            // openblock-blocks implements a menu or custom field as a special kind of block ("shadow" block)
+            // these actually define blocks and MUST run regardless of the UI state
+            defineBlocks(
+                Object.getOwnPropertyNames(categoryInfo.customFieldTypes)
+                    .map(fieldTypeName => categoryInfo.customFieldTypes[fieldTypeName].scratchBlocksDefinition));
+            defineBlocks(categoryInfo.menus);
+            defineBlocks(categoryInfo.blocks);
+        });
 
         // Update the toolbox with new blocks if possible, use timeout to let props update first
         setTimeout(() => {
@@ -600,18 +558,31 @@ class Blocks extends React.Component {
             }
         }, 0);
     }
-    handleDeviceExtensionAdded(deviceExtensionsRegister) {
-        if (deviceExtensionsRegister.addMsg) {
-            this.ScratchBlocks = deviceExtensionsRegister.addMsg(this.ScratchBlocks);
+    handleScratchExtensionRemoved (extensionInfo) {
+        const {deviceId} = extensionInfo;
+
+        if (deviceId) {
+            this.props.onDeviceSelected(null, null, null);
+            this.props.vm.runtime.setRealtimeMode(true);
+            this.props.onSetSupportSwitchMode(false);
         }
-        if (deviceExtensionsRegister.addGenerator) {
-            this.ScratchBlocks = deviceExtensionsRegister.addGenerator(this.ScratchBlocks);
+        const toolboxXML = this.getToolboxXML();
+        if (toolboxXML) {
+            this.props.updateToolboxState(this.deviceFakeToolboxHead + toolboxXML);
         }
-        if (deviceExtensionsRegister.addBlocks) {
-            this.ScratchBlocks = deviceExtensionsRegister.addBlocks(this.ScratchBlocks);
+    }
+    handleDeviceExtensionAdded (deviceExtensionsRegister) {
+        if (deviceExtensionsRegister.defineMessages) {
+            this.ScratchBlocks = deviceExtensionsRegister.defineMessages(this.ScratchBlocks);
+        }
+        if (deviceExtensionsRegister.defineGenerators) {
+            this.ScratchBlocks = deviceExtensionsRegister.defineGenerators(this.ScratchBlocks);
+        }
+        if (deviceExtensionsRegister.defineBlocks) {
+            this.ScratchBlocks = deviceExtensionsRegister.defineBlocks(this.ScratchBlocks);
         }
 
-        this.setLocale();
+        this.setLocale(false);
 
         const toolboxXML = this.getToolboxXML();
         if (toolboxXML) {
@@ -624,9 +595,9 @@ class Blocks extends React.Component {
             this.props.updateToolboxState(toolboxXML);
         }
     }
-    handleBlocksInfoUpdate(categoryInfo) {
+    handleBlocksInfoUpdate (extensionInfo) {
         // @todo Later we should replace this to avoid all the warnings from redefining blocks.
-        this.handleExtensionAdded(categoryInfo);
+        this.handleScratchExtensionAdded(extensionInfo);
     }
     handleCategorySelected(categoryId) {
         const extension = extensionData.find(ext => ext.extensionId === categoryId);

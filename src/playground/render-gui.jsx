@@ -67,6 +67,14 @@ const onClickAbout = [
     },
     {
         title: (<FormattedMessage
+            defaultMessage="License"
+            description="Menu bar item for license"
+            id="gui.desktopMenuBar.license"
+        />),
+        onClick: () => log('License')
+    },
+    {
+        title: (<FormattedMessage
             defaultMessage="Privacy policy"
             description="Menu bar item for privacy policy"
             id="gui.menuBar.privacyPolicy"
@@ -193,7 +201,7 @@ export default appTarget => {
                     onClickLogo={onClickLogo}
                     onUpdateProjectTitle={handleUpdateProjectTitle}
                     //canShare
-                    cloudHost={location.origin}
+                    //cloudHost={location.origin}
                     onLogOut={logOut}
                     renderLogin={logIn}
                 />}

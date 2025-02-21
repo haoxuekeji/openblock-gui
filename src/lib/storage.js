@@ -78,7 +78,8 @@ class Storage extends ScratchStorage {
             url: url,
             withCredentials: true,
             headers: {
-                Authorization: 'Bearer ' + token
+                Authorization: 'Bearer ' + token,
+                'x-token': token
             }
         };
     }

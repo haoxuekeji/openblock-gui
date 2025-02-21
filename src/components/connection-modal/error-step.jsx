@@ -23,13 +23,31 @@ const ErrorStep = props => (
             </Box>
         </Box>
         <Box className={styles.bottomArea}>
-            <div className={classNames(styles.bottomAreaItem, styles.instructions)}>
-                <FormattedMessage
-                    defaultMessage="Oops, looks like something went wrong."
-                    description="The device connection process has encountered an error."
-                    id="gui.connection.error.errorMessage"
-                />
-            </div>
+            {/* eslint-disable max-len */}
+            {(props.isSerialport && (props.errorMessage === 'Access denied')) ? (
+                <div className={classNames(styles.bottomAreaItem, styles.instructions)}>
+                    <FormattedMessage
+                        defaultMessage="Oops, serialport access denied, please check whether the serial port is occupied."
+                        description="The device serialport connection process has encountered an 'Access denied' error."
+                        id="gui.connection.accessDeniedError.errorMessage"
+                    />
+                </div>) :
+                (props.isSerialport && (props.errorMessage === 'Unknown error code 31')) ? (
+                    <div className={classNames(styles.bottomAreaItem, styles.instructions)}>
+                        <FormattedMessage
+                            defaultMessage="Oops, Unknown error code 31, it is recommended to re-plug the device."
+                            description="The device serialport connection process has encountered an 'Unknown error code 31' error."
+                            id="gui.connection.unknownErrorCode31.errorMessage"
+                        />
+                    </div>) :
+                    (<div className={classNames(styles.bottomAreaItem, styles.instructions)}>
+                        <FormattedMessage
+                            defaultMessage="Oops, looks like something went wrong."
+                            description="The device connection process has encountered an error."
+                            id="gui.connection.error.errorMessage"
+                        />
+                    </div>)}
+
             <Dots
                 error
                 className={styles.bottomAreaItem}
@@ -72,7 +90,9 @@ const ErrorStep = props => (
 ErrorStep.propTypes = {
     connectionIconURL: PropTypes.string.isRequired,
     onHelp: PropTypes.func,
-    onScanning: PropTypes.func
+    onScanning: PropTypes.func,
+    isSerialport: PropTypes.bool,
+    errorMessage: PropTypes.string
 };
 
 export default ErrorStep;

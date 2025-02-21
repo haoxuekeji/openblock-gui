@@ -100,6 +100,9 @@ import languageIcon from '../language-selector/language-icon.svg';
 import aboutIcon from './icon--about.svg';
 import saveIcon from './icon--save.svg';
 import linkSocketIcon from './icon--link-socket.svg'; // eslint-disable-line no-unused-vars
+import communityIcon from './icon--community.svg';
+import wikiIcon from './icon--wiki.svg';
+
 import scratchLogo from './scratch-logo.svg';
 
 import sharedMessages from '../../lib/shared-messages';
@@ -133,6 +136,16 @@ const ariaMessages = defineMessages({
         id: 'gui.menuBar.tutorialsLibrary',
         defaultMessage: 'Tutorials',
         description: 'accessibility text for the tutorials button'
+    },
+    community: {
+        id: 'gui.menuBar.community',
+        defaultMessage: 'Open Community',
+        description: 'accessibility text for the community button'
+    },
+    wiki: {
+        id: 'gui.menuBar.wiki',
+        defaultMessage: 'Wiki',
+        description: 'accessibility text for the wiki button'
     }
 });
 
@@ -209,6 +222,8 @@ class MenuBar extends React.Component {
         bindAll(this, [
             'handleClickNew',
             'handleClickRemix',
+            'handleClickOpenCommunity',
+            'handleClickOpenWiki',
             'handleClickSave',
             'handleClickSaveAsCopy',
             'handleClickSeeCommunity',
@@ -320,7 +335,13 @@ class MenuBar extends React.Component {
             this.props.onClickLanguage(e);
         }
     }
-    restoreOptionMessage(deletedItem) {
+    handleClickOpenCommunity () {
+        window.open('https://community.openblock.cc');
+    }
+    handleClickOpenWiki () {
+        window.open('https://wiki.openblock.cc');
+    }
+    restoreOptionMessage (deletedItem) {
         switch (deletedItem) {
             case 'Sprite':
                 return (<FormattedMessage

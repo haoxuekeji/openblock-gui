@@ -1,5 +1,5 @@
 .stage-only {
-    width: calc(480px + 0rem);
+    /* width: calc(480px + 0rem); */
 }
 
 .editor {
@@ -8,6 +8,9 @@
     left: 0;
     height: 100%;
     width: 100%;
+        /* Setting min height/width makes the UI scroll below those sizes */
+        min-width: 1057px;
+        min-height: 640px; /* Min height to fit sprite/backdrop button */
 }
 
 .stage-only * {

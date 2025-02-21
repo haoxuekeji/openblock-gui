@@ -22,7 +22,7 @@ const getBackpackContents = ({
     xhr({
         method: 'GET',
         uri: `${host}?user_id=${username}&limit=${limit}&offset=${offset}`,
-        headers: { 'Authorization': 'Bearer ' + token },
+        headers: { 'Authorization': 'Bearer ' + token,'x-token': token },
         json: true
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
@@ -48,7 +48,7 @@ const saveBackpackObject = ({
     xhr({
         method: 'POST',
         uri: `${host}?user_id=${username}`,
-        headers: { 'Authorization': 'Bearer ' + token },
+        headers: { 'Authorization': 'Bearer ' + token, 'x-token': token },
         json: { type, mime, name, body, thumbnail }
     }, (error, response) => {
         if (error || response.statusCode !== 200) {

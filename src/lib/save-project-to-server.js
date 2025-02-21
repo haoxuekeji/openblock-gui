@@ -22,6 +22,7 @@ export default function (projectId, vmState, params) {
         headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer ' + token,
+            'x-token': token,
         },
         withCredentials: true
     };
@@ -57,7 +58,11 @@ export default function (projectId, vmState, params) {
             }
             body.id = projectId;
             if (creatingProject) {
-                body.id = body['content-name'];
+                if(body['content-name']) {
+                   body.id = body['content-name']; 
+                } else {
+                    body.id = body['data']['id'];
+                }               
             }
             resolve(body);
         });

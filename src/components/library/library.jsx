@@ -289,6 +289,7 @@ class LibraryComponent extends React.Component {
                             id={index}
                             insetIconURL={dataItem.insetIconURL}
                             internetConnectionRequired={dataItem.internetConnectionRequired}
+                            intl={this.props.intl}
                             isLoaded={dataItem.isLoaded}
                             isUnloadble={this.props.isUnloadble}
                             isPlaying={this.state.playingItem === index}
