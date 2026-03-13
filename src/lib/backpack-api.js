@@ -22,15 +22,15 @@ const getBackpackContents = ({
     xhr({
         method: 'GET',
         uri: `${host}?user_id=${username}&limit=${limit}&offset=${offset}`,
-        headers: { 'Authorization': 'Bearer ' + token,'x-token': token },
+        headers: { 'Authorization': 'Bearer ' + token},
         json: true
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
         }
-        if ('assetCDN' in window.scratchConfig) {
-            host = `${window.scratchConfig.assetCDN}/internalapi/asset`;
-        }
+        // if ('assetCDN' in window.scratchConfig) {
+        //     host = `${window.scratchConfig.assetCDN}/internalapi/asset`;
+        // }
         return resolve(response.body.map(item => includeFullUrls(item, host)));
     });
 });
@@ -47,16 +47,16 @@ const saveBackpackObject = ({
 }) => new Promise((resolve, reject) => {
     xhr({
         method: 'POST',
-        uri: `${host}?user_id=${username}`,
-        headers: { 'Authorization': 'Bearer ' + token, 'x-token': token },
+        uri: `${host}/${username}`,
+        headers: { 'Authorization': 'Bearer ' + token},
         json: { type, mime, name, body, thumbnail }
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
         }
-        if ('assetCDN' in window.scratchConfig) {
-            host = `${window.scratchConfig.assetCDN}/internalapi/asset`;
-        }
+        // if ('assetCDN' in window.scratchConfig) {
+        //     host = `${window.scratchConfig.assetCDN}/internalapi/asset`;
+        // }
         return resolve(includeFullUrls(response.body, host));
     });
 });

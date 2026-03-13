@@ -34,13 +34,13 @@ const onClickClearCache = () => {
 const onClickInstallDriver = () => {
     log('User click install driver');
 };
-import API from '../lib/api'
+
 import Box from '../components/box/box.jsx';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { setPlayer } from '../reducers/mode';
 import { setSession } from '../reducers/session';
-window.api = API
+
 import styles from './player.css';
 
 
@@ -153,7 +153,10 @@ export default appTarget => {
         window.onbeforeunload = () => true;
     }
 
-    const backpackHost = location.origin + '/api/v1/backpack'
+    var backpackHost = location.origin + '/api/v1/backpack'
+     if (window.scratchConfig && window.scratchConfig.backpackHost) {
+        backpackHost = window.scratchConfig.backpackHost
+    }
     // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
 
     var logIn = handleLogIn
@@ -164,7 +167,7 @@ export default appTarget => {
     }
     const Guier = (props) => (
         <Box className={classNames(props.isPlayerOnly ? styles.stageOnly : styles.editor)}>
-            {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>}
+            {/* {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>} */}
 
             {simulateScratchDesktop ?
                 <GUI
@@ -190,22 +193,25 @@ export default appTarget => {
                     canEditTitle
                     //showComingSoon
 
-                    //canCreateCopy
+                    canCreateCopy
                     isPlayerOnly={props.isPlayerOnly}
-                    //enableCommunity={props.enableCommunity}
-                    //canRemix
-                    //canManageFiles
+                    enableCommunity={props.enableCommunity}
+                    canRemix
+                    canManageFiles
                     onShowMessageBox={handleShowMessageBox}
                     backpackHost={backpackHost}
-                    //canSave={true}
+                    canSave={true}
                     onClickLogo={onClickLogo}
                     onUpdateProjectTitle={handleUpdateProjectTitle}
-                    //canShare
-                    //cloudHost={location.origin}
+                    canShare
+                    cloudHost={window.scratchConfig.cloudHost}
                     onLogOut={logOut}
                     renderLogin={logIn}
+                    hasCloudPermission={true}
+                    onUpdateProjectThumbnail={window.scratchConfig.handleUpdateProjectThumbnail}
                 />}
             {window.setSession = props.onSetSession}
+            {window.setPlayer = props.onSeeInside}
         </Box>
 
     );

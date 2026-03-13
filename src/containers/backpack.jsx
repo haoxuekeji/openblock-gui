@@ -71,9 +71,9 @@ class Backpack extends React.Component {
     }
     getBackpackAssetURL(asset) {
 
-        if ('assetCDN' in window.scratchConfig) {
-            return `${window.scratchConfig.assetCDN}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
-        }
+        // if ('assetCDN' in window.scratchConfig) {
+        //     return `${window.scratchConfig.assetCDN}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
+        // }
         return `${this.props.host}/${asset.assetId}.${asset.dataFormat}`;
     }
     handleToggle() {

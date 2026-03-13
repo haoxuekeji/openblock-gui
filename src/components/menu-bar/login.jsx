@@ -19,8 +19,8 @@ class Login extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
         let form = {
-            user: e.target.username.value,
-            pwd: e.target.password.value,
+            username: e.target.username.value,
+            password: e.target.password.value,
         }
         this.setState({ waiting: true });
         this.props.onLogIn(form, this.props.onClose, (result) => {

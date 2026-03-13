@@ -64,7 +64,7 @@ class Storage extends ScratchStorage {
     getAssetCreateConfig(asset) {
         let url
         if ('assetCDN' in window.scratchConfig) {
-            url = `${window.scratchConfig.assetCDN}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;
+            url = `${window.scratchConfig.assetCDN}/api/v1/scratch/asset/${asset.assetId}.${asset.dataFormat}`;
         } else {
             url = `${this.assetHost}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;
         }
@@ -78,8 +78,8 @@ class Storage extends ScratchStorage {
             url: url,
             withCredentials: true,
             headers: {
-                Authorization: 'Bearer ' + token,
-                'x-token': token
+                'Authorization': 'Bearer ' + token,
+                // 'x-token': token
             }
         };
     }

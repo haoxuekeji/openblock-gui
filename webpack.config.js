@@ -24,7 +24,8 @@ const base = {
         contentBase: path.resolve(__dirname, 'build'),
         host: '0.0.0.0',
         port: process.env.PORT || 8601,
-        disableHostCheck: true
+        disableHostCheck: true,
+        publicPath: '/scratch3/'
     },
     output: {
         library: 'GUI',
@@ -122,7 +123,8 @@ module.exports = [
         },
         output: {
             path: path.resolve(__dirname, 'build'),
-            filename: '[name].js'
+            filename: '[name].js',
+            publicPath: '/scratch3/'
         },
         module: {
             rules: base.module.rules.concat([

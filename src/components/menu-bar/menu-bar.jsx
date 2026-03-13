@@ -489,11 +489,7 @@ class MenuBar extends React.Component {
             }
         }
         this.props.onSetSession(data);
-        window.api.logout().then(res => {
 
-        }).finally(() => {
-            localStorage.removeItem('token')
-        })
 
         this.props.onRequestCloseAccount()
     }
@@ -1005,19 +1001,6 @@ class MenuBar extends React.Component {
                         ) : [])
                     }
 
-                    {/* {(this.props.canManageFiles) && (
-                        <SB3Downloader>{(className, downloadProjectCallback) => (
-                            <div
-                                className={classNames(styles.menuBarItem, styles.hoverable)}
-                                onClick={this.getSaveToComputerHandler(downloadProjectCallback)}
-                            >
-                                <img
-                                    className={styles.saveIcon}
-                                    src={saveIcon}
-                                />
-                            </div>
-                        )}</SB3Downloader>
-                    )} */}
                     {this.props.canRemix ? remixButton : []}
                 </div>
 
