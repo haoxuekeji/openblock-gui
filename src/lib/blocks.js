@@ -1,7 +1,4 @@
 import ScratchBlocks from 'hxblock-blocks';
-import 'hxblock-blocks/arduino_compressed';
-import 'hxblock-blocks/python_compressed';
-import iconv from 'iconv-lite';
 
 /**
  * Connect scratch blocks with the vm
@@ -355,8 +352,6 @@ export default function (vm) {
     ScratchBlocks.utils.is3dSupported = function () {
         return true;
     };
-
-    ScratchBlocks.iconv = iconv;
 
     ScratchBlocks.Arduino['arduino_sensor_systemUptime'] = function (block) {
         var code = 'millis()';

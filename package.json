@@ -2,7 +2,7 @@
   "name": "openblock-gui",
   "version": "0.1.0",
   "description": "GraphicaL User Interface for creating and running OpenBlock projects",
-  "main": "./dist/scratch-gui.js",
+  "main": "./main/scratch-gui.js",
   "scripts": {
     "build": "npm run clean && webpack --colors --bail",
     "clean": "rimraf ./build && mkdirp build",
@@ -46,7 +46,6 @@
     "get-user-media-promise": "1.1.4",
     "hxblock-blocks": "latest",
     "hxblock-l10n": "latest",
-    "iconv-lite": "^0.6.3",
     "immutable": "3.8.2",
     "intl": "1.2.5",
     "js-base64": "2.4.9",

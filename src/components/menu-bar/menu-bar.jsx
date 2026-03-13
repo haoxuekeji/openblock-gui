@@ -107,8 +107,7 @@ import wikiIcon from './icon--wiki.svg';
 import fileIcon from './icon--file.svg';
 import editIcon from './icon--edit.svg';
 
-import openblockLogo from './openblock-logo.svg';
-import openblockLogoSmall from './openblock-logo-small.svg';
+
 
 import sharedMessages from '../../lib/shared-messages';
 
@@ -1469,7 +1468,7 @@ MenuBar.defaultProps = {
     vm: PropTypes.instanceOf(VM).isRequired,
     onSetSession: PropTypes.func,
     onShare: () => { },
-    logoSmall: openblockLogoSmall,
+    logoSmall: hxlogo,
 
 };
 
