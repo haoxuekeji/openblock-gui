@@ -606,8 +606,8 @@ class Blocks extends React.Component {
     handleCategorySelected(categoryId) {
         const extension = extensionData.find(ext => ext.extensionId === categoryId);
         if (extension && extension.launchPeripheralConnectionFlow) {
-            this.handleConnectionModalStart();
             this.props.onDeviceSelected(categoryId, null, null);
+            this.handleConnectionModalStart();
         }
 
         this.withToolboxUpdates(() => {
@@ -641,7 +641,10 @@ class Blocks extends React.Component {
         p.prompt.showCloudOption = (optVarType === this.ScratchBlocks.SCALAR_VARIABLE_TYPE) && this.props.canUseCloud;
         this.setState(p);
     }
-    handleConnectionModalStart() {
+    handleConnectionModalStart(extensionId) {
+        if (extensionId) {
+            this.props.onDeviceSelected(extensionId, null, null);
+        }
         this.props.onOpenConnectionModal();
     }
     handleStatusButtonUpdate() {

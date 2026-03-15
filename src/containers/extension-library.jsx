@@ -78,9 +78,11 @@ class ExtensionLibrary extends React.PureComponent {
             scratchExtensions: [],
             deviceExtensions: []
         };
+        this._mounted = false;
     }
 
     componentDidMount () {
+        this._mounted = true;
         if (this.props.isRealtimeMode) {
             this.updateScratchExtensions();
         } else {
@@ -88,10 +90,14 @@ class ExtensionLibrary extends React.PureComponent {
         }
     }
 
+    componentWillUnmount () {
+        this._mounted = false;
+    }
+
     updateScratchExtensions () {
         this.props.vm.extensionManager.getExtensionsList(Object.assign([], extensionLibraryContent))
             .then(data => {
-                if (data) {
+                if (this._mounted && data) {
                     this.setState({scratchExtensions: data});
                 }
             });
@@ -100,7 +106,7 @@ class ExtensionLibrary extends React.PureComponent {
     updateDeviceExtensions () {
         this.props.vm.extensionManager.getDeviceExtensionsList()
             .then(data => {
-                if (data) {
+                if (this._mounted && data) {
                     this.setState({ deviceExtensions: data });
                 }
             });
@@ -121,6 +127,7 @@ class ExtensionLibrary extends React.PureComponent {
                     this.updateScratchExtensions();
                 } else {
                     this.props.vm.extensionManager.loadExtensionURL(url).then(() => {
+                        this.props.onCategorySelected(id);
                         //this.props.onCategorySelected(id);
                         // analytics.event({
                         //     category: 'extensions',
@@ -179,7 +186,7 @@ class ExtensionLibrary extends React.PureComponent {
 
         return (
             <LibraryComponent
-                autoClose={false}
+                autoClose={this.props.isRealtimeMode}
                 data={extensionLibraryThumbnailData}
                 filterable
                 tags={this.props.isRealtimeMode ? [] : tagListPrefix}

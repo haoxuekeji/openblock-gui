@@ -162,7 +162,14 @@ export default appTarget => {
         window.onbeforeunload = () => true;
     }
 
-    const backpackHost = location.origin + '/api/v1/backpack'
+    var backpackHost = location.origin + '/api/v1/backpack'
+     if (window.scratchConfig && window.scratchConfig.backpackHost) {
+        backpackHost = window.scratchConfig.backpackHost
+    }
+    var cloudHost = location.origin + '/cloud';
+    if (window.scratchConfig && window.scratchConfig.cloudHost) {
+        cloudHost = window.scratchConfig.cloudHost
+    }
     // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
 
     var logIn = handleLogIn
@@ -173,7 +180,7 @@ export default appTarget => {
     }
     const Guier = (props) => (
         <Box className={classNames(props.isPlayerOnly ? styles.stageOnly : styles.editor)}>
-            {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>}
+            {/* {props.isPlayerOnly && <button onClick={props.onSeeInside}>{'进去看看'}</button>} */}
 
             {simulateScratchDesktop ?
                 <GUI
@@ -211,10 +218,13 @@ export default appTarget => {
                     onUpdateProjectTitle={handleUpdateProjectTitle}
                     onLogOut={logOut}
                     renderLogin={logIn}
+                    cloudHost={cloudHost}
+                    hasCloudPermission={props.hasCloudPermission}
+                    onUpdateProjectThumbnail={window.scratchConfig.handleUpdateProjectThumbnail}
+
                 />}
             {window.setSession = props.onSetSession}
         </Box>
-
     );
     Guier.propTypes = {
         isPlayerOnly: PropTypes.bool,
@@ -235,11 +245,14 @@ export default appTarget => {
         window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly;
         const isLoggedIn = !!state.session.session.user.username;
         const canRemixConfig = window.scratchConfig && window.scratchConfig.canRemix;
+        const hasCloudPermission = window.scratchConfig && window.scratchConfig.hasCloudPermission;
         return {
             isPlayerOnly: state.scratchGui.mode.isPlayerOnly,
             canSave: isLoggedIn,
             canCreateNew: isLoggedIn,
             canUseCloud: isLoggedIn,
+            hasCloudPermission: isLoggedIn && hasCloudPermission,
+
             backpackVisible: isLoggedIn,
             canRemix: !!(canRemixConfig && isLoggedIn),
         };

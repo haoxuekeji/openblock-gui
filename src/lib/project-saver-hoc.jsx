@@ -270,12 +270,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
         storeProjectThumbnail(projectId) {
             try {
                 this.getProjectThumbnail(dataURI => {
-                    //this.props.onUpdateProjectThumbnail(projectId, dataURItoBlob(dataURI));
-                    const blob = dataURItoBlob(dataURI)
-                    var formData = new FormData()
-                    formData.append('file', blob)
-                    formData.append('projectId', projectId)
-                    window.api.add_project_thumbnail(formData)
+                    if (this.props.onUpdateProjectThumbnail) {
+                        this.props.onUpdateProjectThumbnail(projectId, dataURItoBlob(dataURI));
+                    }
                 });
             } catch (e) {
                 log.error('Project thumbnail save error', e);

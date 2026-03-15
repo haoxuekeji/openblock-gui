@@ -39,7 +39,6 @@ const cloudManagerHOC = function (WrappedComponent) {
             // TODO need to add cloud provider disconnection logic and cloud data clearing logic
             // when loading a new project e.g. via file upload
             // (and eventually move it out of the vm.clear function)
-
             if (this.shouldConnect(this.props) && !this.shouldConnect(prevProps)) {
                 this.connectToCloud();
             }
