@@ -197,20 +197,18 @@ export default appTarget => {
                 /> :
                 <GUI
                     canEditTitle
-                    //showComingSoon
-
-                    //canCreateCopy
                     isPlayerOnly={props.isPlayerOnly}
-                    //enableCommunity={props.enableCommunity}
-                    //canRemix
-                    //canManageFiles
+                    canRemix={props.canRemix}
+                    canManageFiles
+                    canSave={props.canSave}
+                    canCreateNew={props.canCreateNew}
+                    canCreateCopy={props.canCreateNew}
+                    canUseCloud={props.canUseCloud}
+                    backpackVisible={props.backpackVisible}
                     onShowMessageBox={handleShowMessageBox}
                     backpackHost={backpackHost}
-                    //canSave={true}
                     onClickLogo={onClickLogo}
                     onUpdateProjectTitle={handleUpdateProjectTitle}
-                    //canShare
-                    //cloudHost={location.origin}
                     onLogOut={logOut}
                     renderLogin={logIn}
                 />}
@@ -223,18 +221,28 @@ export default appTarget => {
         onSeeInside: PropTypes.func,
         projectId: PropTypes.string,
         enableCommunity: PropTypes.bool,
-
+        canSave: PropTypes.bool,
+        canCreateNew: PropTypes.bool,
+        canUseCloud: PropTypes.bool,
+        canRemix: PropTypes.bool,
+        backpackVisible: PropTypes.bool,
     };
     Guier.defaultProps = {
         isPlayerOnly: true,
         enableCommunity: window.scratchConfig.enableCommunity ? true : false
     };
     const mapStateToProps = state => {
-        window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly
+        window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly;
+        const isLoggedIn = !!state.session.session.user.username;
+        const canRemixConfig = window.scratchConfig && window.scratchConfig.canRemix;
         return {
-            isPlayerOnly: state.scratchGui.mode.isPlayerOnly
-        }
-
+            isPlayerOnly: state.scratchGui.mode.isPlayerOnly,
+            canSave: isLoggedIn,
+            canCreateNew: isLoggedIn,
+            canUseCloud: isLoggedIn,
+            backpackVisible: isLoggedIn,
+            canRemix: !!(canRemixConfig && isLoggedIn),
+        };
     };
 
     const mapDispatchToProps = dispatch => ({

@@ -154,7 +154,35 @@
     login: true,
     isPlayerOnly: false,
     enableCommunity: true,
+    canRemix: true, // 是否允许改编（还需要用户登录）
     arduino: true,
+    // 素材库按钮配置
+    hxlib: {
+      sprite: {
+        show: true,
+        handleClick: (type) => {
+          console.log('素材库-角色按钮点击', type)
+        }
+      },
+      backdrop: {
+        show: true,
+        handleClick: (type) => {
+          console.log('素材库-背景按钮点击', type)
+        }
+      },
+      sound: {
+        show: true,
+        handleClick: (type) => {
+          console.log('素材库-声音按钮点击', type)
+        }
+      },
+      project: {
+        show: true,
+        handleClick: (type) => {
+          console.log('素材库-项目按钮点击', type)
+        }
+      }
+    },
   }
 
 </script>

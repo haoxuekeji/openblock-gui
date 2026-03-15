@@ -297,11 +297,6 @@ const mapStateToProps = state => {
         tipsLibraryVisible: state.scratchGui.modals.tipsLibrary,
         vm: state.scratchGui.vm,
         isRealtimeMode: state.scratchGui.programMode.isRealtimeMode,
-        canSave: state.session.session.user.username ? true : false,
-        canCreateNew: state.session.session.user.username ? true : false,
-
-        canUseCloud: state.session.session.user.username ? true : false,
-        backpackVisible: state.session.session.user.username ? true : false,
     };
 };
 

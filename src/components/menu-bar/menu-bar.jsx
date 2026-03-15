@@ -775,11 +775,11 @@ class MenuBar extends React.Component {
                                     )}
 
                                     {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.libButton &&
-                                        window.scratchConfig.menuBar.libButton.show) && (
+                                        window.scratchConfig.menuBar.libButton.show && HXLib.isEnabled('project')) && (
                                         <SB3Downloader>{(className, downloadProjectCallback) => (
                                             <MenuItem
                                                 className={className}
-                                                onClick={HXLib.opProjectClick}
+                                                onClick={() => HXLib.opProjectClick()}
                                             >
                                                 <FormattedMessage
                                                     defaultMessage="从库中选取"
@@ -1115,7 +1115,8 @@ class MenuBar extends React.Component {
                     }
                 </div>
                 <Divider className={classNames(styles.divider)} />
-                <div
+               {(window.scratchConfig && window.scratchConfig.arduino) && (
+                 <div
                     className={classNames(styles.menuBarItem, this.props.isRealtimeMode &&
                         this.props.peripheralName ? styles.hoverable : styles.disabled)}
                     onMouseUp={this.props.isRealtimeMode && this.props.peripheralName ?
@@ -1133,7 +1134,7 @@ class MenuBar extends React.Component {
                         id="gui.menuBar.uploadFirmware"
                     />
                 </div>
-
+               )}
                 {!isScratchDesktop() ? (
                     <div
                         aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
