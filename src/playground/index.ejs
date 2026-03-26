@@ -146,6 +146,9 @@
     handleUpdateProjectTitle: title => {
       console.log(title)
     },
+    handleFullScreenChange: isFullScreen => {
+      console.log('全屏状态变化', isFullScreen)
+    },
     mobilePlayer: false,
     defaultProjectURL: "./static/project.sb3",
     cloudHost: '/api/v1/scratch/cloud',
@@ -154,10 +157,12 @@
     assetCDN: location.origin,
     projectHost: '/api/v1/scratch/project',
     login: true,
-    isPlayerOnly: false,
+    isPlayerOnly: true,
     enableCommunity: true,
     canRemix: true, // 是否允许改编（还需要用户登录）
     arduino: true,
+    hasCloudPermission: true, // 是否有云数据权限（还需要用户登录）
+    canSave: true, // 是否允许保存（还需要用户登录）
     // 素材库按钮配置
     hxlib: {
       sprite: {

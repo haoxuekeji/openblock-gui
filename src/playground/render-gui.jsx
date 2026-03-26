@@ -241,14 +241,23 @@ export default appTarget => {
         isPlayerOnly: true,
         enableCommunity: window.scratchConfig.enableCommunity ? true : false
     };
+    let _prevIsFullScreen = null;
     const mapStateToProps = state => {
         window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly;
+        const isFullScreen = state.scratchGui.mode.isFullScreen;
+        if (_prevIsFullScreen !== null && _prevIsFullScreen !== isFullScreen) {
+            if (window.scratchConfig && window.scratchConfig.handleFullScreenChange) {
+                window.scratchConfig.handleFullScreenChange(isFullScreen);
+            }
+        }
+        _prevIsFullScreen = isFullScreen;
         const isLoggedIn = !!state.session.session.user.username;
         const canRemixConfig = window.scratchConfig && window.scratchConfig.canRemix;
         const hasCloudPermission = window.scratchConfig && window.scratchConfig.hasCloudPermission;
+        const canSaveConfig = window.scratchConfig && window.scratchConfig.canSave;
         return {
             isPlayerOnly: state.scratchGui.mode.isPlayerOnly,
-            canSave: isLoggedIn,
+            canSave: isLoggedIn && canSaveConfig,
             canCreateNew: isLoggedIn,
             canUseCloud: isLoggedIn,
             hasCloudPermission: isLoggedIn && hasCloudPermission,
