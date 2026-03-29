@@ -254,7 +254,7 @@ export default appTarget => {
         const isLoggedIn = !!state.session.session.user.username;
         const canRemixConfig = window.scratchConfig && window.scratchConfig.canRemix;
         const hasCloudPermission = window.scratchConfig && window.scratchConfig.hasCloudPermission;
-        const canSaveConfig = window.scratchConfig && window.scratchConfig.canSave;
+        const canSaveConfig = window.scratchConfig && window.scratchConfig.canSave !== undefined ? window.scratchConfig.canSave : isLoggedIn;
         return {
             isPlayerOnly: state.scratchGui.mode.isPlayerOnly,
             canSave: isLoggedIn && canSaveConfig,
