@@ -253,11 +253,12 @@ class SoundTab extends React.Component {
                     title: intl.formatMessage(messages.addSound),
                     img: searchIcon,
                     onClick: onNewSoundFromLibraryClick
-                }, {
+                },
+                ...(HX_Lib.isEnabled('sound') ? [{
                     title: intl.formatMessage(messages.addFormLibSound),
                     img: hxlibIcon,
-                    onClick: HX_Lib.onSoundClick
-                }]}
+                    onClick: () => HX_Lib.onSoundClick()
+                }] : [])]}
                 dragType={DragConstants.SOUND}
                 isRtl={isRtl}
                 items={sounds}

@@ -67,24 +67,43 @@ class ExtensionLibrary extends React.PureComponent {
     constructor(props) {
         super(props);
         bindAll(this, [
+            'updateScratchExtensions',
             'updateDeviceExtensions',
             'handleItemSelect'
         ]);
         this.state = {
+            scratchExtensions: [],
             deviceExtensions: []
         };
+        this._mounted = false;
     }
 
-    componentDidMount() {
-        if (this.props.isRealtimeMode === false) {
+    componentDidMount () {
+        this._mounted = true;
+        if (this.props.isRealtimeMode) {
+            this.updateScratchExtensions();
+        } else {
             this.updateDeviceExtensions();
         }
     }
 
-    updateDeviceExtensions() {
+    componentWillUnmount () {
+        this._mounted = false;
+    }
+
+    updateScratchExtensions () {
+        this.props.vm.extensionManager.getExtensionsList(Object.assign([], extensionLibraryContent))
+            .then(data => {
+                if (this._mounted && data) {
+                    this.setState({scratchExtensions: data});
+                }
+            });
+    }
+
+    updateDeviceExtensions () {
         this.props.vm.extensionManager.getDeviceExtensionsList()
             .then(data => {
-                if (data) {
+                if (this._mounted && data) {
                     this.setState({ deviceExtensions: data });
                 }
             });
@@ -101,23 +120,25 @@ class ExtensionLibrary extends React.PureComponent {
             }
             if (id && !item.disabled) {
                 if (this.props.vm.extensionManager.isExtensionLoaded(url)) {
-                    this.props.onCategorySelected(id);
+                    this.props.vm.extensionManager.unloadExtension(url);
+                    this.updateScratchExtensions();
                 } else {
                     this.props.vm.extensionManager.loadExtensionURL(url).then(() => {
                         this.props.onCategorySelected(id);
+                        //this.props.onCategorySelected(id);
                         // analytics.event({
                         //     category: 'extensions',
                         //     action: 'select extension',
                         //     label: id
                         // });
+                        this.updateScratchExtensions();
                     });
                 }
             }
         } else if (id && !item.disabled) {
             if (this.props.vm.extensionManager.isDeviceExtensionLoaded(id)) {
-                this.props.vm.extensionManager.unloadDeviceExtension(id).then(() => {
-                    this.updateDeviceExtensions();
-                });
+                this.props.vm.extensionManager.unloadDeviceExtension(id);
+                this.updateDeviceExtensions();
             } else {
                 this.props.vm.extensionManager.loadDeviceExtension(id).then(() => {
                     this.updateDeviceExtensions();
@@ -129,7 +150,7 @@ class ExtensionLibrary extends React.PureComponent {
                 })
                     .catch(err => {
                         // TODO add a alet device extension load failed. and change the state to bar to failed state
-                        console.error(`err = ${err}`); // eslint-disable-line no-console
+                        console.error(err); // eslint-disable-line no-console
                     });
             }
         }
@@ -137,24 +158,27 @@ class ExtensionLibrary extends React.PureComponent {
     render() {
         let extensionLibraryThumbnailData = [];
         const device = this.props.deviceData.find(dev => dev.deviceId === this.props.deviceId);
-
-        if (this.props.isRealtimeMode) {
-            extensionLibraryThumbnailData = extensionLibraryContent.map(extension => ({
+        const filterAndSort = extensions => extensions.filter(extension => {
+            if (extension.supportDevice) {
+                return extension.supportDevice.includes(this.props.deviceId) ||
+                extension.supportDevice.includes(device.deviceExtensionsCompatible) ||
+                extension.supportDevice.includes('*');
+            }
+            return true;
+        })
+            .map(extension => ({
                 rawURL: extension.iconURL || extensionIcon,
                 ...extension
-            }));
+            }))
+            .sort((a, b) => {
+                if ((b.isLoaded !== true) && (a.isLoaded === true)) return -1;
+                return 1;
+            });
+
+        if (this.props.isRealtimeMode) {
+            extensionLibraryThumbnailData = filterAndSort(this.state.scratchExtensions);
         } else {
-            extensionLibraryThumbnailData = this.state.deviceExtensions.filter(
-                extension => extension.supportDevice.includes(this.props.deviceId) ||
-                    extension.supportDevice.includes(device.deviceExtensionsCompatible))
-                .map(extension => ({
-                    rawURL: extension.iconURL || extensionIcon,
-                    ...extension
-                }))
-                .sort((a, b) => {
-                    if ((b.isLoaded !== true) && (a.isLoaded === true)) return -1;
-                    return 1;
-                });
+            extensionLibraryThumbnailData = filterAndSort(this.state.deviceExtensions);
         }
 
         return (
@@ -164,7 +188,7 @@ class ExtensionLibrary extends React.PureComponent {
                 filterable
                 tags={this.props.isRealtimeMode ? [] : tagListPrefix}
                 id="extensionLibrary"
-                isUnloadble={!this.props.isRealtimeMode}
+                isUnloadble
                 title={this.props.intl.formatMessage(messages.extensionTitle)}
                 visible={this.props.visible}
                 onItemSelected={this.handleItemSelect}
@@ -179,7 +203,6 @@ ExtensionLibrary.propTypes = {
     deviceId: PropTypes.string,
     intl: intlShape.isRequired,
     isRealtimeMode: PropTypes.bool,
-    onCategorySelected: PropTypes.func,
     onRequestClose: PropTypes.func,
     visible: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired // eslint-disable-line react/no-unused-prop-types

@@ -14,16 +14,16 @@ jobs:
       matrix:
         node-version: [12.x, 14.x, 16.x]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           cache-name: cache-node-modules
         with:
@@ -46,7 +46,7 @@ jobs:
       - name: Build
         env:
           NODE_ENV: production
-          GA_ID: ${{ secrets.GA_ID_ONLINE }}
+          GA_ID: ${{ secrets.GA_ID }}
           NODE_OPTIONS: --max-old-space-size=4000
         run: npm run build
 
@@ -56,14 +56,14 @@ jobs:
     env:
       NPM_TAG: latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: '14.x'
 
       - name: Cache node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           cache-name: cache-node-modules
         with:
@@ -76,7 +76,7 @@ jobs:
 
       - run: npm ci
 
-    # Don't push translations to TX. The push step will be run by the enterprise edition repository.
+    # Don't push translations to TX. The push step will be run by the distro repository.
     #   - name: Push i18n
     #     if: ${{ github.ref == 'refs/heads/main' }}
     #     run: |
@@ -104,12 +104,13 @@ jobs:
           git add .
           git commit -m '[skip ci] Update translations from transifex'
           git remote add origin-translation https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git push --set-upstream origin-translation develop
+          git pull
+          git push --set-upstream origin-translation main
 
       - name: Build
         env:
           NODE_ENV: production
-          GA_ID: ${{ secrets.GA_ID_ONLINE }}
+          GA_ID: ${{ secrets.GA_ID }}
           NODE_OPTIONS: --max-old-space-size=4000
         run: npm run build
 

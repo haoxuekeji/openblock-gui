@@ -144,11 +144,11 @@ const SpriteSelectorComponent = function (props) {
                         img: searchIcon,
                         onClick: onNewSpriteClick
                     },
-                    {
+                    ...(HX_Lib.isEnabled('sprite') ? [{
                         title: intl.formatMessage(messages.addSpriteFromLib),
                         img: hxlibIcon,
-                        onClick: HX_Lib.onSpriteClick
-                    }
+                        onClick: () => HX_Lib.onSpriteClick()
+                    }] : [])
                 ]}
                 title={intl.formatMessage(messages.addSpriteFromLibrary)}
                 tooltipPlace={isRtl(intl.locale) ? 'right' : 'left'}

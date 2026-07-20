@@ -5,7 +5,8 @@ import Button from '../button/button.jsx';
 import classNames from 'classnames';
 import {defineMessages, FormattedMessage, intlShape} from 'react-intl';
 
-import {STAGE_SIZE_MODES} from '../../lib/layout-constants';
+import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants';
+import {getStageDimensions} from '../../lib/screen-utils.js';
 
 import styles from './hardware-header.css';
 
@@ -43,16 +44,16 @@ const HardwareHeaderComponent = props => {
         onSetStageSmall,
         onSetStageHide,
         onUpload,
-        stageSizeMode
+        stageSize
     } = props;
+    const stageDimensions = getStageDimensions(stageSize === STAGE_DISPLAY_SIZES.hide ?
+        STAGE_DISPLAY_SIZES.small : stageSize, null);
     return (
         <Box
             className={classNames(
-                styles.hardwareHeaderWrapper,
-                stageSizeMode === STAGE_SIZE_MODES.large ? styles.hardwareHeaderWrapperStageLarge : null,
-                stageSizeMode === STAGE_SIZE_MODES.small ? styles.hardwareHeaderWrapperStageSmall : null,
-                stageSizeMode === STAGE_SIZE_MODES.hide ? styles.hardwareHeaderWrapperStageHide : null
+                styles.hardwareHeaderWrapper
             )}
+            style={{width: stageDimensions.width + 2}}
         >
             <div className={styles.uploadGroup}>
                 <div
@@ -80,7 +81,7 @@ const HardwareHeaderComponent = props => {
                         className={classNames(
                             styles.stageButton,
                             styles.stageButtonFirst,
-                            (stageSizeMode === STAGE_SIZE_MODES.small) ? null : styles.stageButtonToggledOff
+                            (stageSize === STAGE_DISPLAY_SIZES.small) ? null : styles.stageButtonToggledOff
                         )}
                         onClick={onSetStageSmall}
                     >
@@ -97,7 +98,7 @@ const HardwareHeaderComponent = props => {
                         className={classNames(
                             styles.stageButton,
                             styles.stageButtonLast,
-                            (stageSizeMode === STAGE_SIZE_MODES.large) ? null : styles.stageButtonToggledOff
+                            (stageSize === STAGE_DISPLAY_SIZES.large) ? null : styles.stageButtonToggledOff
                         )}
                         onClick={onSetStageLarge}
                     >
@@ -115,7 +116,7 @@ const HardwareHeaderComponent = props => {
                     <Button
                         className={classNames(
                             styles.stageButton,
-                            (stageSizeMode === STAGE_SIZE_MODES.hide) ? null : styles.stageButtonToggledOff
+                            (stageSize === STAGE_DISPLAY_SIZES.hide) ? null : styles.stageButtonToggledOff
                         )}
                         onClick={onSetStageHide}
                     >
@@ -138,11 +139,7 @@ HardwareHeaderComponent.propTypes = {
     onSetStageLarge: PropTypes.func.isRequired,
     onSetStageSmall: PropTypes.func.isRequired,
     onSetStageHide: PropTypes.func.isRequired,
-    stageSizeMode: PropTypes.oneOf(Object.keys(STAGE_SIZE_MODES))
-};
-
-HardwareHeaderComponent.defaultProps = {
-    stageSizeMode: STAGE_SIZE_MODES.large
+    stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired
 };
 
 export default HardwareHeaderComponent;

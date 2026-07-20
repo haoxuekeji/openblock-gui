@@ -99,11 +99,13 @@ import dropdownCaret from './dropdown-caret.svg';
 import languageIcon from '../language-selector/language-icon.svg';
 import aboutIcon from './icon--about.svg';
 import saveIcon from './icon--save.svg';
-import linkSocketIcon from './icon--link-socket.svg'; // eslint-disable-line no-unused-vars
-import communityIcon from './icon--community.svg';
+// import linkSocketIcon from './icon--link-socket.svg';
+// import communityIcon from './icon--community.svg';
 import wikiIcon from './icon--wiki.svg';
+import fileIcon from './icon--file.svg';
+import editIcon from './icon--edit.svg';
 
-import scratchLogo from './scratch-logo.svg';
+
 
 import sharedMessages from '../../lib/shared-messages';
 
@@ -220,6 +222,8 @@ class MenuBar extends React.Component {
     constructor(props) {
         super(props);
         bindAll(this, [
+            'checkOverflow',
+            'containerRef',
             'handleClickNew',
             'handleClickRemix',
             'handleClickOpenCommunity',
@@ -235,6 +239,7 @@ class MenuBar extends React.Component {
             'restoreOptionMessage',
             'handleConnectionMouseUp',
             'handleUploadFirmware',
+            'handleWindowsResize',
             'handleSelectDeviceMouseUp',
             'handleProgramModeSwitchOnChange',
             'handleProgramModeUpdate',
@@ -246,18 +251,46 @@ class MenuBar extends React.Component {
             'handleFullscreen'
         ]);
         this.state = {
-            isFullscreen: false
-        }
+            isFullscreen: false,
+            isOverflow: false
+        };
     }
     componentDidMount() {
         document.addEventListener('keydown', this.handleKeyPress);
         this.props.vm.on('PERIPHERAL_DISCONNECTED', this.props.onDisconnect);
         this.props.vm.on('PROGRAM_MODE_UPDATE', this.handleProgramModeUpdate);
+        window.addEventListener('resize', this.handleWindowsResize);
+    }
+    componentDidUpdate (prevProps) {
+        if (prevProps.isToolboxUpdating !== this.props.isToolboxUpdating && !this.state.isOverflow
+        ) {
+            this.checkOverflow();
+        }
     }
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyPress);
         this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.props.onDisconnect);
         this.props.vm.removeListener('PROGRAM_MODE_UPDATE', this.handleProgramModeUpdate);
+        window.removeEventListener('resize', this.handleWindowsResize);
+    }
+    handleWindowsResize () {
+        this.setState({isOverflow: false});
+        if (this.resizeTimerout) {
+            clearTimeout(this.resizeTimerout);
+        }
+        // When you continue to drag and resize the window, the menu content is not hidden immediately,
+        // but delayed for a period of time to prevent the menu content from flickering frequently.After
+        // testing, a delay of 300ms seems to be the most comfortable.
+        this.resizeTimerout = setTimeout(() => this.checkOverflow(), 300);
+    }
+    containerRef (el) {
+        this.containerElement = el;
+    }
+    checkOverflow () {
+        if (this.containerElement) {
+            const container = this.containerElement;
+            this.setState({isOverflow: container.scrollWidth > container.clientWidth});
+        }
     }
     handleClickNew() {
         // if the project is dirty, and user owns the project, we will autosave.
@@ -378,9 +411,10 @@ class MenuBar extends React.Component {
             this.props.onDeviceIsEmpty();
         }
     }
-    handleSelectDeviceMouseUp() {
-        const blocks = document.querySelector('.blocklyWorkspace .blocklyBlockCanvas');
-        if (blocks.getBBox().height === 0) {
+
+    handleSelectDeviceMouseUp () {
+        const blocklyBlockCanvas = document.querySelector('.blocklyWorkspace .blocklyBlockCanvas');
+        if (blocklyBlockCanvas.childNodes.length === 0) {
             this.props.onOpenDeviceLibrary();
         } else {
             this.props.onWorkspaceIsNotEmpty();
@@ -416,20 +450,20 @@ class MenuBar extends React.Component {
             this.props.onNoPeripheralIsConnected();
         }
     }
-    handleScreenshot() {
-        const blocks = document.querySelector('.blocklyWorkspace .blocklyBlockCanvas');
-        if (blocks.getBBox().height === 0) {
+    handleScreenshot () {
+        const blocklyBlockCanvas = document.querySelector('.blocklyWorkspace .blocklyBlockCanvas');
+        if (blocklyBlockCanvas.childNodes.length === 0) {
             this.props.onWorkspaceIsEmpty();
         } else {
-            const transform = blocks.getAttribute('transform');
+            const transform = blocklyBlockCanvas.getAttribute('transform');
             const scale = parseFloat(transform.substring(transform.indexOf('scale') + 6, transform.length - 1));
             const data = new Date();
 
-            saveSvgAsPng.saveSvgAsPng(blocks, `${this.props.projectTitle}-${data.getTime()}.png`, {
-                left: blocks.getBBox().x * scale,
-                top: blocks.getBBox().y * scale,
-                height: blocks.getBBox().height * scale,
-                width: blocks.getBBox().width * scale,
+            saveSvgAsPng.saveSvgAsPng(blocklyBlockCanvas, `${this.props.projectTitle}-${data.getTime()}.png`, {
+                left: blocklyBlockCanvas.getBBox().x * scale,
+                top: blocklyBlockCanvas.getBBox().y * scale,
+                height: blocklyBlockCanvas.getBBox().height * scale,
+                width: blocklyBlockCanvas.getBBox().width * scale,
                 scale: 2 / scale,
                 encoderOptions: 1
             });
@@ -629,12 +663,13 @@ class MenuBar extends React.Component {
                     this.props.className,
                     styles.menuBar
                 )}
+                componentRef={this.containerRef}
             >
                 <div className={styles.mainMenu}>
                     <div className={classNames(styles.menuBarItem)}>
                         <img
                             alt="OpenBlock"
-                            className={classNames(styles.scratchLogo, {
+                            className={classNames(styles.openblockLogo, {
                                 [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
                             })}
                             draggable={false}
@@ -665,11 +700,16 @@ class MenuBar extends React.Component {
                             })}
                             onMouseUp={this.props.onClickFile}
                         >
-                            <FormattedMessage
-                                defaultMessage="File"
-                                description="Text for file dropdown menu"
-                                id="gui.menuBar.file"
-                            />
+                            {this.state.isOverflow ? (
+                                <img
+                                    className={styles.fileIcon}
+                                    src={fileIcon}
+                                />) :
+                                <FormattedMessage
+                                    defaultMessage="File"
+                                    description="Text for file dropdown menu"
+                                    id="gui.menuBar.file"
+                                />}
                             <MenuBarMenu
                                 className={classNames(styles.menuBarMenu)}
                                 open={this.props.fileMenuOpen}
@@ -729,11 +769,11 @@ class MenuBar extends React.Component {
                                     )}
 
                                     {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.libButton &&
-                                        window.scratchConfig.menuBar.libButton.show) && (
+                                        window.scratchConfig.menuBar.libButton.show && HXLib.isEnabled('project')) && (
                                         <SB3Downloader>{(className, downloadProjectCallback) => (
                                             <MenuItem
                                                 className={className}
-                                                onClick={HXLib.opProjectClick}
+                                                onClick={() => HXLib.opProjectClick()}
                                             >
                                                 <FormattedMessage
                                                     defaultMessage="从库中选取"
@@ -753,12 +793,17 @@ class MenuBar extends React.Component {
                         })}
                         onMouseUp={this.props.onClickEdit}
                     >
-                        <div className={classNames(styles.editMenu)}>
-                            <FormattedMessage
-                                defaultMessage="Edit"
-                                description="Text for edit dropdown menu"
-                                id="gui.menuBar.edit"
-                            />
+                        <div className={classNames(styles.editMenu)} >
+                            {this.state.isOverflow ? (
+                                <img
+                                    className={styles.editIcon}
+                                    src={editIcon}
+                                />) :
+                                <FormattedMessage
+                                    defaultMessage="Edit"
+                                    description="Text for edit dropdown menu"
+                                    id="gui.menuBar.edit"
+                                />}
                         </div>
                         <MenuBarMenu
                             className={classNames(styles.menuBarMenu)}
@@ -795,7 +840,6 @@ class MenuBar extends React.Component {
                             </MenuSection>
                         </MenuBarMenu>
                     </div>
-
 
                     {/* <Divider className={classNames(styles.divider)} /> */}
                     {(window.scratchConfig && window.scratchConfig.arduino) && (
@@ -848,8 +892,10 @@ class MenuBar extends React.Component {
                                     />
                                 </React.Fragment>
                             )}
+
                         </div>
                     )}
+
                     {/* <div
                         className={classNames(styles.menuBarItem)}
                     >
@@ -1050,7 +1096,8 @@ class MenuBar extends React.Component {
                     }
                 </div>
                 <Divider className={classNames(styles.divider)} />
-                <div
+               {(window.scratchConfig && window.scratchConfig.arduino) && (
+                 <div
                     className={classNames(styles.menuBarItem, this.props.isRealtimeMode &&
                         this.props.peripheralName ? styles.hoverable : styles.disabled)}
                     onMouseUp={this.props.isRealtimeMode && this.props.peripheralName ?
@@ -1068,7 +1115,7 @@ class MenuBar extends React.Component {
                         id="gui.menuBar.uploadFirmware"
                     />
                 </div>
-
+               )}
                 {!isScratchDesktop() ? (
                     <div
                         aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
@@ -1107,6 +1154,7 @@ class MenuBar extends React.Component {
                             <CommunityButton className={styles.menuBarButton} />
                         </MenuBarItemTooltip>
                     ) : [])}
+
                 </div>
 
                 {/* show the proper UI in the account menu, given whether the user is
@@ -1329,6 +1377,7 @@ MenuBar.propTypes = {
     locale: PropTypes.string.isRequired,
     loginMenuOpen: PropTypes.bool,
     logo: PropTypes.string,
+    logoSmall: PropTypes.string,
     onClickAbout: PropTypes.oneOfType([
         PropTypes.func, // button mode: call this callback when the About button is clicked
         PropTypes.arrayOf( // menu mode: list of items in the About menu
@@ -1400,7 +1449,9 @@ MenuBar.defaultProps = {
     logo: hxlogo,
     vm: PropTypes.instanceOf(VM).isRequired,
     onSetSession: PropTypes.func,
-    onShare: () => { }
+    onShare: () => { },
+    logoSmall: hxlogo,
+
 };
 
 const mapStateToProps = (state, ownProps) => {

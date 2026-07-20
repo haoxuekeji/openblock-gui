@@ -1,0 +1,110 @@
+services:
+  gui:
+    build: .
+    image: openblock-gui-dev
+    container_name: openblock-gui-dev
+    depends_on:
+      - link
+      - resource
+    ports:
+      - "8601:8601"
+    volumes:
+      - .:/app
+      - gui_node_modules:/app/node_modules
+      # 挂到 /deps，安装后再软链，避免 EBUSY
+      - ../openblock-vm:/deps/openblock-vm
+      - ../openblock-blocks:/deps/hxblock-blocks
+      - ../openblock-l10n:/deps/hxblock-l10n
+      - ../../kids-code-platform/scratch3:/deploy/scratch3
+      - ./docker/entrypoint-dev.sh:/entrypoint-dev.sh:ro
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      PORT: "8601"
+      NODE_ENV: development
+      DEPLOY_DEST: /deploy/scratch3
+    entrypoint: ["/bin/sh", "/entrypoint-dev.sh"]
+    command: ["npx", "webpack-dev-server", "--host", "0.0.0.0", "--port", "8601"]
+    stdin_open: true
+    tty: true
+
+  # 硬件连接服务（串口扫描 / 编译 / 烧录），浏览器通过 ws://127.0.0.1:20111 访问
+  link:
+    build:
+      context: .
+      dockerfile: docker/link.Dockerfile
+    image: openblock-link-dev
+    container_name: openblock-link-dev
+    working_dir: /app
+    # 串口热插拔需要直通 /dev（仅本机开发环境使用）
+    privileged: true
+    ports:
+      - "20111:20111"
+    volumes:
+      - ../openblock-link:/app
+      - link_node_modules:/app/node_modules
+      # 宿主仓库里的 tools 是 macOS 二进制，容器内用独立卷存放 Linux 工具链
+      - link_tools:/app/tools
+      # 与 resource 共享数据卷；扩展库 library 绝对路径需要在两容器内一致
+      - openblock_data:/.openblockData
+      - ../external-resources-v3:/resources:ro
+      - ./docker/link-entrypoint.sh:/link-entrypoint.sh:ro
+      - /dev:/dev
+    environment:
+      NODE_ENV: development
+    entrypoint: ["/bin/sh", "/link-entrypoint.sh"]
+    command: ["node", "test/start-server.js", "--log-level=info"]
+    stdin_open: true
+    tty: true
+
+  # 扩展资源服务（设备/扩展库），浏览器通过 http://127.0.0.1:20112 访问
+  resource:
+    image: node:16-bookworm
+    container_name: openblock-resource-dev
+    working_dir: /app
+    ports:
+      - "20112:20112"
+    volumes:
+      - ../openblock-resource:/app
+      - resource_node_modules:/app/node_modules
+      # 与 link 共享数据卷
+      - openblock_data:/.openblockData
+      # v3 版扩展资源仓库（与当前 openblock-resource 服务端代码匹配），改动即时生效
+      - ../external-resources-v3:/resources:ro
+      - ./docker/resource-entrypoint.sh:/resource-entrypoint.sh:ro
+    environment:
+      NODE_ENV: development
+      OPENBLOCK_EXTERNAL_RESOURCES: /resources
+    entrypoint: ["/bin/sh", "/resource-entrypoint.sh"]
+    command: ["node", "test/start-server.js"]
+    stdin_open: true
+    tty: true
+
+  # 仅手动触发: docker compose --profile build run --rm build-kids
+  build-kids:
+    profiles: ["build"]
+    image: openblock-gui-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - gui_node_modules:/app/node_modules
+      - ../openblock-vm:/deps/openblock-vm
+      - ../openblock-blocks:/deps/hxblock-blocks
+      - ../openblock-l10n:/deps/hxblock-l10n
+      - ../../kids-code-platform/scratch3:/deploy/scratch3
+      - ./docker/entrypoint-dev.sh:/entrypoint-dev.sh:ro
+    environment:
+      NODE_ENV: production
+      DEPLOY_DEST: /deploy/scratch3
+    entrypoint: ["/bin/sh", "/entrypoint-dev.sh"]
+    command:
+      - sh
+      - -c
+      - npm run build && node scripts/deploy-to-kids-platform.js
+
+volumes:
+  gui_node_modules:
+  link_node_modules:
+  link_tools:
+  resource_node_modules:
+  openblock_data:

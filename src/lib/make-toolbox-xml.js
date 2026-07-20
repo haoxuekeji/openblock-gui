@@ -1,5 +1,7 @@
 import ScratchBlocks from 'hxblock-blocks';
 
+import {eventBlock} from './libraries/devices/index.jsx';
+
 const categorySeparator = '<sep gap="36"/>';
 
 const blockSeparator = '<sep gap="36"/>'; // At default scale, about 28px
@@ -382,7 +384,7 @@ const events = function (isInitialSetup, isStage) {
     `;
 };
 
-const control = function (isInitialSetup, isStage) {
+const control = function (isInitialSetup, isStage, targetId, isRealtimeMode) {
     return `
     <category name="%{BKY_CATEGORY_CONTROL}" id="control" colour="#FFAB19" secondaryColour="#CF8B17">
         <block type="control_wait">
@@ -407,24 +409,26 @@ const control = function (isInitialSetup, isStage) {
         <block id="wait_until" type="control_wait_until"/>
         <block id="repeat_until" type="control_repeat_until"/>
         ${blockSeparator}
-        <block type="control_stop"/>
-        ${blockSeparator}
-        ${isStage ? `
-            <block type="control_create_clone_of">
-                <value name="CLONE_OPTION">
-                    <shadow type="control_create_clone_of_menu"/>
-                </value>
-            </block>
-        ` : `
-            <block type="control_start_as_clone"/>
-            <block type="control_create_clone_of">
-                <value name="CLONE_OPTION">
-                    <shadow type="control_create_clone_of_menu"/>
-                </value>
-            </block>
-            <block type="control_delete_this_clone"/>
-        `}
-        ${categorySeparator}
+        ${isRealtimeMode ? `
+            <block type="control_stop"/>
+            ${blockSeparator}
+            ${isStage ? `
+                <block type="control_create_clone_of">
+                    <value name="CLONE_OPTION">
+                        <shadow type="control_create_clone_of_menu"/>
+                    </value>
+                </block>
+            ` : `
+                <block type="control_start_as_clone"/>
+                <block type="control_create_clone_of">
+                    <value name="CLONE_OPTION">
+                        <shadow type="control_create_clone_of_menu"/>
+                    </value>
+                </block>
+                <block type="control_delete_this_clone"/>
+            `}
+            ${categorySeparator}
+        ` : null}
     </category>
     `;
 };
@@ -757,25 +761,36 @@ const makeToolboxXML = function (isInitialSetup, device = null, isStage = true, 
         // return `undefined`
     };
 
-    let everything = [xmlOpen];
+    const everything = [];
 
-    if (device) {
-        const baseToolboxXml = device.baseToolBoxXml(isInitialSetup, isStage, targetId, isRealtimeMode,
-            costumeName, backdropName, soundName);
+    const motionXML = moveCategory('motion') || motion(isInitialSetup, isStage, targetId);
+    const looksXML = moveCategory('looks') || looks(isInitialSetup, isStage, targetId, costumeName, backdropName);
+    const soundXML = moveCategory('sound') || sound(isInitialSetup, isStage, targetId, soundName);
+    let eventsXML = moveCategory('event') || events(isInitialSetup, isStage, targetId);
+    const controlXML = moveCategory('control') || control(isInitialSetup, isStage, targetId, isRealtimeMode);
+    const sensingXML = moveCategory('sensing') || sensing(isInitialSetup, isStage, targetId);
+    const operatorsXML = moveCategory('operators') || operators(isInitialSetup, isStage, targetId);
+    const variablesXML = moveCategory('data') || variables(isInitialSetup, isStage, targetId);
+    const myBlocksXML = moveCategory('procedures') || myBlocks(isInitialSetup, isStage, targetId);
 
-        everything = everything.concat(baseToolboxXml);
-    } else {
-        const motionXML = moveCategory('motion') || motion(isInitialSetup, isStage, targetId);
-        const looksXML = moveCategory('looks') || looks(isInitialSetup, isStage, targetId, costumeName, backdropName);
-        const soundXML = moveCategory('sound') || sound(isInitialSetup, isStage, targetId, soundName);
-        const eventsXML = moveCategory('event') || events(isInitialSetup, isStage, targetId);
-        const controlXML = moveCategory('control') || control(isInitialSetup, isStage, targetId);
-        const sensingXML = moveCategory('sensing') || sensing(isInitialSetup, isStage, targetId);
-        const operatorsXML = moveCategory('operators') || operators(isInitialSetup, isStage, targetId);
-        const variablesXML = moveCategory('data') || variables(isInitialSetup, isStage, targetId);
-        const myBlocksXML = moveCategory('procedures') || myBlocks(isInitialSetup, isStage, targetId);
-
+    if (device && !isRealtimeMode) {
+        eventsXML = `
+        <category name="%{BKY_CATEGORY_EVENTS}" id="events" colour="#FFD500" secondaryColour="#CC9900">
+            ${eventBlock[device.type]}
+            ${categorySeparator}
+        </category>
+    `;
         everything.push(
+            xmlOpen,
+            eventsXML, gap,
+            controlXML, gap,
+            operatorsXML, gap,
+            variablesXML, gap,
+            myBlocksXML
+        );
+    } else {
+        everything.push(
+            xmlOpen,
             motionXML, gap,
             looksXML, gap,
             soundXML, gap,

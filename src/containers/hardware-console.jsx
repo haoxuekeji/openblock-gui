@@ -156,18 +156,22 @@ class HardwareConsole extends React.Component {
 
         // Ctrl + A
         if (keyCode === 65 && ctrlKey) {
+            e.preventDefault();
             this.writeToPeripheral(String.fromCharCode(1));
         }
         // Ctrl + B
         if (keyCode === 66 && ctrlKey) {
+            e.preventDefault();
             this.writeToPeripheral(String.fromCharCode(2));
         }
         // Ctrl + C
         if (keyCode === 67 && ctrlKey) {
+            e.preventDefault();
             this.writeToPeripheral(String.fromCharCode(3));
         }
         // Ctrl + D
         if (keyCode === 68 && ctrlKey) {
+            e.preventDefault();
             this.writeToPeripheral(String.fromCharCode(4));
         }
     }

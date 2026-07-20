@@ -161,7 +161,7 @@ const GUIComponent = props => {
                 isRendererSupported={isRendererSupported}
                 isRtl={isRtl}
                 loading={loading}
-                stageSize={STAGE_SIZE_MODES.large}
+                stageSize={stageSize}
                 vm={vm}
             >
                 {alertsVisible ? (
@@ -351,6 +351,7 @@ const GUIComponent = props => {
                                             }}
                                             stageSize={stageSize}
                                             vm={vm}
+                                            onShowMessageBox={onShowMessageBox}
                                         />
                                     </Box>
                                     <Box className={styles.extensionButtonContainer}>
@@ -381,16 +382,6 @@ const GUIComponent = props => {
                                 <Backpack host={backpackHost} />
                             ) : null}
                         </Box>
-                        {(isRealtimeMode === false) ? (
-                            <HardwareHeader
-                                vm={vm}
-                            />) : null
-                        }
-                        {((isRealtimeMode === false) && (stageSizeMode !== STAGE_SIZE_MODES.hide)) ? (
-                            <Hardware
-                                vm={vm}
-                            />) : null
-                        }
                         <Box
                             className={classNames(styles.stageAndTargetWrapper, styles[stageSize],
                                 isRealtimeMode ? styles.showStage : styles.hideStage)}
@@ -409,8 +400,20 @@ const GUIComponent = props => {
                                 />
                             </Box>
                         </Box>
-
+                        {((isRealtimeMode === false) && (stageSizeMode !== STAGE_SIZE_MODES.hide)) ? (
+                            <Hardware
+                                vm={vm}
+                                stageSize={stageSize}
+                            />) : null
+                        }
                     </Box>
+                    <DragLayer />
+                    {(isRealtimeMode === false) ? (
+                        <HardwareHeader
+                            vm={vm}
+                            stageSize={stageSize}
+                        />) : null
+                    }
                 </Box>
                 <DragLayer />
             </Box>

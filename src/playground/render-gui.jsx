@@ -34,13 +34,13 @@ const onClickClearCache = () => {
 const onClickInstallDriver = () => {
     log('User click install driver');
 };
-
+import API from '../lib/api'
 import Box from '../components/box/box.jsx';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { setPlayer } from '../reducers/mode';
 import { setSession } from '../reducers/session';
-
+window.api = API
 import styles from './player.css';
 
 
@@ -135,6 +135,15 @@ const handleLogIn = (form, callback) => {
 export default appTarget => {
     GUI.setAppElement(appTarget);
 
+    // note that redux's 'compose' function is just being used as a general utility to make
+    // the hierarchy of HOC constructor calls clearer here; it has nothing to do with redux's
+    // ability to compose reducers.
+
+
+    // TODO a hack for testing the backpack, allow backpack host to be set by url param
+    //const backpackHostMatches = window.location.href.match(/[?&]backpack_host=([^&]*)&?/);
+    //const backpackHost = backpackHostMatches ? backpackHostMatches[1] : null;
+
     const scratchDesktopMatches = window.location.href.match(/[?&]isScratchDesktop=([^&]+)/);
     let simulateScratchDesktop;
     if (scratchDesktopMatches) {
@@ -156,6 +165,10 @@ export default appTarget => {
     var backpackHost = location.origin + '/api/v1/backpack'
      if (window.scratchConfig && window.scratchConfig.backpackHost) {
         backpackHost = window.scratchConfig.backpackHost
+    }
+    var cloudHost = location.origin + '/cloud';
+    if (window.scratchConfig && window.scratchConfig.cloudHost) {
+        cloudHost = window.scratchConfig.cloudHost
     }
     // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
 
@@ -191,47 +204,67 @@ export default appTarget => {
                 /> :
                 <GUI
                     canEditTitle
-                    //showComingSoon
-
-                    canCreateCopy
                     isPlayerOnly={props.isPlayerOnly}
-                    enableCommunity={props.enableCommunity}
-                    canRemix
+                    canRemix={props.canRemix}
                     canManageFiles
+                    canSave={props.canSave}
+                    canCreateNew={props.canCreateNew}
+                    canCreateCopy={props.canCreateNew}
+                    canUseCloud={props.canUseCloud}
+                    backpackVisible={props.backpackVisible}
                     onShowMessageBox={handleShowMessageBox}
                     backpackHost={backpackHost}
-                    canSave={true}
                     onClickLogo={onClickLogo}
                     onUpdateProjectTitle={handleUpdateProjectTitle}
-                    canShare
-                    cloudHost={window.scratchConfig.cloudHost}
                     onLogOut={logOut}
                     renderLogin={logIn}
-                    hasCloudPermission={true}
+                    cloudHost={cloudHost}
+                    hasCloudPermission={props.hasCloudPermission}
                     onUpdateProjectThumbnail={window.scratchConfig.handleUpdateProjectThumbnail}
+
                 />}
             {window.setSession = props.onSetSession}
-            {window.setPlayer = props.onSeeInside}
         </Box>
-
     );
     Guier.propTypes = {
         isPlayerOnly: PropTypes.bool,
         onSeeInside: PropTypes.func,
         projectId: PropTypes.string,
         enableCommunity: PropTypes.bool,
-
+        canSave: PropTypes.bool,
+        canCreateNew: PropTypes.bool,
+        canUseCloud: PropTypes.bool,
+        canRemix: PropTypes.bool,
+        backpackVisible: PropTypes.bool,
     };
     Guier.defaultProps = {
         isPlayerOnly: true,
         enableCommunity: window.scratchConfig.enableCommunity ? true : false
     };
+    let _prevIsFullScreen = null;
     const mapStateToProps = state => {
-        window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly
-        return {
-            isPlayerOnly: state.scratchGui.mode.isPlayerOnly
+        window.isPlayerOnly = state.scratchGui.mode.isPlayerOnly;
+        const isFullScreen = state.scratchGui.mode.isFullScreen;
+        if (_prevIsFullScreen !== null && _prevIsFullScreen !== isFullScreen) {
+            if (window.scratchConfig && window.scratchConfig.handleFullScreenChange) {
+                window.scratchConfig.handleFullScreenChange(isFullScreen);
+            }
         }
+        _prevIsFullScreen = isFullScreen;
+        const isLoggedIn = !!state.session.session.user.username;
+        const canRemixConfig = window.scratchConfig && window.scratchConfig.canRemix;
+        const hasCloudPermission = window.scratchConfig && window.scratchConfig.hasCloudPermission;
+        const canSaveConfig = window.scratchConfig && window.scratchConfig.canSave !== undefined ? window.scratchConfig.canSave : isLoggedIn;
+        return {
+            isPlayerOnly: state.scratchGui.mode.isPlayerOnly,
+            canSave: isLoggedIn && canSaveConfig,
+            canCreateNew: isLoggedIn,
+            canUseCloud: isLoggedIn,
+            hasCloudPermission: isLoggedIn && hasCloudPermission,
 
+            backpackVisible: isLoggedIn,
+            canRemix: !!(canRemixConfig && isLoggedIn),
+        };
     };
 
     const mapDispatchToProps = dispatch => ({
@@ -247,5 +280,6 @@ export default appTarget => {
         AppStateHOC,
         HashParserHOC
     )(ConnectedGUI);
+
     ReactDOM.render(<WrappedGui isPlayerOnly={window.scratchConfig.isPlayerOnly} />, appTarget);
 };

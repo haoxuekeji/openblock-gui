@@ -1,46 +1,36 @@
 
 
 class HX_Lib {
-    test() {
-        console.log('test')
+    _getConfig (type) {
+        return window.scratchConfig && window.scratchConfig.hxlib && window.scratchConfig.hxlib[type];
     }
-    onSpriteClick() {
-        // console.log('test click')
-		      //     window.projecturl = 'http://0.0.0.0:5000/api/v1/download/%E5%B0%8F%E6%98%8E.sprite3';
-		      //     const url=window.projecturl;
-		      //     fetch(url, {
-		      //       method: 'GET'
-		      //     })
-		      //     .then(res => res.blob())
-		      //     .then(blob => {
-		      //       const reader = new FileReader();
-		      //       reader.onload=()=> vm.addSprite(reader.result)
-		      //       .then(() => {
-		      //       })
-		      //       reader.readAsArrayBuffer(blob)
-		      //     })
-		      //     .catch(error => {
-		      //       alert('文件加载错误！ ${error}')
-		      //     })
-              if(window.openBox) {
-                window.openBox('sprite')
-              }
+    isEnabled (type) {
+        const config = this._getConfig(type);
+        return !!(config && config.show);
     }
-    onBackdropClick(e) {
-        if(window.openBox) {
-            window.openBox('backdrop')
+    onSpriteClick () {
+        const config = this._getConfig('sprite');
+        if (config && typeof config.handleClick === 'function') {
+            config.handleClick('sprite');
         }
     }
-    opProjectClick() {
-        if(window.openBox) {
-            window.openBox('project')
+    onBackdropClick () {
+        const config = this._getConfig('backdrop');
+        if (config && typeof config.handleClick === 'function') {
+            config.handleClick('backdrop');
         }
     }
-    onSoundClick() {
-        if(window.openBox) {
-            window.openBox('sound')
+    opProjectClick () {
+        const config = this._getConfig('project');
+        if (config && typeof config.handleClick === 'function') {
+            config.handleClick('project');
         }
-        
+    }
+    onSoundClick () {
+        const config = this._getConfig('sound');
+        if (config && typeof config.handleClick === 'function') {
+            config.handleClick('sound');
+        }
     }
 }
 export default new HX_Lib()

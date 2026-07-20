@@ -4,7 +4,7 @@
 
 .hardware-header-wrapper {
     position: absolute;
-    top: $menu-bar-height;
+    top: 0;
     right: $space;
     justify-content: space-between;
 
@@ -17,18 +17,6 @@
     padding-bottom: $space;
     font-size: 0.75rem;
     user-select: none;
-}
-
-.hardware-header-wrapper-stage-large {
-    width: 482px;
-}
-
-.hardware-header-wrapper-stage-small {
-    width: 242px;
-}
-
-.hardware-header-wrapper-stage-hide {
-    width: 242px;
 }
 
 .upload-group{

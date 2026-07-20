@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import VMScratchBlocks from '../lib/blocks';
 import VM from 'openblock-vm';
+import MessageBoxType from '../lib/message-box.js';
 
 import log from '../lib/log.js';
 import Prompt from './prompt.jsx';
@@ -95,6 +96,9 @@ class Blocks extends React.Component {
         this.ScratchBlocks.prompt = this.handlePromptStart;
         this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
         this.ScratchBlocks.recordSoundCallback = this.handleOpenSoundRecorder;
+        this.ScratchBlocks.alert = message => {
+            this.props.onShowMessageBox(MessageBoxType.alert, message);
+        };
 
         this.state = {
             prompt: null
@@ -495,6 +499,8 @@ class Blocks extends React.Component {
                 if (dev.programMode.includes(defaultProgramMode)) {
                     if (defaultProgramMode === 'upload') {
                         this.props.vm.runtime.setRealtimeMode(false);
+                    } else {
+                        this.props.vm.runtime.setRealtimeMode(true);
                     }
                 }
 
@@ -559,9 +565,7 @@ class Blocks extends React.Component {
         }, 0);
     }
     handleScratchExtensionRemoved (extensionInfo) {
-        const {deviceId} = extensionInfo;
-
-        if (deviceId) {
+        if (extensionInfo && extensionInfo.deviceId) {
             this.props.onDeviceSelected(null, null, null);
             this.props.vm.runtime.setRealtimeMode(true);
             this.props.onSetSupportSwitchMode(false);
@@ -602,8 +606,8 @@ class Blocks extends React.Component {
     handleCategorySelected(categoryId) {
         const extension = extensionData.find(ext => ext.extensionId === categoryId);
         if (extension && extension.launchPeripheralConnectionFlow) {
-            this.handleConnectionModalStart();
             this.props.onDeviceSelected(categoryId, null, null);
+            this.handleConnectionModalStart();
         }
 
         this.withToolboxUpdates(() => {
@@ -637,7 +641,10 @@ class Blocks extends React.Component {
         p.prompt.showCloudOption = (optVarType === this.ScratchBlocks.SCALAR_VARIABLE_TYPE) && this.props.canUseCloud;
         this.setState(p);
     }
-    handleConnectionModalStart() {
+    handleConnectionModalStart(extensionId) {
+        if (extensionId) {
+            this.props.onDeviceSelected(extensionId, null, null);
+        }
         this.props.onOpenConnectionModal();
     }
     handleStatusButtonUpdate() {
@@ -845,6 +852,7 @@ Blocks.propTypes = {
     onSetBaudrate: PropTypes.func.isRequired,
     onSetCodeEditorValue: PropTypes.func,
     onSetSupportSwitchMode: PropTypes.func,
+    onShowMessageBox: PropTypes.func.isRequired,
     stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
     toolboxXML: PropTypes.string,
     updateMetrics: PropTypes.func,

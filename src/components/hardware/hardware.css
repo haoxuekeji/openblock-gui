@@ -33,14 +33,6 @@
     overflow: hidden;
 }
 
-.wide-wrapper {
-    width: calc(480px + 2px);
-}
-
-.narrow-wrapper {
-    width: calc(240px + 2px);
-}
-
 .button:hover {
     cursor: pointer;
 }

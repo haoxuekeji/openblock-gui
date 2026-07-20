@@ -127,11 +127,12 @@ const StageSelector = props => {
                         title: intl.formatMessage(messages.addBackdropFromLibrary),
                         img: searchIcon,
                         onClick: onNewBackdropClick
-                    }, {
+                    },
+                    ...(HX_Lib.isEnabled('backdrop') ? [{
                         title: intl.formatMessage(messages.addBackdropFromLib),
                         img: hxlibIcon,
-                        onClick: HX_Lib.onBackdropClick
-                    }
+                        onClick: () => HX_Lib.onBackdropClick()
+                    }] : [])
                 ]}
                 title={intl.formatMessage(messages.addBackdropFromLibrary)}
                 tooltipPlace={isRtl(intl.locale) ? 'right' : 'left'}

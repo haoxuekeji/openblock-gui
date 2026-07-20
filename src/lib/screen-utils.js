@@ -70,12 +70,18 @@ const getStageDimensions = (stageSize, isFullScreen) => {
         stageDimensions.scale = STAGE_DISPLAY_SCALES[stageSize];
         stageDimensions.height = stageDimensions.scale * stageDimensions.heightDefault;
         stageDimensions.width = stageDimensions.scale * stageDimensions.widthDefault;
+
+        if (window.scratchConfig && window.scratchConfig.isPlayerOnly) {
+            stageDimensions.width = window.innerWidth;
+            stageDimensions.height = stageDimensions.width * .75; 
+        }
     }
 
     if(window.scratchConfig && window.scratchConfig.mobilePlayer) {
         stageDimensions.width = window.innerWidth;
          stageDimensions.height = stageDimensions.width * .75; 
      }
+
 
     // Round off dimensions to prevent resampling/blurriness
     stageDimensions.height = Math.round(stageDimensions.height);

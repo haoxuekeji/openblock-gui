@@ -48,7 +48,97 @@ import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 
 import queIconURL from './que/que.jpg'
 import queInsetIconURL from './que/que-small.svg'
+
+import mqttIconURL from './mqtt/mqtt.svg';
+import mqttInsetIconURL from './mqtt/mqtt-small.svg';
+
+import speakIconURL from './speak/speak.svg';
+import speakInsetIconURL from './speak/speak-small.svg';
+
+import asrIconURL from './asr/asr.svg';
+import asrInsetIconURL from './asr/asr-small.svg';
+
+import aiChatIconURL from './aichat/aichat.svg';
+import aiChatInsetIconURL from './aichat/aichat-small.svg';
 export default [
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="AI Chat"
+                description="Name for the 'AI Chat' extension"
+                id="gui.extension.aiChat.name"
+            />
+        ),
+        extensionId: 'aiChat',
+        iconURL: aiChatIconURL,
+        insetIconURL: aiChatInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Chat with AI, give it a role and make your project talk."
+                description="Description for the 'AI Chat' extension"
+                id="gui.extension.aiChat.description"
+            />
+        ),
+        featured: true,
+        internetConnectionRequired: true
+    },
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="Speech Recognition"
+                description="Name for the 'Speech Recognition' extension"
+                id="gui.extension.asr.name"
+            />
+        ),
+        extensionId: 'asr',
+        iconURL: asrIconURL,
+        insetIconURL: asrInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Turn your voice into text."
+                description="Description for the 'Speech Recognition' extension"
+                id="gui.extension.asr.description"
+            />
+        ),
+        featured: true,
+        internetConnectionRequired: true
+    },
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="Text Speaker"
+                description="Name for the 'Text Speaker' extension"
+                id="gui.extension.speak.name"
+            />
+        ),
+        extensionId: 'speak',
+        iconURL: speakIconURL,
+        insetIconURL: speakInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Read text aloud with natural voices."
+                description="Description for the 'Text Speaker' extension"
+                id="gui.extension.speak.description"
+            />
+        ),
+        featured: true,
+        internetConnectionRequired: true
+    },
+    {
+        name: 'MQTT',
+        extensionId: 'mqtt',
+        iconURL: mqttIconURL,
+        insetIconURL: mqttInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Interact over the network: publish and subscribe messages through an MQTT broker."
+                description="Description for the 'MQTT' extension"
+                id="gui.extension.mqtt.description"
+            />
+        ),
+        featured: true,
+        internetConnectionRequired: true
+    },
     {
         name: (
             <FormattedMessage
