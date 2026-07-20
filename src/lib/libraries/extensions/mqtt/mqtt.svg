@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="372" viewBox="0 0 600 372">
+  <rect width="600" height="372" fill="#660066"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round">
+    <path d="M120 320 A 240 240 0 0 1 360 80" stroke-width="26"/>
+    <path d="M120 250 A 170 170 0 0 1 290 80" stroke-width="26" opacity="0.75"/>
+    <path d="M120 180 A 100 100 0 0 1 220 80" stroke-width="26" opacity="0.5"/>
+  </g>
+  <circle cx="132" cy="308" r="30" fill="#ffffff"/>
+  <text x="420" y="220" font-family="Helvetica, Arial, sans-serif" font-size="72" font-weight="bold" fill="#ffffff" text-anchor="middle">MQTT</text>
+  <text x="420" y="270" font-family="Helvetica, Arial, sans-serif" font-size="28" fill="#ffffff" opacity="0.8" text-anchor="middle">pub / sub</text>
+</svg>

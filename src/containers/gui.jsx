@@ -44,6 +44,18 @@ import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 import GUIComponent from '../components/gui/gui.jsx';
 import { setIsScratchDesktop } from '../lib/isScratchDesktop.js';
 
+// Default base url of the static external resources snapshot deployed with
+// the GUI (see openblock-resource/script/build-static.js). The VM tries this
+// first and falls back to the local openblock-resource server, so setups
+// without the static snapshot keep working. An embedding page can override
+// it by setting the global before loading the GUI.
+if (typeof window !== 'undefined' && !window.OpenBlockExternalResourcesBase) {
+    // Resolve against the webpack public path (e.g. '/scratch3/') so the
+    // snapshot is found no matter where the GUI is mounted.
+    // eslint-disable-next-line camelcase, no-undef
+    window.OpenBlockExternalResourcesBase = `${__webpack_public_path__}external-resources/`;
+}
+
 class GUI extends React.Component {
     componentDidMount() {
         setIsScratchDesktop(this.props.isScratchDesktop);

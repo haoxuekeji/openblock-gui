@@ -358,6 +358,222 @@ const deviceData = [
         helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
     },
     {
+        name: 'ESP32 (MicroPython)',
+        deviceId: 'microPythonEsp32',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Use MicroPython to program ESP32."
+                description="Description for the esp32 micropython device"
+                id="gui.device.microPythonEsp32.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        defaultBaudRate: '115200',
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32ConnectionIconURLL,
+        connectionSmallIconURL: esp32ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['upload'],
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
+    },
+    {
+        name: 'ESP32 (MicroPython BLE)',
+        deviceId: 'microPythonEsp32Ble',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Program ESP32 over Bluetooth directly from the browser, no cable or link service needed."
+                description="Description for the esp32 micropython ble device"
+                id="gui.device.microPythonEsp32Ble.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: true,
+        serialportRequired: false,
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32ConnectionIconURLL,
+        connectionSmallIconURL: esp32ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['realtime', 'upload'],
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        deviceExtensionsCompatible: 'microPythonEsp32',
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
+    },
+    {
+        name: 'ESP32 (MicroPython USB)',
+        deviceId: 'microPythonEsp32WebSerial',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Program ESP32 through the USB cable directly from the browser, no link service needed."
+                description="Description for the esp32 micropython web serial device"
+                id="gui.device.microPythonEsp32WebSerial.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32ConnectionIconURLL,
+        connectionSmallIconURL: esp32ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['realtime', 'upload'],
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        deviceExtensionsCompatible: 'microPythonEsp32',
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
+    },
+    {
+        name: 'ESP32-C3 (MicroPython)',
+        deviceId: 'microPythonEsp32C3',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Program ESP32-C3 with MicroPython, upload through OpenBlock Link."
+                description="Description for the esp32-c3 micropython device"
+                id="gui.device.microPythonEsp32C3.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32ConnectionIconURLL,
+        connectionSmallIconURL: esp32ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['upload'],
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        deviceExtensionsCompatible: 'microPythonEsp32',
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
+    },
+    {
+        name: 'ESP32-C3 (MicroPython BLE)',
+        deviceId: 'microPythonEsp32C3Ble',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Program ESP32-C3 over Bluetooth directly from the browser, no cable or link service needed."
+                description="Description for the esp32-c3 micropython ble device"
+                id="gui.device.microPythonEsp32C3Ble.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: true,
+        serialportRequired: false,
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32ConnectionIconURLL,
+        connectionSmallIconURL: esp32ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['realtime', 'upload'],
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        deviceExtensionsCompatible: 'microPythonEsp32',
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
+    },
+    {
+        name: 'ESP32-C3 (MicroPython USB)',
+        deviceId: 'microPythonEsp32C3WebSerial',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Program ESP32-C3 through the USB cable directly from the browser, no link service needed."
+                description="Description for the esp32-c3 micropython web serial device"
+                id="gui.device.microPythonEsp32C3WebSerial.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32ConnectionIconURLL,
+        connectionSmallIconURL: esp32ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['realtime', 'upload'],
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        deviceExtensionsCompatible: 'microPythonEsp32',
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
+    },
+    {
         name: 'ESP32-S3',
         deviceId: 'arduinoEsp32S3',
         manufactor: 'espressif',

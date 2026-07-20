@@ -1,0 +1,14 @@
+node_modules
+build
+.git
+.github
+.DS_Store
+*.log
+npm-debug.log*
+.vscode
+.tx
+docs
+dist
+test
+coverage
+.cursor

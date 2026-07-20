@@ -17,3 +17,4 @@ npm-*
 # Generated translation files
 /translations
 /locale
+external-resources-static/

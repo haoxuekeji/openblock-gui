@@ -5,6 +5,8 @@
   "main": "./main/scratch-gui.js",
   "scripts": {
     "build": "npm run clean && webpack --colors --bail",
+    "build:kids": "npm run build && npm run deploy:kids",
+    "deploy:kids": "node scripts/deploy-to-kids-platform.js",
     "clean": "rimraf ./build && mkdirp build",
     "deploy": "touch build/.nojekyll && gh-pages -t -d build -m \"Build for $(git log --pretty=format:%H -n1) [skip ci]\"",
     "prune": "./prune-gh-pages.sh",
