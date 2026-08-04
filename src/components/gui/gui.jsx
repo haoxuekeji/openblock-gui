@@ -140,6 +140,7 @@ const GUIComponent = props => {
         tipsLibraryVisible,
         vm,
         isRealtimeMode,
+        deviceId,
         ...componentProps
     } = omit(props, 'dispatch');
     if (children) {
@@ -413,8 +414,9 @@ const GUIComponent = props => {
                                     vm={vm}
                                 />
                             </Box>
-                            {/* #1 Permanent serial/BLE console under the stage in realtime mode */}
-                            {isRealtimeMode ? (
+                            {/* #1 Permanent serial/BLE console under the stage in realtime
+                                mode, only once a device has been loaded */}
+                            {isRealtimeMode && deviceId ? (
                                 <Hardware
                                     consoleOnly
                                     vm={vm}
@@ -515,7 +517,8 @@ GUIComponent.propTypes = {
     boardFilesModalVisible: PropTypes.bool,
 
     vm: PropTypes.instanceOf(VM).isRequired,
-    isRealtimeMode: PropTypes.bool
+    isRealtimeMode: PropTypes.bool,
+    deviceId: PropTypes.string
 };
 GUIComponent.defaultProps = {
     backpackHost: null,

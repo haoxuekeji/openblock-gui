@@ -293,6 +293,7 @@ const mapStateToProps = state => {
         connectionModalVisible: state.scratchGui.modals.connectionModal,
         uploadProgressVisible: state.scratchGui.modals.uploadProgress,
         boardFilesModalVisible: state.scratchGui.modals.boardFilesModal,
+        deviceId: state.scratchGui.device.deviceId,
         updateModalVisible: state.scratchGui.modals.updateModal,
         costumeLibraryVisible: state.scratchGui.modals.costumeLibrary,
         costumesTabVisible: state.scratchGui.editorTab.activeTabIndex === COSTUMES_TAB_INDEX,
