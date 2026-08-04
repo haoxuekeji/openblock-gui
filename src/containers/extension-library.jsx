@@ -54,6 +54,16 @@ const messages = defineMessages({
         id: 'gui.library.otherTag',
         defaultMessage: 'Other',
         description: 'Other tag to filter all other libraries.'
+    },
+    stageTag: {
+        id: 'gui.library.stageTag',
+        defaultMessage: 'Stage',
+        description: 'Stage tag to filter scratch extensions which run on the stage.'
+    },
+    deviceTag: {
+        id: 'gui.library.deviceTag',
+        defaultMessage: 'Device',
+        description: 'Device tag to filter device extensions which run on the hardware device.'
     }
 });
 
@@ -64,6 +74,19 @@ const DISPLAY_TAG = { tag: 'display', intlLabel: messages.displayTag };
 const COMMUNICATION_TAG = { tag: 'communication', intlLabel: messages.communicationTag };
 const OTHER_TAG = { tag: 'other', intlLabel: messages.otherTag };
 const tagListPrefix = [SHIELD_TAG, ACTUATOR_TAG, SENSOR_TAG, DISPLAY_TAG, COMMUNICATION_TAG, OTHER_TAG];
+
+const STAGE_TAG = {tag: 'stage', intlLabel: messages.stageTag};
+const DEVICE_TAG = {tag: 'device', intlLabel: messages.deviceTag};
+const realtimeTagListPrefix = [STAGE_TAG, DEVICE_TAG];
+
+// Device extensions declare the program modes they support via the
+// `programMode` field. Legacy extensions without this field are upload-only.
+const supportsProgramMode = (extension, mode) => {
+    if (Array.isArray(extension.programMode) && extension.programMode.length > 0) {
+        return extension.programMode.includes(mode);
+    }
+    return mode === 'upload';
+};
 
 
 class ExtensionLibrary extends React.PureComponent {
@@ -85,6 +108,11 @@ class ExtensionLibrary extends React.PureComponent {
         this._mounted = true;
         if (this.props.isRealtimeMode) {
             this.updateScratchExtensions();
+            // Device extensions which declare realtime support are shown
+            // alongside scratch extensions once a device is selected.
+            if (this.props.deviceId) {
+                this.updateDeviceExtensions();
+            }
         } else {
             this.updateDeviceExtensions();
         }
@@ -115,60 +143,68 @@ class ExtensionLibrary extends React.PureComponent {
     handleItemSelect(item) {
         const id = item.extensionId;
 
-        if (this.props.isRealtimeMode) {
-            let url = item.extensionURL ? item.extensionURL : id;
-            if (!item.disabled && !id) {
-                // eslint-disable-next-line no-alert
-                url = prompt(this.props.intl.formatMessage(messages.extensionUrl));
-            }
+        // Device extension items carry the `isDeviceExtension` flag, so the
+        // choice of loader no longer depends on the current program mode.
+        if (item.isDeviceExtension) {
             if (id && !item.disabled) {
-                if (this.props.vm.extensionManager.isExtensionLoaded(url)) {
-                    this.props.vm.extensionManager.unloadExtension(url);
-                    this.updateScratchExtensions();
+                if (this.props.vm.extensionManager.isDeviceExtensionLoaded(id)) {
+                    this.props.vm.extensionManager.unloadDeviceExtension(id);
+                    this.updateDeviceExtensions();
                 } else {
-                    this.props.vm.extensionManager.loadExtensionURL(url).then(() => {
-                        this.props.onCategorySelected(id);
-                        //this.props.onCategorySelected(id);
+                    this.props.vm.extensionManager.loadDeviceExtension(id).then(() => {
+                        this.updateDeviceExtensions();
                         // analytics.event({
                         //     category: 'extensions',
-                        //     action: 'select extension',
+                        //     action: 'select device extension',
                         //     label: id
                         // });
-                        this.updateScratchExtensions();
-                    });
+                    })
+                        .catch(err => {
+                            // TODO add a alet device extension load failed. and change the state to bar to failed state
+                            console.error(err); // eslint-disable-line no-console
+                        });
                 }
             }
-        } else if (id && !item.disabled) {
-            if (this.props.vm.extensionManager.isDeviceExtensionLoaded(id)) {
-                this.props.vm.extensionManager.unloadDeviceExtension(id);
-                this.updateDeviceExtensions();
+            return;
+        }
+
+        let url = item.extensionURL ? item.extensionURL : id;
+        if (!item.disabled && !id) {
+            // eslint-disable-next-line no-alert
+            url = prompt(this.props.intl.formatMessage(messages.extensionUrl));
+        }
+        if (id && !item.disabled) {
+            if (this.props.vm.extensionManager.isExtensionLoaded(url)) {
+                this.props.vm.extensionManager.unloadExtension(url);
+                this.updateScratchExtensions();
             } else {
-                this.props.vm.extensionManager.loadDeviceExtension(id).then(() => {
-                    this.updateDeviceExtensions();
+                this.props.vm.extensionManager.loadExtensionURL(url).then(() => {
+                    this.props.onCategorySelected(id);
                     // analytics.event({
                     //     category: 'extensions',
-                    //     action: 'select device extension',
+                    //     action: 'select extension',
                     //     label: id
                     // });
-                })
-                    .catch(err => {
-                        // TODO add a alet device extension load failed. and change the state to bar to failed state
-                        console.error(err); // eslint-disable-line no-console
-                    });
+                    this.updateScratchExtensions();
+                });
             }
         }
     }
     render() {
         let extensionLibraryThumbnailData = [];
         const device = this.props.deviceData.find(dev => dev.deviceId === this.props.deviceId);
-        const filterAndSort = extensions => extensions.filter(extension => {
-            if (extension.supportDevice) {
-                return extension.supportDevice.includes(this.props.deviceId) ||
-                extension.supportDevice.includes(device.deviceExtensionsCompatible) ||
-                extension.supportDevice.includes('*');
+        const supportsCurrentDevice = extension => {
+            if (!extension.supportDevice) {
+                return true;
             }
-            return true;
-        })
+            if (!this.props.deviceId) {
+                return false;
+            }
+            return extension.supportDevice.includes(this.props.deviceId) ||
+                (device && extension.supportDevice.includes(device.deviceExtensionsCompatible)) ||
+                extension.supportDevice.includes('*');
+        };
+        const filterAndSort = extensions => extensions.filter(supportsCurrentDevice)
             .map(extension => ({
                 rawURL: extension.iconURL || extensionIcon,
                 ...extension
@@ -178,10 +214,39 @@ class ExtensionLibrary extends React.PureComponent {
                 return 1;
             });
 
+        let tags;
         if (this.props.isRealtimeMode) {
-            extensionLibraryThumbnailData = filterAndSort(this.state.scratchExtensions);
+            const stageExtensions = this.state.scratchExtensions.map(extension => ({
+                ...extension,
+                tags: [...(extension.tags || []), STAGE_TAG.tag]
+            }));
+            // Only device extensions which declare realtime support are usable
+            // in realtime mode; without a selected device none are shown.
+            const realtimeDeviceExtensions = this.props.deviceId ?
+                this.state.deviceExtensions
+                    .filter(extension => supportsProgramMode(extension, 'realtime'))
+                    .map(extension => ({
+                        ...extension,
+                        isDeviceExtension: true,
+                        tags: [...(extension.tags || []), DEVICE_TAG.tag]
+                    })) :
+                [];
+            const visibleDeviceExtensions = filterAndSort(realtimeDeviceExtensions);
+            extensionLibraryThumbnailData = [
+                ...filterAndSort(stageExtensions),
+                ...visibleDeviceExtensions
+            ];
+            tags = visibleDeviceExtensions.length > 0 ? realtimeTagListPrefix : [];
         } else {
-            extensionLibraryThumbnailData = filterAndSort(this.state.deviceExtensions);
+            extensionLibraryThumbnailData = filterAndSort(
+                this.state.deviceExtensions
+                    .filter(extension => supportsProgramMode(extension, 'upload'))
+                    .map(extension => ({
+                        ...extension,
+                        isDeviceExtension: true
+                    }))
+            );
+            tags = tagListPrefix;
         }
 
         return (
@@ -189,7 +254,7 @@ class ExtensionLibrary extends React.PureComponent {
                 autoClose={this.props.isRealtimeMode}
                 data={extensionLibraryThumbnailData}
                 filterable
-                tags={this.props.isRealtimeMode ? [] : tagListPrefix}
+                tags={tags}
                 id="extensionLibrary"
                 isUnloadble
                 title={this.props.intl.formatMessage(messages.extensionTitle)}

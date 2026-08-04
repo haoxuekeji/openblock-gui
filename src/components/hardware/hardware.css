@@ -11,6 +11,22 @@
     height: 100%;
 }
 
+/* Docked under the realtime stage: no code editor, fixed console height. */
+.console-only-wrapper {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: $space;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.console-only-console {
+    height: 11rem;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .code-editor-wrapper {
     position: relative;
     display: flex;
@@ -53,4 +69,17 @@
 .lock-icon{
     height: 16px;
     width: 16px;
+}
+
+.export-button {
+    position: absolute;
+    z-index: $z-index-add-button;
+    top: -1px;
+    right: 32px;
+    border: 1px solid $ui-black-transparent;
+    background-color: $ui-white;
+    height: 34px;
+    width: 34px;
+    border-radius: 0 0 0.5rem 0.5rem;
+    outline: none;
 }

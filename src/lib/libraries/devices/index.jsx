@@ -79,6 +79,66 @@ import makeymakeyIconURL from './makeymakey/makeymakey.png';
 import makeymakeyConnectionIconURL from './makeymakey/makeymakey-illustration.svg';
 import makeymakeyConnectionSmallIconURL from './makeymakey/makeymakey-small.svg';
 
+const microPythonEsp32ConnectionMethods = [
+    {
+        id: 'webserial',
+        name: (
+            <FormattedMessage
+                defaultMessage="USB cable"
+                description="Name of the Web Serial connection method"
+                id="gui.connection.transport.webserial.name"
+            />
+        ),
+        description: (
+            <FormattedMessage
+                defaultMessage="Connect directly with Web Serial. Fast and recommended for browsers."
+                description="Description of the Web Serial connection method"
+                id="gui.connection.transport.webserial.description"
+            />
+        ),
+        serialportRequired: true,
+        browserOnly: true,
+        requiresWebSerial: true,
+        recommended: true,
+        programMode: ['realtime', 'upload']
+    },
+    {
+        id: 'webble',
+        name: (
+            <FormattedMessage
+                defaultMessage="Bluetooth"
+                description="Name of the Web Bluetooth connection method"
+                id="gui.connection.transport.webble.name"
+            />
+        ),
+        description: (
+            <FormattedMessage
+                defaultMessage="Connect wirelessly with Web Bluetooth. The board must use OpenBlock BLE firmware."
+                description="Description of the Web Bluetooth connection method"
+                id="gui.connection.transport.webble.description"
+            />
+        ),
+        serialportRequired: false,
+        browserOnly: true,
+        requiresWebBluetooth: true,
+        programMode: ['realtime', 'upload']
+    },
+    {
+        id: 'link',
+        name: 'OpenBlock Link',
+        description: (
+            <FormattedMessage
+                defaultMessage="Use the local Link service. Required for flashing firmware and used by the desktop app."
+                description="Description of the OpenBlock Link connection method"
+                id="gui.connection.transport.link.description"
+            />
+        ),
+        serialportRequired: true,
+        programMode: ['upload'],
+        firmwareUpload: true
+    }
+];
+
 const deviceData = [
     /**
      * Unselect the deivce back to pure scratch mode
@@ -388,7 +448,9 @@ const deviceData = [
                 id="gui.device.connectingMessage"
             />
         ),
-        programMode: ['upload'],
+        programMode: ['realtime', 'upload'],
+        defaultProgramMode: 'upload',
+        connectionMethods: microPythonEsp32ConnectionMethods,
         programLanguage: ['block', 'microPython'],
         tags: ['microPython'],
         helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32'
@@ -495,7 +557,9 @@ const deviceData = [
                 id="gui.device.connectingMessage"
             />
         ),
-        programMode: ['upload'],
+        programMode: ['realtime', 'upload'],
+        defaultProgramMode: 'upload',
+        connectionMethods: microPythonEsp32ConnectionMethods,
         programLanguage: ['block', 'microPython'],
         tags: ['microPython'],
         deviceExtensionsCompatible: 'microPythonEsp32',

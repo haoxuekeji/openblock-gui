@@ -8,6 +8,7 @@ import { injectIntl, intlShape, defineMessages } from 'react-intl';
 
 import VM from 'openblock-vm';
 import analytics from '../lib/analytics';
+import MessageBoxType from '../lib/message-box';
 import { closeUploadProgress } from '../reducers/modals';
 import { showAlertWithTimeout } from '../reducers/alerts';
 
@@ -23,6 +24,13 @@ const messages = defineMessages({
         defaultMessage: 'Upload timeout',
         description: 'Prompt for upload timeout',
         id: 'gui.uploadProgress.uploadTimeoutMessage'
+    },
+    firmwareConfirm: {
+        defaultMessage: 'The board does not respond. It may have no MicroPython firmware or the ' +
+            'firmware is damaged. Reflash the firmware now? WARNING: this will erase all files ' +
+            'stored on the board.',
+        description: 'Ask the user to confirm reflashing the MicroPython firmware',
+        id: 'gui.uploadProgress.firmwareConfirmMessage'
     }
 });
 
@@ -36,6 +44,7 @@ class UploadProgress extends React.Component {
             'handleAbort',
             'handleCancel',
             'handleConnectionLostError',
+            'handleFirmwareConfirm',
             'handleHelp',
             'handleSetUploadAbortEnabled',
             'handleStdout',
@@ -68,6 +77,7 @@ class UploadProgress extends React.Component {
         this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleConnectionLostError);
         this.props.vm.on('PERIPHERAL_UPLOAD_SUCCESS', this.handleUploadSuccess);
         this.props.vm.on('PERIPHERAL_SET_UPLOAD_ABORT_ENABLED', this.handleSetUploadAbortEnabled);
+        this.props.vm.on('PERIPHERAL_UPLOAD_FIRMWARE_CONFIRM', this.handleFirmwareConfirm);
     }
     componentWillUnmount() {
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
@@ -75,6 +85,7 @@ class UploadProgress extends React.Component {
         this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleConnectionLostError);
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_SUCCESS', this.handleUploadSuccess);
         this.props.vm.removeListener('PERIPHERAL_SET_UPLOAD_ABORT_ENABLED', this.handleSetUploadAbortEnabled);
+        this.props.vm.removeListener('PERIPHERAL_UPLOAD_FIRMWARE_CONFIRM', this.handleFirmwareConfirm);
         clearTimeout(this.uploadTimeout);
     }
     handleAbort () {
@@ -113,6 +124,15 @@ class UploadProgress extends React.Component {
             text: `${this.state.text + data.message} ${data.deviceId}\r\n`,
             phase: PHASES.error
         });
+    }
+    handleFirmwareConfirm (info) {
+        // Reflashing erases every file on the board, so ask the user first.
+        // Suspend the stdout-silence timeout while the question is open.
+        clearTimeout(this.uploadTimeout);
+        const confirmed = this.props.onShowMessageBox(MessageBoxType.confirm,
+            this.props.intl.formatMessage(messages.firmwareConfirm));
+        this.uploadTimeout = setTimeout(() => this.handleUploadTimeout(), UPLOAD_TIMEOUT_TIME);
+        info.respond(Boolean(confirmed));
     }
     handleUploadError (data) {
         // if the upload progress has been in success don't handle the upload error.
@@ -202,6 +222,7 @@ UploadProgress.propTypes = {
     intl: intlShape.isRequired,
     vm: PropTypes.instanceOf(VM).isRequired,
     oncloseUploadProgress: PropTypes.func.isRequired,
+    onShowMessageBox: PropTypes.func.isRequired,
     onUploadError: PropTypes.func.isRequired,
     onUploadSuccess: PropTypes.func.isRequired
 };

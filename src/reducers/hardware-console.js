@@ -3,13 +3,21 @@ const SET_EOL = 'scratch-gui/hardware-console/setEol';
 const SWITCH_HEXFORM = 'scratch-gui/hardware-console/switchHexForm';
 const SWITCH_AUTOSCROLL = 'scratch-gui/hardware-console/switchAutoScroll';
 const SWITCH_PAUSE = 'scratch-gui/hardware-console/switchPause';
+const SET_DISPLAY_MODE = 'scratch-gui/hardware-console/setDisplayMode';
+const SWITCH_TIMESTAMP = 'scratch-gui/hardware-console/switchTimestamp';
+
+const DISPLAY_MODE_TERMINAL = 'terminal';
+const DISPLAY_MODE_MONITOR = 'monitor';
 
 const initialState = {
-    baudrate: '1200',
+    baudrate: '115200',
     eol: 'lfAndCr',
     isHexForm: false,
     isAutoScroll: true,
-    isPause: false
+    isPause: false,
+    // null means "auto": terminal for MicroPython devices, monitor otherwise.
+    displayMode: null,
+    isTimestamp: false
 };
 
 const reducer = function (state, action) {
@@ -34,6 +42,14 @@ const reducer = function (state, action) {
     case SWITCH_PAUSE:
         return Object.assign({}, state, {
             isPause: !state.isPause
+        });
+    case SET_DISPLAY_MODE:
+        return Object.assign({}, state, {
+            displayMode: action.displayMode
+        });
+    case SWITCH_TIMESTAMP:
+        return Object.assign({}, state, {
+            isTimestamp: !state.isTimestamp
         });
     default:
         return state;
@@ -72,6 +88,19 @@ const switchPause = function () {
     };
 };
 
+const setDisplayMode = function (displayMode) {
+    return {
+        type: SET_DISPLAY_MODE,
+        displayMode: displayMode
+    };
+};
+
+const switchTimestamp = function () {
+    return {
+        type: SWITCH_TIMESTAMP
+    };
+};
+
 export {
     reducer as default,
     initialState as hardwareConsoleInitialState,
@@ -79,5 +108,9 @@ export {
     setEol,
     switchHexForm,
     switchAutoScroll,
-    switchPause
+    switchPause,
+    setDisplayMode,
+    switchTimestamp,
+    DISPLAY_MODE_TERMINAL,
+    DISPLAY_MODE_MONITOR
 };

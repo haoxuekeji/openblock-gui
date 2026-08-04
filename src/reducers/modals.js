@@ -14,6 +14,7 @@ const MODAL_TIPS_LIBRARY = 'tipsLibrary';
 const MODAL_UPLOAD_PROGRESS = 'uploadProgress';
 const MODAL_DEVICE_LIBRARY = 'deviceLibrary';
 const MODAL_UPDATE = 'updateModal';
+const MODAL_BOARD_FILES = 'boardFilesModal';
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -28,7 +29,8 @@ const initialState = {
     [MODAL_UPLOAD_PROGRESS]: false,
     [MODAL_DEVICE_LIBRARY]: false,
     [MODAL_TIPS_LIBRARY]: false,
-    [MODAL_UPDATE]: false
+    [MODAL_UPDATE]: false,
+    [MODAL_BOARD_FILES]: false
 };
 
 const reducer = function (state, action) {
@@ -97,6 +99,9 @@ const openTipsLibrary = function () {
 const openUpdateModal = function () {
     return openModal(MODAL_UPDATE);
 };
+const openBoardFilesModal = function () {
+    return openModal(MODAL_BOARD_FILES);
+};
 const closeBackdropLibrary = function () {
     return closeModal(MODAL_BACKDROP_LIBRARY);
 };
@@ -136,10 +141,14 @@ const closeDeviceLibrary = function () {
 const closeUpdateModal = function () {
     return closeModal(MODAL_UPDATE);
 };
+const closeBoardFilesModal = function () {
+    return closeModal(MODAL_BOARD_FILES);
+};
 export {
     reducer as default,
     initialState as modalsInitialState,
     openBackdropLibrary,
+    openBoardFilesModal,
     openConnectionModal,
     openCostumeLibrary,
     openDeviceLibrary,
@@ -153,6 +162,7 @@ export {
     openUploadProgress,
     openUpdateModal,
     closeBackdropLibrary,
+    closeBoardFilesModal,
     closeConnectionModal,
     closeCostumeLibrary,
     closeDeviceLibrary,

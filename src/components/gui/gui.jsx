@@ -38,6 +38,7 @@ import DragLayer from '../../containers/drag-layer.jsx';
 import ConnectionModal from '../../containers/connection-modal.jsx';
 
 import UploadProgress from '../../containers/upload-progress.jsx';
+import BoardFilesModal from '../../containers/board-files-modal.jsx';
 import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import UpdateModal from '../../containers/update-modal.jsx';
 
@@ -88,6 +89,7 @@ const GUIComponent = props => {
         children,
         connectionModalVisible,
         uploadProgressVisible,
+        boardFilesModalVisible,
         costumeLibraryVisible,
         costumesTabVisible,
         updateModalVisible,
@@ -222,6 +224,13 @@ const GUIComponent = props => {
                 {uploadProgressVisible ? (
                     <UploadProgress
                         vm={vm}
+                        onShowMessageBox={onShowMessageBox}
+                    />
+                ) : null}
+                {boardFilesModalVisible ? (
+                    <BoardFilesModal
+                        vm={vm}
+                        onShowMessageBox={onShowMessageBox}
                     />
                 ) : null}
                 {costumeLibraryVisible ? (
@@ -404,11 +413,21 @@ const GUIComponent = props => {
                                     vm={vm}
                                 />
                             </Box>
+                            {/* #1 Permanent serial/BLE console under the stage in realtime mode */}
+                            {isRealtimeMode ? (
+                                <Hardware
+                                    consoleOnly
+                                    vm={vm}
+                                    stageSize={stageSize}
+                                    onShowMessageBox={onShowMessageBox}
+                                />
+                            ) : null}
                         </Box>
                         {((isRealtimeMode === false) && (stageSizeMode !== STAGE_SIZE_MODES.hide)) ? (
                             <Hardware
                                 vm={vm}
                                 stageSize={stageSize}
+                                onShowMessageBox={onShowMessageBox}
                             />) : null
                         }
                     </Box>
@@ -493,6 +512,7 @@ GUIComponent.propTypes = {
     targetIsStage: PropTypes.bool,
     telemetryModalVisible: PropTypes.bool,
     tipsLibraryVisible: PropTypes.bool,
+    boardFilesModalVisible: PropTypes.bool,
 
     vm: PropTypes.instanceOf(VM).isRequired,
     isRealtimeMode: PropTypes.bool

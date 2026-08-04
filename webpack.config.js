@@ -17,6 +17,8 @@ var postcssImport = require('postcss-import');
 const STATIC_PATH = process.env.STATIC_PATH || '/static';
 
 const MONACO_DIR = path.resolve(__dirname, './node_modules/monaco-editor');
+// Plain global css (no css-modules) shipped by third party widgets.
+const XTERM_DIR = path.resolve(__dirname, './node_modules/@xterm');
 
 const base = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -71,7 +73,10 @@ const base = {
                 /node_modules[\\/]openblock-vm[\\/]src/,
                 /node_modules[\\/]hxblock-l10n[\\/]src/,
                 /node_modules[\\/]pify/,
-                /node_modules[\\/]@vernier[\\/]godirect/
+                /node_modules[\\/]@vernier[\\/]godirect/,
+                // xterm 5.x ships ES2021 syntax which the webpack 4 parser
+                // can not read, run it through babel first.
+                /node_modules[\\/]@xterm[\\/]/
             ],
             options: {
                 // Explicitly disable babelrc so we don't catch various config
@@ -89,7 +94,7 @@ const base = {
         },
         {
             test: /\.css$/,
-            exclude: MONACO_DIR,
+            exclude: [MONACO_DIR, XTERM_DIR],
             use: [{
                 loader: 'style-loader'
             }, {
@@ -116,7 +121,7 @@ const base = {
         },
         {
             test: /\.css$/,
-            include: MONACO_DIR,
+            include: [MONACO_DIR, XTERM_DIR],
             use: ['style-loader', 'css-loader']
         }]
     },

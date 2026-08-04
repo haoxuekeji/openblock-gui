@@ -29,6 +29,9 @@
   },
   "dependencies": {
     "@ramonak/react-progress-bar": "^3.1.0",
+    "@xterm/addon-fit": "0.10.0",
+    "@xterm/addon-search": "0.15.0",
+    "@xterm/xterm": "5.5.0",
     "ansi-to-react": "^6.0.8",
     "arraybuffer-loader": "^1.0.6",
     "autoprefixer": "^9.0.1",

@@ -2,17 +2,27 @@ import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
 import VM from 'openblock-vm';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {connect} from 'react-redux';
+import {compose} from 'redux';
+import {defineMessages, injectIntl, intlShape} from 'react-intl';
 
-import analytics from '../lib/analytics';
-import { setDeviceData } from '../reducers/device-data';
+import {setDeviceData} from '../reducers/device-data';
+import {showStandardAlert, closeAlertWithId} from '../reducers/alerts';
 
-import { makeDeviceLibrary } from '../lib/libraries/devices/index.jsx';
+import {makeDeviceLibrary} from '../lib/libraries/devices/index.jsx';
 
 import LibraryComponent from '../components/library/library.jsx';
 import deviceIcon from '../components/action-menu/icon--sprite.svg';
+
+// Legacy device ids encoded the transport as a separate device card. Keep
+// their metadata for loading old projects, but expose only the canonical board
+// and let the connection modal choose the transport.
+const LEGACY_TRANSPORT_DEVICE_IDS = new Set([
+    'microPythonEsp32Ble',
+    'microPythonEsp32WebSerial',
+    'microPythonEsp32C3Ble',
+    'microPythonEsp32C3WebSerial'
+]);
 
 const messages = defineMessages({
     deviceTitle: {
@@ -42,20 +52,21 @@ const messages = defineMessages({
     }
 });
 
-const ARDUINO_TAG = { tag: 'Arduino', intlLabel: messages.arduinoTag };
-const MICROPYTHON_TAG = { tag: 'MicroPython', intlLabel: messages.microPythonTag };
-const KIT_TAG = { tag: 'Kit', intlLabel: messages.kitTag };
+const ARDUINO_TAG = {tag: 'Arduino', intlLabel: messages.arduinoTag};
+const MICROPYTHON_TAG = {tag: 'MicroPython', intlLabel: messages.microPythonTag};
+const KIT_TAG = {tag: 'Kit', intlLabel: messages.kitTag};
 const tagListPrefix = [ARDUINO_TAG, MICROPYTHON_TAG, KIT_TAG];
 
 class DeviceLibrary extends React.PureComponent {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'handleItemSelect',
             'requestLoadDevice'
         ]);
     }
-    componentDidMount() {
+
+    componentDidMount () {
         this.props.vm.extensionManager.getDeviceList().then(data => {
             this.props.onSetDeviceData(makeDeviceLibrary(data));
         })
@@ -72,33 +83,38 @@ class DeviceLibrary extends React.PureComponent {
             if (this.props.vm.extensionManager.isDeviceLoaded(id)) {
                 this.props.onDeviceSelected(id);
             } else {
-                this.props.vm.extensionManager.loadDeviceURL(device).then(() => {
-                    this.props.vm.extensionManager.getDeviceExtensionsList().then(() => {
-                        // TODO: Add a event for install device extension
-                        // the large extensions will take many times to load
-                        // A loading interface should be launched.
-                        this.props.vm.installDeviceExtensions(Object.assign([], deviceExtensions));
+                // Large device extensions take a while to download and
+                // install, show a spinner alert until everything is in.
+                this.props.onShowDeviceLoading();
+                this.props.vm.extensionManager.loadDeviceURL(device)
+                    .then(() => {
+                        this.props.onDeviceSelected(id);
+                        // installDeviceExtensions refreshes the extensions
+                        // list itself before installing.
+                        return this.props.vm.installDeviceExtensions(Object.assign([], deviceExtensions));
+                    })
+                    .then(() => {
+                        this.props.onHideDeviceLoading();
+                    })
+                    .catch(() => {
+                        this.props.onHideDeviceLoading();
                     });
-                    this.props.onDeviceSelected(id);
-                    // analytics.event({
-                    //     category: 'devices',
-                    //     action: 'select device',
-                    //     label: id
-                    // });
-                });
             }
         }
     }
+
     handleItemSelect (item) {
         this.requestLoadDevice(item);
         this.props.onRequestClose();
     }
 
     render () {
-        const deviceLibraryThumbnailData = this.props.deviceData.map(device => ({
-            rawURL: device.iconURL || deviceIcon,
-            ...device
-        }));
+        const deviceLibraryThumbnailData = this.props.deviceData
+            .filter(device => !LEGACY_TRANSPORT_DEVICE_IDS.has(device.deviceId))
+            .map(device => ({
+                rawURL: device.iconURL || deviceIcon,
+                ...device
+            }));
 
         return (
             <LibraryComponent
@@ -118,8 +134,10 @@ DeviceLibrary.propTypes = {
     deviceData: PropTypes.instanceOf(Array).isRequired,
     intl: intlShape.isRequired,
     onDeviceSelected: PropTypes.func,
+    onHideDeviceLoading: PropTypes.func.isRequired,
     onRequestClose: PropTypes.func,
     onSetDeviceData: PropTypes.func.isRequired,
+    onShowDeviceLoading: PropTypes.func.isRequired,
     vm: PropTypes.instanceOf(VM).isRequired // eslint-disable-line react/no-unused-prop-types
 };
 
@@ -128,7 +146,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    onSetDeviceData: data => dispatch(setDeviceData(data))
+    onSetDeviceData: data => dispatch(setDeviceData(data)),
+    onShowDeviceLoading: () => dispatch(showStandardAlert('loadingDevice')),
+    onHideDeviceLoading: () => dispatch(closeAlertWithId('loadingDevice'))
 });
 
 export default compose(

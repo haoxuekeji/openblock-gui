@@ -3,7 +3,11 @@ const TOGGLE_LOCK = 'scratch-gui/code/TOGGLE_LOCK';
 
 const initialState = {
     codeEditorValue: '// Monaco editor',
-    isCodeEditorLocked: true
+    isCodeEditorLocked: true,
+    // Editor content captured at the moment of unlocking. Compared against
+    // the current content when locking again to detect manual edits that
+    // would be overwritten by the next block-generated code update.
+    lockSnapshot: null
 };
 
 const reducer = function (state, action) {
@@ -15,7 +19,8 @@ const reducer = function (state, action) {
         });
     case TOGGLE_LOCK:
         return Object.assign({}, state, {
-            isCodeEditorLocked: !state.isCodeEditorLocked
+            isCodeEditorLocked: !state.isCodeEditorLocked,
+            lockSnapshot: state.isCodeEditorLocked ? state.codeEditorValue : null
         });
     default:
         return state;
