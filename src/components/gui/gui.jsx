@@ -494,7 +494,9 @@ GUIComponent.propTypes = {
 GUIComponent.defaultProps = {
     backpackHost: null,
     backpackVisible: false,
-    basePath: '/scratch3/',
+    // Desktop (file:// / asar): relative path so blocks-media icons load.
+    // Web build of this worktree should pass basePath='/scratch3/' explicitly.
+    basePath: './',
     canChangeLanguage: true,
     canCreateNew: false,
     canEditTitle: false,

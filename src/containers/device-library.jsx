@@ -8,11 +8,19 @@ import { defineMessages, injectIntl, intlShape } from 'react-intl';
 
 import analytics from '../lib/analytics';
 import { setDeviceData } from '../reducers/device-data';
+import { isScratchDesktop } from '../lib/isScratchDesktop';
 
 import { makeDeviceLibrary } from '../lib/libraries/devices/index.jsx';
 
 import LibraryComponent from '../components/library/library.jsx';
 import deviceIcon from '../components/action-menu/icon--sprite.svg';
+
+// Web Serial is browser-only. BLE stays available on desktop via Electron's
+// Web Bluetooth (see openblock-desktop main process select-bluetooth-device).
+const BROWSER_ONLY_DEVICE_IDS = new Set([
+    'microPythonEsp32WebSerial',
+    'microPythonEsp32C3WebSerial'
+]);
 
 const messages = defineMessages({
     deviceTitle: {
@@ -95,10 +103,13 @@ class DeviceLibrary extends React.PureComponent {
     }
 
     render () {
-        const deviceLibraryThumbnailData = this.props.deviceData.map(device => ({
-            rawURL: device.iconURL || deviceIcon,
-            ...device
-        }));
+        const desktop = isScratchDesktop();
+        const deviceLibraryThumbnailData = this.props.deviceData
+            .filter(device => !(desktop && BROWSER_ONLY_DEVICE_IDS.has(device.deviceId)))
+            .map(device => ({
+                rawURL: device.iconURL || deviceIcon,
+                ...device
+            }));
 
         return (
             <LibraryComponent
