@@ -36,9 +36,12 @@ const LOCAL_DEPS = [
     {
         pkg: 'hxblock-blocks',
         repo: 'openblock-blocks',
-        // dist/ 由 `npm run prepublish`（python build.py && webpack）产出，未进 git
+        // dist/ 与根目录 *_compressed*.js 由 `npm run prepublish`
+        // （python build.py && webpack）产出，未进 git；shim/ 以相对路径
+        // 引用根目录产物，必须一并同步
         extraDirs: ['dist', 'msg'],
-        requiredFiles: ['dist/vertical.js', 'media/dropdown-arrow.svg'],
+        extraRootPatterns: [/^[a-z]+(_[a-z]+)*_(un)?compressed(_[a-z]+)?\.js$/],
+        requiredFiles: ['dist/vertical.js', 'blockly_compressed_vertical.js', 'media/dropdown-arrow.svg'],
         buildHint: 'cd <repo> && npm ci && npm run prepublish  (需要 python3)'
     },
     {
@@ -138,6 +141,14 @@ function collectSourceFiles (dep, repoDir) {
     for (const dir of dep.extraDirs) {
         if (fs.existsSync(path.join(repoDir, dir))) {
             walkDir(repoDir, dir, []).forEach(f => files.add(f));
+        }
+    }
+    if (dep.extraRootPatterns) {
+        for (const name of fs.readdirSync(repoDir)) {
+            if (dep.extraRootPatterns.some(re => re.test(name)) &&
+                fs.statSync(path.join(repoDir, name)).isFile()) {
+                files.add(name);
+            }
         }
     }
     return [...files].filter(f => fs.existsSync(path.join(repoDir, f)));
