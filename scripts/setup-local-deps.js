@@ -57,8 +57,10 @@ const LOCAL_DEPS = [
         repo: 'openblock-vm',
         extraDirs: [],
         requiredFiles: ['src/index.js'],
-        // GUI webpack 直接编译 VM src，无需 VM dist；但需要嵌套 htmlparser2 闭包
-        nestedClosure: ['htmlparser2'],
+        // GUI webpack 直接编译 VM src，无需 VM dist；但 VM 的生产依赖若在
+        // GUI 侧缺失或版本不符（htmlparser2@3 vs 顶层 @10、lock 未收录的
+        // mqtt 等），需要从 VM 仓库自身 node_modules 嵌套复制闭包
+        checkNestedDeps: true,
         buildHint: 'cd <repo> && npm ci'
     }
 ];
@@ -191,7 +193,7 @@ function syncDep (dep) {
         return {pkg: dep.pkg, status: inSync ? 'in-sync' : 'out-of-sync', commit: commitLabel, hash: srcHash};
     }
 
-    if (inSync && !dep.nestedClosure) {
+    if (inSync && !dep.checkNestedDeps) {
         log(`${dep.pkg}: 已同步，跳过 (source ${dep.repo}@${commitLabel})`);
         return {pkg: dep.pkg, status: 'in-sync', commit: commitLabel, hash: srcHash};
     }
@@ -202,18 +204,39 @@ function syncDep (dep) {
         copyFileWithDir(path.join(repoDir, rel), path.join(destDir, rel));
     }
 
-    // 嵌套依赖闭包（openblock-vm 的 htmlparser2@3.x）
-    if (dep.nestedClosure) {
+    // 嵌套依赖闭包：包的生产依赖在 GUI 侧缺失或版本不符时，
+    // 从源仓库自身 node_modules 复制（htmlparser2@3、lock 未收录的 mqtt 等）
+    if (dep.checkNestedDeps) {
         const repoNodeModules = path.join(repoDir, 'node_modules');
-        const closure = resolveClosure(repoNodeModules, dep.nestedClosure);
-        const nestedRoot = path.join(destDir, 'node_modules');
-        for (const [name, pkgDir] of closure) {
-            const nestedFiles = walkDir(pkgDir, '.', []).filter(f => !f.split(path.sep).includes('node_modules'));
-            for (const rel of nestedFiles) {
-                copyFileWithDir(path.join(pkgDir, rel), path.join(nestedRoot, name, rel));
+        const pkgJson = JSON.parse(fs.readFileSync(path.join(repoDir, 'package.json'), 'utf8'));
+        const needNesting = [];
+        for (const depName of Object.keys(pkgJson.dependencies || {})) {
+            const wantPkgJson = path.join(repoNodeModules, depName, 'package.json');
+            if (!fs.existsSync(wantPkgJson)) {
+                fail(`${dep.repo} 自身未安装依赖 ${depName}（请先在源仓库 npm ci）`);
+            }
+            const wantVersion = JSON.parse(fs.readFileSync(wantPkgJson, 'utf8')).version;
+            let haveVersion = null;
+            const hoisted = path.join(GUI_ROOT, 'node_modules', depName, 'package.json');
+            if (fs.existsSync(hoisted)) {
+                haveVersion = JSON.parse(fs.readFileSync(hoisted, 'utf8')).version;
+            }
+            if (haveVersion !== wantVersion) {
+                needNesting.push(depName);
             }
         }
-        log(`${dep.pkg}: 嵌套闭包 ${[...closure.keys()].join(', ')}`);
+        if (needNesting.length > 0) {
+            const closure = resolveClosure(repoNodeModules, needNesting);
+            const nestedRoot = path.join(destDir, 'node_modules');
+            for (const [name, pkgDir] of closure) {
+                const nestedFiles = walkDir(pkgDir, '.', [])
+                    .filter(f => !f.split(path.sep).includes('node_modules'));
+                for (const rel of nestedFiles) {
+                    copyFileWithDir(path.join(pkgDir, rel), path.join(nestedRoot, name, rel));
+                }
+            }
+            log(`${dep.pkg}: 嵌套依赖 ${needNesting.join(', ')}（闭包共 ${closure.size} 包）`);
+        }
     }
 
     log(`${dep.pkg}: 已从 ${dep.repo}@${commitLabel} 同步 ${srcFiles.length} 个文件 (sha256=${srcHash.slice(0, 16)}…)`);
