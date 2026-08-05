@@ -8,6 +8,10 @@ import {LoadingState} from '../../../src/reducers/project-state';
 
 import vmManagerHOC from '../../../src/lib/vm-manager-hoc.jsx';
 
+// 真实 AudioEngine 会启动 StartAudioContext 的异步轮询，在 jsdom +
+// web-audio-test-api 下于测试结束后抛异常拖垮 jest worker，这里 mock 掉。
+jest.mock('scratch-audio', () => jest.fn().mockImplementation(function AudioEngine () {}));
+
 describe('VMManagerHOC', () => {
     const mockStore = configureStore();
     let store;

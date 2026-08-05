@@ -4,6 +4,7 @@ import {mount} from 'enzyme';
 import VM from 'openblock-vm';
 
 import vmListenerHOC from '../../../src/lib/vm-listener-hoc.jsx';
+import {guiInitialState} from '../../../src/reducers/gui';
 
 describe('VMListenerHOC', () => {
     const mockStore = configureStore();
@@ -12,8 +13,11 @@ describe('VMListenerHOC', () => {
 
     beforeEach(() => {
         vm = new VM();
+        // 以真实 guiInitialState 打底，保证 mapStateToProps 读取的
+        // deviceData / projectChanged 等 openblock 新增键存在
         store = mockStore({
             scratchGui: {
+                ...guiInitialState,
                 mode: {},
                 modals: {},
                 vm: vm
@@ -74,6 +78,7 @@ describe('VMListenerHOC', () => {
         const WrappedComponent = vmListenerHOC(Component);
         store = mockStore({
             scratchGui: {
+                ...guiInitialState,
                 mode: {},
                 modals: {soundRecorder: true},
                 vm: vm
@@ -97,6 +102,7 @@ describe('VMListenerHOC', () => {
         const WrappedComponent = vmListenerHOC(Component);
         store = mockStore({
             scratchGui: {
+                ...guiInitialState,
                 mode: {},
                 modals: {soundRecorder: true},
                 vm: vm
@@ -118,6 +124,7 @@ describe('VMListenerHOC', () => {
         const WrappedComponent = vmListenerHOC(Component);
         store = mockStore({
             scratchGui: {
+                ...guiInitialState,
                 mode: {isFullScreen: true},
                 modals: {soundRecorder: true},
                 vm: vm
@@ -149,6 +156,7 @@ describe('VMListenerHOC', () => {
 
         store = mockStore({
             scratchGui: {
+                ...guiInitialState,
                 mode: {isFullScreen: true},
                 modals: {soundRecorder: true},
                 vm: vm

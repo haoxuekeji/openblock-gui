@@ -3,6 +3,7 @@ import {mountWithIntl} from '../../helpers/intl-helpers';
 import MenuBar from '../../../src/components/menu-bar/menu-bar';
 import {menuInitialState} from '../../../src/reducers/menus';
 import {LoadingState} from '../../../src/reducers/project-state';
+import {guiInitialState} from '../../../src/reducers/gui';
 
 import configureStore from 'redux-mock-store';
 import {Provider} from 'react-redux';
@@ -10,12 +11,15 @@ import VM from 'openblock-vm';
 
 
 describe('MenuBar Component', () => {
+    // 以真实 guiInitialState 打底，保证 mapStateToProps 读取的
+    // programMode / toolbox / connectionModal 等 openblock 新增键存在
     const store = configureStore()({
         locales: {
             isRtl: false,
             locale: 'en-US'
         },
         scratchGui: {
+            ...guiInitialState,
             menus: menuInitialState,
             projectState: {
                 loadingState: LoadingState.NOT_LOADED
