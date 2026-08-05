@@ -80,6 +80,7 @@ import {
 } from '../../reducers/menus';
 
 import { setStageSize } from '../../reducers/stage-size';
+import {setCodePreviewVisible} from '../../reducers/code-preview';
 import { setUploadMode, setRealtimeMode } from '../../reducers/program-mode';
 import { setRealtimeConnection, clearConnectionModalPeripheralName } from '../../reducers/connection-modal';
 import { setUpdate } from '../../reducers/update';
@@ -240,6 +241,7 @@ class MenuBar extends React.Component {
             'getSaveToComputerHandler',
             'restoreOptionMessage',
             'handleConnectionMouseUp',
+            'handleToggleCodePreview',
             'handleUploadFirmware',
             'handleWindowsResize',
             'handleSelectDeviceMouseUp',
@@ -412,6 +414,10 @@ class MenuBar extends React.Component {
         } else {
             this.props.onDeviceIsEmpty();
         }
+    }
+
+    handleToggleCodePreview () {
+        this.props.onSetCodePreviewVisible(!this.props.codePreviewVisible);
     }
 
     handleSelectDeviceMouseUp () {
@@ -843,6 +849,21 @@ class MenuBar extends React.Component {
                                         )}
                                     </MenuItem>
                                 )}</TurboMode>
+                                <MenuItem onClick={this.handleToggleCodePreview}>
+                                    {this.props.codePreviewVisible ? (
+                                        <FormattedMessage
+                                            defaultMessage="关闭代码预览"
+                                            description="Menu bar item for turning off the Python code preview panel"
+                                            id="gui.menuBar.codePreviewOff"
+                                        />
+                                    ) : (
+                                        <FormattedMessage
+                                            defaultMessage="打开代码预览"
+                                            description="Menu bar item for turning on the Python code preview panel"
+                                            id="gui.menuBar.codePreviewOn"
+                                        />
+                                    )}
+                                </MenuItem>
                             </MenuSection>
                         </MenuBarMenu>
                     </div>
@@ -1378,6 +1399,7 @@ MenuBar.propTypes = {
     canSave: PropTypes.bool,
     canShare: PropTypes.bool,
     className: PropTypes.string,
+    codePreviewVisible: PropTypes.bool,
     confirmReadyToReplaceProject: PropTypes.func,
     confirmClearCache: PropTypes.func,
     editMenuOpen: PropTypes.bool,
@@ -1447,6 +1469,7 @@ MenuBar.propTypes = {
     username: PropTypes.string,
     stageSizeMode: PropTypes.oneOf(Object.keys(STAGE_SIZE_MODES)),
     vm: PropTypes.instanceOf(VM).isRequired,
+    onSetCodePreviewVisible: PropTypes.func,
     onSetUploadMode: PropTypes.func,
     onSetRealtimeConnection: PropTypes.func.isRequired,
     onSetRealtimeMode: PropTypes.func,
@@ -1479,6 +1502,7 @@ const mapStateToProps = (state, ownProps) => {
     return {
         aboutMenuOpen: aboutMenuOpen(state),
         accountMenuOpen: accountMenuOpen(state),
+        codePreviewVisible: state.scratchGui.codePreview.visible,
         fileMenuOpen: fileMenuOpen(state),
         settingMenuOpen: settingMenuOpen(state),
         editMenuOpen: editMenuOpen(state),
@@ -1551,6 +1575,7 @@ const mapDispatchToProps = dispatch => ({
     onDeviceIsEmpty: () => showAlertWithTimeout(dispatch, 'selectADeviceFirst'),
     onSetSession: s => dispatch(setSession(s)),
     onCreateProject: () => dispatch(createProject()),
+    onSetCodePreviewVisible: visible => dispatch(setCodePreviewVisible(visible)),
 });
 
 export default compose(

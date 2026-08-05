@@ -13,6 +13,7 @@ import VM from 'openblock-vm';
 import Renderer from 'scratch-render';
 
 import Blocks from '../../containers/blocks.jsx';
+import CodePreview from '../../containers/code-preview.jsx';
 import CostumeTab from '../../containers/costume-tab.jsx';
 import TargetPane from '../../containers/target-pane.jsx';
 import SoundTab from '../../containers/sound-tab.jsx';
@@ -369,6 +370,7 @@ const GUIComponent = props => {
                                             onShowMessageBox={onShowMessageBox}
                                         />
                                     </Box>
+                                    <CodePreview />
                                     <Box className={styles.extensionButtonContainer}>
                                         <button
                                             className={styles.extensionButton}
