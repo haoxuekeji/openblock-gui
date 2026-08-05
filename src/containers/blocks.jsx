@@ -29,6 +29,7 @@ import { closeExtensionLibrary, openSoundRecorder, openConnectionModal, closeDev
 import { activateCustomProcedures, deactivateCustomProcedures } from '../reducers/custom-procedures';
 import { updateMetrics } from '../reducers/workspace-metrics';
 import { setCodeEditorValue } from '../reducers/code';
+import {setCodePreviewContent} from '../reducers/code-preview';
 import { setDeviceId, setDeviceName, setDeviceType } from '../reducers/device';
 import { setSupportSwitchMode } from '../reducers/program-mode';
 import { setBaudrate } from '../reducers/hardware-console';
@@ -79,6 +80,8 @@ class Blocks extends React.Component {
             'handleToolboxUploadFinish',
             'handleCustomProceduresClose',
             'onCodeNeedUpdate',
+            'onCodePreviewWorkspaceChange',
+            'updateCodePreview',
             'onScriptGlowOn',
             'onScriptGlowOff',
             'onBlockGlowOn',
@@ -104,6 +107,10 @@ class Blocks extends React.Component {
             prompt: null
         };
         this.onTargetsUpdate = debounce(this.onTargetsUpdate, 100);
+        // Regenerating Python on every single workspace event would hammer
+        // the generator while dragging, batch bursts of events instead
+        // (FUN-001B, target refresh latency is well under 1s).
+        this.updateCodePreviewDebounced = debounce(this.updateCodePreview, 300);
         this.toolboxUpdateQueue = [];
         this._lastCodegenError = null;
     }
@@ -161,6 +168,11 @@ class Blocks extends React.Component {
         addFunctionListener(this.workspace, 'translate', this.onWorkspaceMetricsChange);
         addFunctionListener(this.workspace, 'zoom', this.onWorkspaceMetricsChange);
 
+        // Feed the floating Python preview panel. The listener lives for the
+        // whole workspace lifetime (workspace.dispose() drops it) and the
+        // handler bails out early while the preview is hidden.
+        this.workspace.addChangeListener(this.onCodePreviewWorkspaceChange);
+
         this.attachVM();
         // Only update blocks/vm locale when visible to avoid sizing issues
         // If locale changes while not visible it will get handled in didUpdate
@@ -179,13 +191,20 @@ class Blocks extends React.Component {
             this.props.anyModalVisible !== nextProps.anyModalVisible ||
             this.props.stageSize !== nextProps.stageSize ||
             this.props.isRealtimeMode !== nextProps.isRealtimeMode ||
-            this.props.isCodeEditorLocked !== nextProps.isCodeEditorLocked
+            this.props.isCodeEditorLocked !== nextProps.isCodeEditorLocked ||
+            this.props.isCodePreviewVisible !== nextProps.isCodePreviewVisible
         );
     }
     componentDidUpdate(prevProps) {
         // If any modals are open, call hideChaff to close z-indexed field editors
         if (this.props.anyModalVisible && !prevProps.anyModalVisible) {
             this.ScratchBlocks.hideChaff();
+        }
+
+        // Refresh the preview immediately when it gets opened so the panel
+        // never shows stale/empty code until the next workspace edit.
+        if (this.props.isCodePreviewVisible && !prevProps.isCodePreviewVisible) {
+            this.updateCodePreview();
         }
 
         // If program mode changed, call functio to update the toolbox
@@ -233,6 +252,7 @@ class Blocks extends React.Component {
     }
     componentWillUnmount() {
         this.detachVM();
+        this.updateCodePreviewDebounced.cancel();
         this.workspace.dispose();
         clearTimeout(this.toolboxUpdateTimeout);
         clearTimeout(this.getXMLAndUpdateToolboxTimeout);
@@ -655,6 +675,31 @@ class Blocks extends React.Component {
         const generatorName = getGeneratorNameFromDeviceType(this.props.deviceType);
         return this.ScratchBlocks[generatorName].workspaceToCode(this.workspace);
     }
+    onCodePreviewWorkspaceChange (event) {
+        // Pure UI events (selection, clicks, scroll) never change the
+        // generated code, skip them to keep dragging smooth.
+        if (event && event.type === 'ui') return;
+        this.updateCodePreviewDebounced();
+    }
+    updateCodePreview () {
+        if (!this.props.isCodePreviewVisible) return;
+        // The preview always speaks Python regardless of the selected device:
+        // it exists to bridge blocks to real Python (FUN-001B), not to mirror
+        // the upload-mode source (hardware code editor already does that).
+        try {
+            const code = this.ScratchBlocks.Python.workspaceToCode(this.workspace);
+            const coverage = this.ScratchBlocks.Python.getCoverage(this.workspace);
+            this.props.onSetCodePreviewContent({
+                code,
+                unsupportedTotal: coverage.unsupportedTotal
+            });
+        } catch (e) {
+            // FUN-001A made generation crash-free for unsupported opcodes;
+            // anything still thrown here is unexpected, keep the last good
+            // preview instead of blanking the panel.
+            log.warn('Code preview generation failed', e);
+        }
+    }
     handleToolboxUploadFinish() {
         this.props.onToolboxDidUpdate();
     }
@@ -814,6 +859,7 @@ Blocks.propTypes = {
     deviceLibraryVisible: PropTypes.bool,
     extensionLibraryVisible: PropTypes.bool,
     isCodeEditorLocked: PropTypes.bool.isRequired,
+    isCodePreviewVisible: PropTypes.bool,
     isRealtimeMode: PropTypes.bool,
     isRtl: PropTypes.bool,
     isVisible: PropTypes.bool,
@@ -860,6 +906,7 @@ Blocks.propTypes = {
     }),
     onSetBaudrate: PropTypes.func.isRequired,
     onSetCodeEditorValue: PropTypes.func,
+    onSetCodePreviewContent: PropTypes.func,
     onSetSupportSwitchMode: PropTypes.func,
     onShowMessageBox: PropTypes.func.isRequired,
     stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
@@ -917,6 +964,7 @@ const mapStateToProps = state => ({
     deviceLibraryVisible: state.scratchGui.modals.deviceLibrary,
     extensionLibraryVisible: state.scratchGui.modals.extensionLibrary,
     isCodeEditorLocked: state.scratchGui.code.isCodeEditorLocked,
+    isCodePreviewVisible: state.scratchGui.codePreview.visible,
     isRealtimeMode: state.scratchGui.programMode.isRealtimeMode,
     isRtl: state.locales.isRtl,
     locale: state.locales.locale,
@@ -965,6 +1013,9 @@ const mapDispatchToProps = dispatch => ({
     },
     onSetCodeEditorValue: value => {
         dispatch(setCodeEditorValue(value));
+    },
+    onSetCodePreviewContent: content => {
+        dispatch(setCodePreviewContent(content));
     },
     onSetSupportSwitchMode: state => dispatch(setSupportSwitchMode(state)),
     onCodeEditorIsUnlocked: () => showAlertWithTimeout(dispatch, 'codeEditorIsUnlocked')
