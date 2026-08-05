@@ -249,5 +249,20 @@
     "currentPlatformState": "kids-code-platform/scratch3 与 OB-030 构建逐字节一致（dry-run 0 变更，2026-08-05 复核）",
     "newBuildReady": "openblock-gui/build 为 OB-031 新构建（聚合 8729c5719f52a1d9…），部署时执行 npm run deploy:kids（自动备份+校验+原子切换）",
     "rollback": "node scripts/deploy-to-kids-platform.js --rollback（自动选最新备份）；历史备份 openblock/.ob030-backup/scratch3-pre-ob030-20260804-2218.tar.gz 仍可用"
+  },
+  "blockCapabilityRegistry": {
+    "block-capability-registry-esp32.json": {
+      "path": "external-resources-v3/registry/block-capability-registry-esp32.json",
+      "sha256": "d53f2b63011024eea5e2a5049c89a6e7db39e7a56529002334fd4d958630e1a0",
+      "registryId": "openblock-esp32-pilot",
+      "schemaVersion": 1,
+      "sourceCommit": "a7cc8ca739562acc494ae4342df44b3fc135e029",
+      "extensionCount": 15,
+      "blockCount": 59
+    },
+    "block-capability-registry.schema.json": {
+      "path": "external-resources-v3/registry/block-capability-registry.schema.json",
+      "sha256": "f73e239f97bb2607415f36c8e65919579938c4b10740ef7c33dbd3fd3e7947d3"
+    }
   }
 }

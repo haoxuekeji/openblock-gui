@@ -75,6 +75,26 @@
       }
     }
 
+## 3.1 积木能力注册表（AI-032）
+
+    {
+      "block-capability-registry-esp32.json": {
+        "path": "external-resources-v3/registry/block-capability-registry-esp32.json",
+        "sha256": "d53f2b63011024eea5e2a5049c89a6e7db39e7a56529002334fd4d958630e1a0",
+        "registryId": "openblock-esp32-pilot",
+        "schemaVersion": 1,
+        "sourceCommit": "a7cc8ca739562acc494ae4342df44b3fc135e029",
+        "extensionCount": 15,
+        "blockCount": 59
+      },
+      "block-capability-registry.schema.json": {
+        "path": "external-resources-v3/registry/block-capability-registry.schema.json",
+        "sha256": "f73e239f97bb2607415f36c8e65919579938c4b10740ef7c33dbd3fd3e7947d3"
+      }
+    }
+
+生成/校验：`node external-resources-v3/scripts/generate-block-registry.js [--check]`（产物可复现，`--check` 供 CI 校验注册表与扩展源码一致）。平台消费副本：`kids-code-platform/backend/app/data/block_registry/`（sha256 必须与本节一致）。
+
 ## 4. 兼容矩阵
 
     {

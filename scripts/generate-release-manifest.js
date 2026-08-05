@@ -207,6 +207,30 @@ if (fs.existsSync(extStatic)) {
     };
 }
 
+// 积木能力注册表（AI-032：external-resources-v3 生成产物，与 RC 关联的 checksum）
+const capRegistryDir = path.join(OB_ROOT, 'external-resources-v3', 'registry');
+if (fs.existsSync(capRegistryDir)) {
+    manifest.blockCapabilityRegistry = {};
+    const capRegistryFiles = fs.readdirSync(capRegistryDir)
+        .filter(n => n.endsWith('.json'))
+        .sort();
+    for (const f of capRegistryFiles) {
+        const file = path.join(capRegistryDir, f);
+        const entry = {path: `external-resources-v3/registry/${f}`, sha256: sha256File(file)};
+        try {
+            const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (data.registryId) {
+                entry.registryId = data.registryId;
+                entry.schemaVersion = data.schemaVersion;
+                entry.sourceCommit = data.source && data.source.commit;
+                entry.extensionCount = data.extensionCount;
+                entry.blockCount = data.blockCount;
+            }
+        } catch (e) { /* schema 文件等非注册表 JSON 只记 checksum */ }
+        manifest.blockCapabilityRegistry[f] = entry;
+    }
+}
+
 // registry 信息（本地覆盖层 vs registry 版本）
 try {
     for (const pkg of ['hxblock-blocks', 'hxblock-l10n']) {
@@ -259,6 +283,13 @@ ${mdOverlayRows}
 ## 3. 构建产物校验和
 
 ${JSON.stringify(manifest.artifacts, null, 2)
+        .split('\n')
+        .map(l => `    ${l}`)
+        .join('\n')}
+
+## 3.1 积木能力注册表（AI-032）
+
+${JSON.stringify(manifest.blockCapabilityRegistry || {}, null, 2)
         .split('\n')
         .map(l => `    ${l}`)
         .join('\n')}
