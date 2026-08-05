@@ -1,0 +1,111 @@
+@import "../../css/colors.css";
+@import "../../css/units.css";
+
+.body {
+    padding: 1rem 1.25rem 1.25rem;
+    min-width: 28rem;
+    max-width: 40rem;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.path {
+    flex: 1 1 auto;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.85rem;
+    color: $text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.button {
+    border: 1px solid $ui-black-transparent;
+    background: $ui-white;
+    border-radius: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.button:hover:not(:disabled) {
+    background: $ui-tertiary;
+}
+
+.list {
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.5rem;
+    background: $ui-white;
+    max-height: 18rem;
+    overflow: auto;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-bottom: 1px solid $ui-black-transparent;
+    font-size: 0.85rem;
+}
+
+.row:last-child {
+    border-bottom: 0;
+}
+
+.rowDir {
+    cursor: pointer;
+}
+
+.rowDir:hover {
+    background: $ui-tertiary;
+}
+
+.name {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.meta {
+    color: $text-primary;
+    opacity: 0.7;
+    font-size: 0.75rem;
+    min-width: 4.5rem;
+    text-align: right;
+}
+
+.actions {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.status {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: $text-primary;
+    min-height: 1.2rem;
+}
+
+.error {
+    color: $error-primary;
+}
+
+.empty {
+    padding: 1.25rem;
+    text-align: center;
+    opacity: 0.7;
+    font-size: 0.85rem;
+}

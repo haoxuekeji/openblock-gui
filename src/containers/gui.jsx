@@ -44,12 +44,15 @@ import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 import GUIComponent from '../components/gui/gui.jsx';
 import { setIsScratchDesktop } from '../lib/isScratchDesktop.js';
 
-// Default base url of the static external resources snapshot deployed with
-// the GUI (see openblock-resource/script/build-static.js). The VM tries this
-// first and falls back to the local openblock-resource server, so setups
-// without the static snapshot keep working. An embedding page can override
-// it by setting the global before loading the GUI.
-if (typeof window !== 'undefined' && !window.OpenBlockExternalResourcesBase) {
+// Production uses the static external-resources snapshot deployed with the
+// GUI. Docker development deliberately leaves the base unset so the VM reads
+// the live openblock-resource service on 127.0.0.1:20112; extension edits then
+// take effect after restarting that service without rebuilding the snapshot.
+if (
+    process.env.NODE_ENV === 'production' &&
+    typeof window !== 'undefined' &&
+    !window.OpenBlockExternalResourcesBase
+) {
     // Resolve against the webpack public path (e.g. '/scratch3/') so the
     // snapshot is found no matter where the GUI is mounted.
     // eslint-disable-next-line camelcase, no-undef
@@ -270,6 +273,8 @@ const mapStateToProps = state => {
         cardsVisible: state.scratchGui.cards.visible,
         connectionModalVisible: state.scratchGui.modals.connectionModal,
         uploadProgressVisible: state.scratchGui.modals.uploadProgress,
+        boardFilesModalVisible: state.scratchGui.modals.boardFilesModal,
+        deviceId: state.scratchGui.device.deviceId,
         updateModalVisible: state.scratchGui.modals.updateModal,
         costumeLibraryVisible: state.scratchGui.modals.costumeLibrary,
         costumesTabVisible: state.scratchGui.editorTab.activeTabIndex === COSTUMES_TAB_INDEX,

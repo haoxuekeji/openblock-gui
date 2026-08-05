@@ -214,6 +214,20 @@ const alerts = [
         level: AlertLevels.SUCCESS
     },
     {
+        alertId: 'loadingDevice',
+        alertType: AlertTypes.STANDARD,
+        clearList: ['loadingDevice'],
+        content: (
+            <FormattedMessage
+                defaultMessage="Loading device and its extensions…"
+                description="Message shown while a device and its extensions are being installed"
+                id="gui.alerts.loadingDevice"
+            />
+        ),
+        iconSpinner: true,
+        level: AlertLevels.SUCCESS
+    },
+    {
         alertId: 'workspaceIsEmpty',
         alertType: AlertTypes.STANDARD,
         clearList: ['workspaceIsEmpty'],

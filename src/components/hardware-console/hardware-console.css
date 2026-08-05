@@ -8,6 +8,92 @@
     position: relative;
 }
 
+.toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 34px;
+    background-color: $ui-white;
+    border-bottom: 1px solid $ui-black-transparent;
+    padding: 0 0.25rem;
+}
+
+.toolbar-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    width: 28px;
+    margin: 0 0.125rem;
+    border: none;
+    border-radius: 0.25rem;
+    background-color: transparent;
+    outline: none;
+    padding: 0;
+}
+
+.toolbar-button:hover {
+    background-color: $ui-black-transparent;
+}
+
+.toolbar-button:active {
+    background-color: $ui-black-transparent;
+}
+
+.toolbar-icon {
+    height: 20px;
+    width: 20px;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 20px;
+    margin: 0 0.25rem;
+    background-color: $ui-black-transparent;
+}
+
+.toolbar-spacer {
+    flex-grow: 1;
+}
+
+.search-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 0.25rem;
+}
+
+.search-input {
+    width: 8rem;
+    height: 24px;
+    border: 1px solid $ui-black-transparent;
+    box-sizing: border-box;
+    border-radius: 0.25rem;
+    background-color: $ui-secondary;
+    padding: 0 0.25rem;
+    font-size: 0.625rem;
+}
+
+.search-input:focus {
+    outline: none;
+    border: 1px solid $ui-transparent;
+    box-shadow: 0 0 0 calc($space * .25) $ui-modal-overlay;
+    color: $text-primary;
+}
+
+.search-button {
+    border: none;
+    background-color: transparent;
+    color: $text-primary;
+    font-size: 0.625rem;
+    outline: none;
+    padding: 0 0.25rem;
+}
+
+.search-button:hover {
+    color: $motion-primary;
+}
+
 .console-array {
     height: 260px;
     overflow:auto;
@@ -19,47 +105,32 @@
     font-size: $menu-bar-standard-font-size;
 }
 
+.terminal-wrapper {
+    height: 260px;
+    background-color: $ui-white;
+    padding: 0.125rem 0 0.125rem 0.25rem;
+    box-sizing: border-box;
+}
+
+.terminal {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.terminal-hint {
+    flex-grow: 1;
+    margin-left: $space;
+    color: $text-primary;
+    opacity: 0.6;
+    font-size: 0.625rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .button:hover {
     cursor: pointer;
-}
-
-.pause-button {
-    position: absolute;
-    top: -1px;
-    right: -1px;
-    border: 1px solid $ui-black-transparent;
-    background-color: $ui-white;
-    height: 34px;
-    width: 34px;
-    border-radius: 0 0.5rem 0 0;
-    outline: none;
-}
-
-.clean-button {
-    position: absolute;
-    top: calc(34px - 2px);
-    right:  -1px;
-    border: 1px solid $ui-black-transparent;
-    background-color: $ui-white;
-    height: 34px;
-    width: 34px;
-    border-radius: 0 0 0 0.5rem;
-    outline: none;
-}
-
-.pause-button:active,
-.clean-button:active{
-    background-color: $ui-black-transparent;
-}
-
-.clean-icon {
-    height: 20px;
-    width: 20px;
-}
-
-.pause-icon{
-    height: 20px;
-    width: 20px;
 }
 
 .console-menu-warpper {
@@ -152,6 +223,20 @@
 .menu select {
     border: 1px solid $text-primary;
     color: $text-primary;
+}
+
+.menu .baudrate-input {
+    border: 1px solid $text-primary;
+    color: $text-primary;
+    width: 5.5rem;
+    padding: 0 0.25rem;
+}
+
+.menu .baudrate-input:focus {
+    outline: none;
+    border: 1px solid $ui-transparent;
+    -webkit-box-shadow: 0 0 0 calc($space * .25) $ui-modal-overlay;
+    box-shadow: 0 0 0 calc($space * .25) $ui-modal-overlay;
 }
 
 .menu select:focus {

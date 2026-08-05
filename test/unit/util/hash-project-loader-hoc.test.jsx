@@ -4,7 +4,7 @@ import {mount} from 'enzyme';
 
 import HashParserHOC from '../../../src/lib/hash-parser-hoc.jsx';
 
-jest.mock('react-ga');
+jest.mock('react-ga4');
 
 describe('HashParserHOC', () => {
     const mockStore = configureStore();

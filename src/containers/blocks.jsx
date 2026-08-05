@@ -105,6 +105,7 @@ class Blocks extends React.Component {
         };
         this.onTargetsUpdate = debounce(this.onTargetsUpdate, 100);
         this.toolboxUpdateQueue = [];
+        this._lastCodegenError = null;
     }
     componentDidMount() {
         this.ScratchBlocks.FieldColourSlider.activateEyedropper_ = this.onActivateColorPicker;
@@ -651,14 +652,8 @@ class Blocks extends React.Component {
         this.ScratchBlocks.refreshStatusButtons(this.workspace);
     }
     workspaceToCode () {
-        let code;
-        try {
-            const generatorName = getGeneratorNameFromDeviceType(this.props.deviceType);
-            code = this.ScratchBlocks[generatorName].workspaceToCode(this.workspace);
-        } catch (e) {
-            code = e.message;
-        }
-        return code;
+        const generatorName = getGeneratorNameFromDeviceType(this.props.deviceType);
+        return this.ScratchBlocks[generatorName].workspaceToCode(this.workspace);
     }
     handleToolboxUploadFinish() {
         this.props.onToolboxDidUpdate();
@@ -666,7 +661,21 @@ class Blocks extends React.Component {
     onCodeNeedUpdate () {
         if (this.props.isCodeEditorLocked) {
             if (this.props.isRealtimeMode === false) {
-                this.props.onSetCodeEditorValue(this.workspaceToCode());
+                let code;
+                try {
+                    code = this.workspaceToCode();
+                } catch (e) {
+                    // Keep the last valid code in the editor and report the
+                    // failure once per distinct error, instead of replacing
+                    // the editor content with the error message.
+                    if (this._lastCodegenError !== e.message) {
+                        this._lastCodegenError = e.message;
+                        this.props.onShowMessageBox(MessageBoxType.alert, e.message);
+                    }
+                    return;
+                }
+                this._lastCodegenError = null;
+                this.props.onSetCodeEditorValue(code);
             }
         } else {
             this.props.onCodeEditorIsUnlocked();

@@ -60,7 +60,54 @@ import asrInsetIconURL from './asr/asr-small.svg';
 
 import aiChatIconURL from './aichat/aichat.svg';
 import aiChatInsetIconURL from './aichat/aichat-small.svg';
+
+import mlClassifierIconURL from './mlClassifier/ml-classifier.svg';
+import mlClassifierInsetIconURL from './mlClassifier/ml-classifier-small.svg';
+
+import bodySensingIconURL from './bodySensing/body-sensing.svg';
+import bodySensingInsetIconURL from './bodySensing/body-sensing-small.svg';
 export default [
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="ML Classifier"
+                description="Name for the 'ML Classifier' extension"
+                id="gui.extension.mlClassifier.name"
+            />
+        ),
+        extensionId: 'mlClassifier',
+        iconURL: mlClassifierIconURL,
+        insetIconURL: mlClassifierInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Teach the computer to recognize things with your camera, no internet needed."
+                description="Description for the 'ML Classifier' extension"
+                id="gui.extension.mlClassifier.description"
+            />
+        ),
+        featured: true
+    },
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="Body Sensing"
+                description="Name for the 'Body Sensing' extension"
+                id="gui.extension.bodySensing.name"
+            />
+        ),
+        extensionId: 'bodySensing',
+        iconURL: bodySensingIconURL,
+        insetIconURL: bodySensingInsetIconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Detect hand gestures and body poses with your camera."
+                description="Description for the 'Body Sensing' extension"
+                id="gui.extension.bodySensing.description"
+            />
+        ),
+        featured: true,
+        internetConnectionRequired: true
+    },
     {
         name: (
             <FormattedMessage

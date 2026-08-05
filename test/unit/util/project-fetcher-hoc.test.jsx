@@ -7,7 +7,7 @@ import ProjectFetcherHOC from '../../../src/lib/project-fetcher-hoc.jsx';
 import storage from '../../../src/lib/storage';
 import {LoadingState} from '../../../src/reducers/project-state';
 
-jest.mock('react-ga');
+jest.mock('react-ga4');
 
 describe('ProjectFetcherHOC', () => {
     const mockStore = configureStore();

@@ -13,6 +13,84 @@
     background: $ui-white;
 }
 
+.transport-area {
+    padding: 1.25rem;
+}
+
+.transport-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.transport-description {
+    margin-top: 0.5rem;
+    color: $text-primary-transparent;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.transport-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.transport-option {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.5rem;
+    background: $ui-white;
+    color: $text-primary;
+    cursor: pointer;
+    text-align: left;
+}
+
+.transport-option:hover,
+.transport-option:focus {
+    border-color: $motion-primary;
+    box-shadow: 0 0 0 2px $motion-transparent;
+    outline: none;
+}
+
+.transport-option-preferred {
+    border-color: $motion-primary;
+}
+
+.transport-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.transport-option-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.transport-option-description {
+    margin-top: 0.35rem;
+    color: $text-primary-transparent;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.transport-badge {
+    padding: 0.15rem 0.45rem;
+    border-radius: 1rem;
+    background: $motion-transparent;
+    color: $motion-primary;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
 .label {
     font-weight: 500;
     margin: 0 0 0.75rem;

@@ -5,6 +5,7 @@ import keyMirror from 'keymirror';
 import Box from '../box/box.jsx';
 import Modal from '../../containers/modal.jsx';
 
+import TransportStep from './transport-step.jsx';
 import ScanningStep from '../../containers/scanning-step.jsx';
 import AutoScanningStep from '../../containers/auto-scanning-step.jsx';
 import ConnectingStep from './connecting-step.jsx';
@@ -15,6 +16,7 @@ import UnavailableStep from './unavailable-step.jsx';
 import styles from './connection-modal.css';
 
 const PHASES = keyMirror({
+    selectingTransport: null,
     scanning: null,
     connecting: null,
     connected: null,
@@ -33,6 +35,7 @@ const ConnectionModalComponent = props => (
         onRequestClose={props.onCancel}
     >
         <Box className={styles.body}>
+            {props.phase === PHASES.selectingTransport && <TransportStep {...props} />}
             {props.phase === PHASES.scanning && !props.useAutoScan && <ScanningStep {...props} />}
             {props.phase === PHASES.scanning && props.useAutoScan && <AutoScanningStep {...props} />}
             {props.phase === PHASES.connecting && <ConnectingStep {...props} />}
@@ -47,10 +50,13 @@ ConnectionModalComponent.propTypes = {
     connectingMessage: PropTypes.node.isRequired,
     connectionSmallIconURL: PropTypes.string,
     connectionTipIconURL: PropTypes.string,
+    methods: PropTypes.arrayOf(PropTypes.object),
     name: PropTypes.node,
     onCancel: PropTypes.func.isRequired,
+    onSelect: PropTypes.func,
     onHelp: PropTypes.func.isRequired,
     phase: PropTypes.oneOf(Object.keys(PHASES)).isRequired,
+    preferredTransportId: PropTypes.string,
     title: PropTypes.string.isRequired,
     useAutoScan: PropTypes.bool.isRequired
 };
