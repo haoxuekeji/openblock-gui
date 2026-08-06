@@ -6,6 +6,11 @@
 
 > openblock-gui 的 HEAD 为生成时代码状态；manifest 提交本身会在其上新增一个 commit。
 
+> **修订（2026-08-06）**：按 G3 门禁放行条件回写最终 OLED 大小写修正对应的校验值——
+> `externalResourcesStatic` 聚合 `14c90569…` → `053471cb992f1dcaeefe831f9880d59fefd1a00747b8931e562df1612567a02e`（341 文件，重新生成实测）；
+> `guiBuild` 聚合 `8729c571…` → `18a6df751227a9c96bd7b0343032c0e9f1863feb958ce8ff7fc49961e0d9c6eb`（4306 文件，固定提交 clean checkout 双次构建一致）；
+> 原 keyFiles 值对应修正前快照构建已移除。**复现构建必须 `env -u DEBUG`**。详见 JSON `revisions[0]` 与 `HANDOFF-2026-08-05-OB-031.md` §8。
+
 ## 1. 各仓 commit
 
 | 仓库 | 分支 | HEAD | 状态 | 最近提交 |
@@ -35,12 +40,9 @@
     {
       "guiBuild": {
         "path": "openblock-gui/build",
-        "aggregateSha256": "8729c5719f52a1d959e8cf85f57ec683b83574f3d7acd153b59bd75592bca51b",
+        "aggregateSha256": "18a6df751227a9c96bd7b0343032c0e9f1863feb958ce8ff7fc49961e0d9c6eb",
         "fileCount": 4306,
-        "keyFiles": {
-          "index.html": "6ebd7a78df4a19b4981ca927318ef65b9a1f6a808f0e67cf601f3f6c8550b34b",
-          "static/lib.min.js": "314b059c0fdf6ceef16df4eb00ff5ce3c8420d58e393eebcbd69c451ee2b84d4"
-        }
+        "buildEnvNote": "必须 env -u DEBUG 构建；keyFiles 见 JSON revisions[0] 说明"
       },
       "vmDistWeb": {
         "path": "openblock-vm/dist/web",
@@ -70,7 +72,7 @@
       },
       "externalResourcesStatic": {
         "path": "openblock-gui/external-resources-static/external-resources",
-        "aggregateSha256": "14c90569a92aef97fa47ce3a8496cd822605ee2ae326464a8d26b1bb5aed3c57",
+        "aggregateSha256": "053471cb992f1dcaeefe831f9880d59fefd1a00747b8931e562df1612567a02e",
         "fileCount": 341
       }
     }
@@ -180,6 +182,6 @@
       "executed": false,
       "reason": "任务约束：不覆盖 kids-code-platform 当前 scratch3，平台部署由独立验证步骤执行",
       "currentPlatformState": "kids-code-platform/scratch3 与 OB-030 构建逐字节一致（dry-run 0 变更，2026-08-05 复核）",
-      "newBuildReady": "openblock-gui/build 为 OB-031 新构建（聚合 8729c5719f52a1d9…），部署时执行 npm run deploy:kids（自动备份+校验+原子切换）",
+      "newBuildReady": "OB-031 最终构建聚合 18a6df751227a9c9…（含 OLED 修正静态快照，env -u DEBUG）；部署时执行 npm run deploy:kids（自动备份+校验+原子切换）。注意：build/ 目录会被后续开发覆盖，部署前须按 manifest 固定提交 + setup:local-deps 重建并核对聚合值",
       "rollback": "node scripts/deploy-to-kids-platform.js --rollback（自动选最新备份）；历史备份 openblock/.ob030-backup/scratch3-pre-ob030-20260804-2218.tar.gz 仍可用"
     }
