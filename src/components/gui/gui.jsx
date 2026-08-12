@@ -41,6 +41,7 @@ import ConnectionModal from '../../containers/connection-modal.jsx';
 import UploadProgress from '../../containers/upload-progress.jsx';
 import BoardFilesModal from '../../containers/board-files-modal.jsx';
 import MyWorksModal from '../../containers/my-works-modal.jsx';
+import PythonRunnerModal from '../../containers/python-runner-modal.jsx';
 import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import UpdateModal from '../../containers/update-modal.jsx';
 
@@ -93,6 +94,7 @@ const GUIComponent = props => {
         uploadProgressVisible,
         boardFilesModalVisible,
         myWorksModalVisible,
+        pythonRunnerModalVisible,
         costumeLibraryVisible,
         costumesTabVisible,
         updateModalVisible,
@@ -241,6 +243,9 @@ const GUIComponent = props => {
                     <MyWorksModal
                         onShowMessageBox={onShowMessageBox}
                     />
+                ) : null}
+                {pythonRunnerModalVisible ? (
+                    <PythonRunnerModal />
                 ) : null}
                 {costumeLibraryVisible ? (
                     <CostumeLibrary
@@ -525,6 +530,7 @@ GUIComponent.propTypes = {
     tipsLibraryVisible: PropTypes.bool,
     boardFilesModalVisible: PropTypes.bool,
     myWorksModalVisible: PropTypes.bool,
+    pythonRunnerModalVisible: PropTypes.bool,
 
     vm: PropTypes.instanceOf(VM).isRequired,
     isRealtimeMode: PropTypes.bool,

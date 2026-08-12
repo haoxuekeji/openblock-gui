@@ -16,6 +16,7 @@ const MODAL_DEVICE_LIBRARY = 'deviceLibrary';
 const MODAL_UPDATE = 'updateModal';
 const MODAL_BOARD_FILES = 'boardFilesModal';
 const MODAL_MY_WORKS = 'myWorksModal';
+const MODAL_PYTHON_RUNNER = 'pythonRunnerModal';
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -32,7 +33,8 @@ const initialState = {
     [MODAL_TIPS_LIBRARY]: false,
     [MODAL_UPDATE]: false,
     [MODAL_BOARD_FILES]: false,
-    [MODAL_MY_WORKS]: false
+    [MODAL_MY_WORKS]: false,
+    [MODAL_PYTHON_RUNNER]: false
 };
 
 const reducer = function (state, action) {
@@ -107,6 +109,9 @@ const openBoardFilesModal = function () {
 const openMyWorksModal = function () {
     return openModal(MODAL_MY_WORKS);
 };
+const openPythonRunnerModal = function () {
+    return openModal(MODAL_PYTHON_RUNNER);
+};
 const closeBackdropLibrary = function () {
     return closeModal(MODAL_BACKDROP_LIBRARY);
 };
@@ -152,6 +157,9 @@ const closeBoardFilesModal = function () {
 const closeMyWorksModal = function () {
     return closeModal(MODAL_MY_WORKS);
 };
+const closePythonRunnerModal = function () {
+    return closeModal(MODAL_PYTHON_RUNNER);
+};
 export {
     reducer as default,
     initialState as modalsInitialState,
@@ -163,6 +171,7 @@ export {
     openExtensionLibrary,
     openLoadingProject,
     openMyWorksModal,
+    openPythonRunnerModal,
     openSoundLibrary,
     openSpriteLibrary,
     openSoundRecorder,
@@ -178,6 +187,7 @@ export {
     closeExtensionLibrary,
     closeLoadingProject,
     closeMyWorksModal,
+    closePythonRunnerModal,
     closeSpriteLibrary,
     closeSoundLibrary,
     closeSoundRecorder,
