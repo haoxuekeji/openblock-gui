@@ -23,6 +23,11 @@ const messages = defineMessages({
         defaultMessage: 'Type here and press Enter to send to the program',
         description: 'Placeholder of the program stdin field',
         id: 'gui.pythonRunner.stdinPlaceholder'
+    },
+    installPlaceholder: {
+        defaultMessage: 'Package name, e.g. pygame',
+        description: 'Placeholder of the pip package field',
+        id: 'gui.pythonRunner.installPlaceholder'
     }
 });
 
@@ -36,7 +41,10 @@ class PythonRunnerModalComponent extends React.Component {
     constructor (props) {
         super(props);
         this.setTerminalRef = this.setTerminalRef.bind(this);
+        this.setFileInputRef = this.setFileInputRef.bind(this);
         this.handleStdinSubmit = this.handleStdinSubmit.bind(this);
+        this.handleInstallSubmit = this.handleInstallSubmit.bind(this);
+        this.handleOpenFileClick = this.handleOpenFileClick.bind(this);
     }
 
     componentDidUpdate (prevProps) {
@@ -49,9 +57,26 @@ class PythonRunnerModalComponent extends React.Component {
         this.terminal = el;
     }
 
+    setFileInputRef (el) {
+        this.fileInput = el;
+    }
+
     handleStdinSubmit (event) {
         event.preventDefault();
         this.props.onStdinSend();
+    }
+
+    handleInstallSubmit (event) {
+        event.preventDefault();
+        this.props.onInstall();
+    }
+
+    handleOpenFileClick () {
+        if (this.fileInput) {
+            // Allow picking the same file again after editing it elsewhere.
+            this.fileInput.value = '';
+            this.fileInput.click();
+        }
     }
 
     render () {
@@ -123,6 +148,33 @@ class PythonRunnerModalComponent extends React.Component {
                                 id="gui.pythonRunner.clear"
                             />
                         </button>
+                        <button
+                            className={styles.button}
+                            onClick={this.handleOpenFileClick}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Open .py"
+                                description="Load a python file from disk into the editor"
+                                id="gui.pythonRunner.openFile"
+                            />
+                        </button>
+                        <button
+                            className={styles.button}
+                            onClick={props.onSaveFile}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Save .py"
+                                description="Save the editor content as a python file"
+                                id="gui.pythonRunner.saveFile"
+                            />
+                        </button>
+                        <input
+                            accept=".py,text/x-python"
+                            hidden
+                            ref={this.setFileInputRef}
+                            type="file"
+                            onChange={props.onFileSelected}
+                        />
                         <span
                             className={classNames(styles.status, {
                                 [styles.statusRunning]: props.connected && props.running,
@@ -132,6 +184,30 @@ class PythonRunnerModalComponent extends React.Component {
                             {statusNode}
                         </span>
                     </div>
+                    <form
+                        className={styles.installRow}
+                        onSubmit={this.handleInstallSubmit}
+                    >
+                        <input
+                            className={styles.stdinInput}
+                            disabled={props.running}
+                            placeholder={props.intl.formatMessage(messages.installPlaceholder)}
+                            type="text"
+                            value={props.installValue}
+                            onChange={props.onInstallChange}
+                        />
+                        <button
+                            className={styles.button}
+                            disabled={props.running || !props.installValue.trim()}
+                            type="submit"
+                        >
+                            <FormattedMessage
+                                defaultMessage="Install package"
+                                description="Install a python package with pip"
+                                id="gui.pythonRunner.install"
+                            />
+                        </button>
+                    </form>
                     <textarea
                         className={styles.editor}
                         placeholder={props.intl.formatMessage(messages.codePlaceholder)}
@@ -185,11 +261,16 @@ class PythonRunnerModalComponent extends React.Component {
 PythonRunnerModalComponent.propTypes = {
     code: PropTypes.string,
     connected: PropTypes.bool,
+    installValue: PropTypes.string,
     intl: intlShape,
     onCancel: PropTypes.func.isRequired,
     onClear: PropTypes.func.isRequired,
     onCodeChange: PropTypes.func.isRequired,
+    onFileSelected: PropTypes.func.isRequired,
+    onInstall: PropTypes.func.isRequired,
+    onInstallChange: PropTypes.func.isRequired,
     onRun: PropTypes.func.isRequired,
+    onSaveFile: PropTypes.func.isRequired,
     onStdinChange: PropTypes.func.isRequired,
     onStdinSend: PropTypes.func.isRequired,
     onStop: PropTypes.func.isRequired,

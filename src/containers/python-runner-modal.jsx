@@ -23,6 +23,16 @@ const messages = defineMessages({
         defaultMessage: '— program stopped —',
         description: 'Python program was stopped by the user',
         id: 'gui.pythonRunner.killed'
+    },
+    installing: {
+        defaultMessage: '— installing {name}… —',
+        description: 'A pip install has started',
+        id: 'gui.pythonRunner.installing'
+    },
+    installError: {
+        defaultMessage: '— could not install: {error} —',
+        description: 'A pip install was rejected',
+        id: 'gui.pythonRunner.installError'
     }
 });
 
@@ -47,7 +57,11 @@ class PythonRunnerModal extends React.Component {
             'handleCancel',
             'handleClear',
             'handleCodeChange',
+            'handleFileSelected',
+            'handleInstall',
+            'handleInstallChange',
             'handleRun',
+            'handleSaveFile',
             'handleStdinChange',
             'handleStdinSend',
             'handleStop'
@@ -61,6 +75,7 @@ class PythonRunnerModal extends React.Component {
         this.state = {
             code: savedCode || DEFAULT_CODE,
             connected: false,
+            installValue: '',
             output: [],
             running: false,
             stdinValue: ''
@@ -228,6 +243,52 @@ class PythonRunnerModal extends React.Component {
         this.setState({stdinValue: event.target.value});
     }
 
+    handleInstallChange (event) {
+        this.setState({installValue: event.target.value});
+    }
+
+    handleInstall () {
+        const name = this.state.installValue.trim();
+        if (!name) return;
+        this.appendOutput('system', `${this.props.intl.formatMessage(messages.installing, {name})}\n`);
+        this.setState({installValue: ''});
+        this.connect()
+            .then(() => this.rpc('pip', {packages: name.split(/\s+/)}))
+            .catch(err => {
+                const detail = (err && err.message) || `${err}`;
+                this.appendOutput('system',
+                    `${this.props.intl.formatMessage(messages.installError, {error: detail})}\n`);
+            });
+    }
+
+    handleFileSelected (event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            const code = `${reader.result}`;
+            this.setState({code});
+            try {
+                window.localStorage.setItem(CODE_STORAGE_KEY, code);
+            } catch (e) {
+                // keep in memory only
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    handleSaveFile () {
+        const blob = new Blob([this.state.code], {type: 'text/x-python'});
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'main.py';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    }
+
     handleStdinSend () {
         const value = this.state.stdinValue;
         // Local echo: piped programs do not echo their stdin back.
@@ -245,6 +306,7 @@ class PythonRunnerModal extends React.Component {
             <PythonRunnerModalComponent
                 code={this.state.code}
                 connected={this.state.connected}
+                installValue={this.state.installValue}
                 intl={this.props.intl}
                 output={this.state.output}
                 running={this.state.running}
@@ -252,7 +314,11 @@ class PythonRunnerModal extends React.Component {
                 onCancel={this.handleCancel}
                 onClear={this.handleClear}
                 onCodeChange={this.handleCodeChange}
+                onFileSelected={this.handleFileSelected}
+                onInstall={this.handleInstall}
+                onInstallChange={this.handleInstallChange}
                 onRun={this.handleRun}
+                onSaveFile={this.handleSaveFile}
                 onStdinChange={this.handleStdinChange}
                 onStdinSend={this.handleStdinSend}
                 onStop={this.handleStop}
