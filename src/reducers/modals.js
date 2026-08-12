@@ -15,6 +15,7 @@ const MODAL_UPLOAD_PROGRESS = 'uploadProgress';
 const MODAL_DEVICE_LIBRARY = 'deviceLibrary';
 const MODAL_UPDATE = 'updateModal';
 const MODAL_BOARD_FILES = 'boardFilesModal';
+const MODAL_MY_WORKS = 'myWorksModal';
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -30,7 +31,8 @@ const initialState = {
     [MODAL_DEVICE_LIBRARY]: false,
     [MODAL_TIPS_LIBRARY]: false,
     [MODAL_UPDATE]: false,
-    [MODAL_BOARD_FILES]: false
+    [MODAL_BOARD_FILES]: false,
+    [MODAL_MY_WORKS]: false
 };
 
 const reducer = function (state, action) {
@@ -102,6 +104,9 @@ const openUpdateModal = function () {
 const openBoardFilesModal = function () {
     return openModal(MODAL_BOARD_FILES);
 };
+const openMyWorksModal = function () {
+    return openModal(MODAL_MY_WORKS);
+};
 const closeBackdropLibrary = function () {
     return closeModal(MODAL_BACKDROP_LIBRARY);
 };
@@ -144,6 +149,9 @@ const closeUpdateModal = function () {
 const closeBoardFilesModal = function () {
     return closeModal(MODAL_BOARD_FILES);
 };
+const closeMyWorksModal = function () {
+    return closeModal(MODAL_MY_WORKS);
+};
 export {
     reducer as default,
     initialState as modalsInitialState,
@@ -154,6 +162,7 @@ export {
     openDeviceLibrary,
     openExtensionLibrary,
     openLoadingProject,
+    openMyWorksModal,
     openSoundLibrary,
     openSpriteLibrary,
     openSoundRecorder,
@@ -168,6 +177,7 @@ export {
     closeDeviceLibrary,
     closeExtensionLibrary,
     closeLoadingProject,
+    closeMyWorksModal,
     closeSpriteLibrary,
     closeSoundLibrary,
     closeSoundRecorder,

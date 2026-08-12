@@ -36,7 +36,23 @@ class Storage extends ScratchStorage {
         this.projectHost = projectHost;
     }
     getProjectGetConfig(projectAsset) {
-        return `${this.projectHost}/${projectAsset.assetId}`;
+        const url = `${this.projectHost}/${projectAsset.assetId}`;
+        // Unpublished drafts are only served to their author, so send the
+        // platform token along (web embeds shim localStorage to hand out the
+        // short-lived editor session; desktop stores the main JWT there).
+        let token = '';
+        try {
+            token = window.localStorage.getItem('token') || '';
+        } catch (e) {
+            token = '';
+        }
+        if (token) {
+            return {
+                url: url,
+                headers: {Authorization: `Bearer ${token}`}
+            };
+        }
+        return url;
     }
     getProjectCreateConfig() {
         return {
