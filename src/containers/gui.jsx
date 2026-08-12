@@ -25,7 +25,8 @@ import {
     closeBackdropLibrary,
     closeTelemetryModal,
     openExtensionLibrary,
-    openMyWorksModal
+    openMyWorksModal,
+    openPythonRunnerModal
 } from '../reducers/modals';
 
 import { setSession } from '../reducers/session'
@@ -116,6 +117,10 @@ class GUI extends React.Component {
         // profileButton.handleClick to this entry point).
         window.scratch.openMyWorks = () => {
             this.props.onOpenMyWorks()
+        }
+        // Local python runner (desktop menu bar wires a config button here).
+        window.scratch.openPythonRunner = () => {
+            this.props.onOpenPythonRunner()
         }
 
         if (window.scratchConfig && 'handleVmInitialized' in window.scratchConfig) {
@@ -281,6 +286,7 @@ const mapStateToProps = state => {
         uploadProgressVisible: state.scratchGui.modals.uploadProgress,
         boardFilesModalVisible: state.scratchGui.modals.boardFilesModal,
         myWorksModalVisible: state.scratchGui.modals.myWorksModal,
+        pythonRunnerModalVisible: state.scratchGui.modals.pythonRunnerModal,
         deviceId: state.scratchGui.device.deviceId,
         updateModalVisible: state.scratchGui.modals.updateModal,
         costumeLibraryVisible: state.scratchGui.modals.costumeLibrary,
@@ -317,7 +323,8 @@ const mapDispatchToProps = dispatch => ({
     onSetSession: s => dispatch(setSession(s)),
     onSetProjectId: id => dispatch(setProjectId(id)),
     onSeeInside: s => dispatch(setPlayer(s)),
-    onOpenMyWorks: () => dispatch(openMyWorksModal())
+    onOpenMyWorks: () => dispatch(openMyWorksModal()),
+    onOpenPythonRunner: () => dispatch(openPythonRunnerModal())
 });
 
 const ConnectedGUI = injectIntl(connect(
