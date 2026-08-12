@@ -11,6 +11,7 @@ import VM from 'openblock-vm';
 import Renderer from 'scratch-render';
 
 import Blocks from '../../containers/blocks.jsx';
+import CodePreview from '../../containers/code-preview.jsx';
 import CostumeTab from '../../containers/costume-tab.jsx';
 import TargetPane from '../../containers/target-pane.jsx';
 import SoundTab from '../../containers/sound-tab.jsx';
@@ -34,6 +35,7 @@ import DragLayer from '../../containers/drag-layer.jsx';
 import ConnectionModal from '../../containers/connection-modal.jsx';
 import UploadProgress from '../../containers/upload-progress.jsx';
 import BoardFilesModal from '../../containers/board-files-modal.jsx';
+import MyWorksModal from '../../containers/my-works-modal.jsx';
 import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import UpdateModal from '../../containers/update-modal.jsx';
 
@@ -85,6 +87,7 @@ const GUIComponent = props => {
         connectionModalVisible,
         uploadProgressVisible,
         boardFilesModalVisible,
+        myWorksModalVisible,
         costumeLibraryVisible,
         costumesTabVisible,
         updateModalVisible,
@@ -229,6 +232,11 @@ const GUIComponent = props => {
                         onShowMessageBox={onShowMessageBox}
                     />
                 ) : null}
+                {myWorksModalVisible ? (
+                    <MyWorksModal
+                        onShowMessageBox={onShowMessageBox}
+                    />
+                ) : null}
                 {costumeLibraryVisible ? (
                     <CostumeLibrary
                         vm={vm}
@@ -364,6 +372,7 @@ const GUIComponent = props => {
                                             onShowMessageBox={onShowMessageBox}
                                         />
                                     </Box>
+                                    <CodePreview />
                                     <Box className={styles.extensionButtonContainer}>
                                         <button
                                             className={styles.extensionButton}
@@ -510,6 +519,7 @@ GUIComponent.propTypes = {
     telemetryModalVisible: PropTypes.bool,
     tipsLibraryVisible: PropTypes.bool,
     boardFilesModalVisible: PropTypes.bool,
+    myWorksModalVisible: PropTypes.bool,
 
     vm: PropTypes.instanceOf(VM).isRequired,
     isRealtimeMode: PropTypes.bool,

@@ -1,0 +1,164 @@
+@import "../../css/colors.css";
+@import "../../css/units.css";
+
+.body {
+    padding: 1rem 1.25rem 1.25rem;
+    width: 42rem;
+    max-width: 90vw;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.total {
+    flex: 1 1 auto;
+    font-size: 0.85rem;
+    color: $text-primary;
+    opacity: 0.8;
+}
+
+.button {
+    border: 1px solid $ui-black-transparent;
+    background: $ui-white;
+    border-radius: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.button:hover:not(:disabled) {
+    background: $ui-tertiary;
+}
+
+.deleteButton {
+    color: $error-primary;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+    gap: 0.75rem;
+    max-height: 24rem;
+    overflow: auto;
+    padding: 0.15rem;
+}
+
+.card {
+    border: 1px solid $ui-black-transparent;
+    border-radius: 0.5rem;
+    background: $ui-white;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.cover {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    background: $ui-primary;
+    cursor: pointer;
+}
+
+.coverImage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.coverPlaceholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    opacity: 0.4;
+}
+
+.badge {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.5rem;
+    background: rgba(0, 0, 0, 0.55);
+    color: $ui-white;
+}
+
+.badgePublished {
+    background: hsla(163, 85%, 30%, 0.85);
+}
+
+.cardBody {
+    padding: 0.5rem 0.6rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: $text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.date {
+    font-size: 0.7rem;
+    color: $text-primary;
+    opacity: 0.6;
+}
+
+.actions {
+    display: flex;
+    gap: 0.35rem;
+    justify-content: flex-end;
+}
+
+.pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.pageInfo {
+    font-size: 0.8rem;
+    color: $text-primary;
+}
+
+.status {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: $text-primary;
+    min-height: 1.2rem;
+    text-align: center;
+}
+
+.error {
+    color: $error-primary;
+}
+
+.empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}

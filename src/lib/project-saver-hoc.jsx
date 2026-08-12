@@ -9,6 +9,7 @@ import log from '../lib/log';
 import storage from '../lib/storage';
 import dataURItoBlob from '../lib/data-uri-to-blob';
 import saveProjectToServer from '../lib/save-project-to-server';
+import {attachPythonSnapshot} from '../lib/python-snapshot';
 
 import {
     showAlertWithTimeout,
@@ -227,7 +228,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
             // while in the process of saving a project (e.g. the
             // serialized project refers to a newer asset than what
             // we just finished saving).
-            const savedVMState = this.props.vm.toJSON();
+            // Hardware projects additionally carry a Python code snapshot in
+            // meta so the platform can show a blocks/code dual view (FUN-001C).
+            const savedVMState = attachPythonSnapshot(this.props.vm.toJSON());
             return Promise.all(this.props.vm.assets
                 .filter(asset => !asset.clean)
                 .map(

@@ -29,6 +29,7 @@ import workspaceMetricsReducer, {workspaceMetricsInitialState} from './workspace
 import throttle from 'redux-throttle';
 import programModeReducer, {programModeInitialState} from './program-mode';
 import codeReducer, {codeInitialState} from './code';
+import codePreviewReducer, {codePreviewInitialState} from './code-preview';
 import deviceReducer, {deviceInitialState} from './device';
 import deviceDataReducer, {deviceDataInitialState} from './device-data';
 import hardwareConsoleReducer, {hardwareConsoleInitialState} from './hardware-console';
@@ -44,6 +45,7 @@ const guiInitialState = {
     blockDrag: blockDragInitialState,
     cards: cardsInitialState,
     code: codeInitialState,
+    codePreview: codePreviewInitialState,
     colorPicker: colorPickerInitialState,
     connectionModal: connectionModalInitialState,
     customProcedures: customProceduresInitialState,
@@ -149,6 +151,7 @@ const guiReducer = combineReducers({
     blockDrag: blockDragReducer,
     cards: cardsReducer,
     code: codeReducer,
+    codePreview: codePreviewReducer,
     colorPicker: colorPickerReducer,
     connectionModal: connectionModalReducer,
     customProcedures: customProceduresReducer,

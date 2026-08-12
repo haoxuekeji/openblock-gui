@@ -24,7 +24,8 @@ import {
     closeCostumeLibrary,
     closeBackdropLibrary,
     closeTelemetryModal,
-    openExtensionLibrary
+    openExtensionLibrary,
+    openMyWorksModal
 } from '../reducers/modals';
 
 import { setSession } from '../reducers/session'
@@ -110,6 +111,11 @@ class GUI extends React.Component {
         }
         window.scratch.onSeeInside = (isPlayerOnly) => {
             this.onSeeInside(isPlayerOnly)
+        }
+        // Platform works browser (desktop menu bar wires its
+        // profileButton.handleClick to this entry point).
+        window.scratch.openMyWorks = () => {
+            this.props.onOpenMyWorks()
         }
 
         if (window.scratchConfig && 'handleVmInitialized' in window.scratchConfig) {
@@ -274,6 +280,7 @@ const mapStateToProps = state => {
         connectionModalVisible: state.scratchGui.modals.connectionModal,
         uploadProgressVisible: state.scratchGui.modals.uploadProgress,
         boardFilesModalVisible: state.scratchGui.modals.boardFilesModal,
+        myWorksModalVisible: state.scratchGui.modals.myWorksModal,
         deviceId: state.scratchGui.device.deviceId,
         updateModalVisible: state.scratchGui.modals.updateModal,
         costumeLibraryVisible: state.scratchGui.modals.costumeLibrary,
@@ -309,7 +316,8 @@ const mapDispatchToProps = dispatch => ({
     onRequestCloseTelemetryModal: () => dispatch(closeTelemetryModal()),
     onSetSession: s => dispatch(setSession(s)),
     onSetProjectId: id => dispatch(setProjectId(id)),
-    onSeeInside: s => dispatch(setPlayer(s))
+    onSeeInside: s => dispatch(setPlayer(s)),
+    onOpenMyWorks: () => dispatch(openMyWorksModal())
 });
 
 const ConnectedGUI = injectIntl(connect(

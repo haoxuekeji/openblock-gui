@@ -305,3 +305,7 @@ if (!NO_BACKUP && Number.isFinite(KEEP_BACKUPS) && KEEP_BACKUPS > 0) {
 
 log(`Deploy done. content sha256(excl protected) = ${srcAgg.hash}`);
 if (backupTar) log(`回滚命令: node scripts/deploy-to-kids-platform.js --rollback ${backupTar}`);
+// 原子切换通过目录 rename 实现，运行中容器的 bind mount 仍指向旧 inode，
+// 部署后必须重启挂载 scratch3 的容器，否则容器内看到空目录（404）。
+log('注意: 原子切换会使运行中容器的 scratch3 bind mount 失效，' +
+    '需重启相关容器（如 docker restart kidscode-nginx kidscode-e2e-nginx）。');
