@@ -606,6 +606,8 @@ class HardwareConsole extends React.Component {
             <HardwareConsoleComponent
                 baudrate={this.state.baudrateText}
                 baudrateList={baudrateList}
+                collapsible={this.props.collapsible}
+                onClickCollapse={this.props.onClickCollapse}
                 consoleText={this.state.consoleText}
                 dataToSend={this.state.dataToSend}
                 eol={this.props.eol}
@@ -654,6 +656,8 @@ class HardwareConsole extends React.Component {
 
 HardwareConsole.propTypes = {
     baudrate: PropTypes.string.isRequired,
+    collapsible: PropTypes.bool,
+    onClickCollapse: PropTypes.func,
     deviceId: PropTypes.string,
     deviceType: PropTypes.string,
     displayMode: PropTypes.string,

@@ -8,6 +8,7 @@ import {injectIntl, intlShape, defineMessages} from 'react-intl';
 
 import {showAlertWithTimeout} from '../reducers/alerts';
 import {setCodeEditorValue, toggleLock} from '../reducers/code';
+import {switchConsoleCollapse} from '../reducers/hardware-console';
 
 import {STAGE_DISPLAY_SIZES} from '../lib/layout-constants.js';
 import {getLanguageFromDeviceType} from '../lib/device';
@@ -141,6 +142,7 @@ const mapStateToProps = state => ({
     codeEditorValue: state.scratchGui.code.codeEditorValue,
     deviceType: state.scratchGui.device.deviceType,
     isCodeEditorLocked: state.scratchGui.code.isCodeEditorLocked,
+    isConsoleCollapsed: state.scratchGui.hardwareConsole.isConsoleCollapsed,
     lockSnapshot: state.scratchGui.code.lockSnapshot,
     projectTitle: state.scratchGui.projectTitle
 });
@@ -150,7 +152,8 @@ const mapDispatchToProps = dispatch => ({
     onSetCodeEditorValue: value => {
         dispatch(setCodeEditorValue(value));
     },
-    onToggleCodeEditorLock: () => dispatch(toggleLock())
+    onToggleCodeEditorLock: () => dispatch(toggleLock()),
+    onToggleConsoleCollapse: () => dispatch(switchConsoleCollapse())
 });
 
 export default compose(

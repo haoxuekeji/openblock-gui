@@ -94,6 +94,11 @@
     color: $motion-primary;
 }
 
+.collapse-button {
+    color: $text-primary;
+    font-size: 0.625rem;
+}
+
 .console-array {
     height: 260px;
     overflow:auto;
