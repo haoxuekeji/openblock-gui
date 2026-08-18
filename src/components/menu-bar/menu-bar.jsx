@@ -130,6 +130,17 @@ import HXLib from '../../hx_tarin.js'
 import fullScreenIcon from './icon--fullscreen.svg';
 import unFullScreenIcon from './icon--unfullscreen.svg';
 
+/**
+ * Feature flag for the hardware related menu items (device selection,
+ * connection state, program mode switch, upload firmware). The new config
+ * name is `scratchConfig.hardware`; `scratchConfig.arduino` is kept as a
+ * legacy alias because deployed editor.html configs still use it.
+ * @returns {boolean} whether the hardware menu items should be shown.
+ */
+const isHardwareEnabled = () => Boolean(window.scratchConfig &&
+    (typeof window.scratchConfig.hardware === 'undefined' ?
+        window.scratchConfig.arduino :
+        window.scratchConfig.hardware));
 
 const ariaMessages = defineMessages({
     language: {
@@ -669,6 +680,13 @@ class MenuBar extends React.Component {
         );
         // Show the About button only if we have a handler for it (like in the desktop app)
         const aboutButton = this.buildAboutMenu(this.props.onClickAbout);
+        // Firmware flashing is only possible on some connection transports
+        // (USB serial via Link); grey the button out on the others instead
+        // of failing with an error after the click.
+        const canUploadFirmware = this.props.isRealtimeMode &&
+            Boolean(this.props.peripheralName) &&
+            (typeof this.props.vm.canUploadFirmwareToPeripheral !== 'function' ||
+                this.props.vm.canUploadFirmwareToPeripheral(this.props.deviceId));
         return (
             <Box
                 className={classNames(
@@ -869,7 +887,7 @@ class MenuBar extends React.Component {
                     </div>
 
                     {/* <Divider className={classNames(styles.divider)} /> */}
-                    {(window.scratchConfig && window.scratchConfig.arduino) && (
+                    {isHardwareEnabled() && (
                         <div
                             className={classNames(styles.menuBarItem, styles.hoverable)}
                             onMouseUp={this.handleSelectDeviceMouseUp}
@@ -893,7 +911,7 @@ class MenuBar extends React.Component {
                         </div>
                     )}
                     {/* <Divider className={classNames(styles.divider)} /> */}
-                    {(window.scratchConfig && window.scratchConfig.arduino) && (
+                    {isHardwareEnabled() && (
                         <div
                             className={classNames(styles.menuBarItem, styles.hoverable)}
                             onMouseUp={this.handleConnectionMouseUp}
@@ -978,7 +996,7 @@ class MenuBar extends React.Component {
                     ) : null)}
 
                 </div>
-                {(window.scratchConfig && window.scratchConfig.arduino) && (
+                {isHardwareEnabled() && (
                     <div className={styles.tailMenu}>
                         <div
                             className={classNames(styles.menuBarItem, styles.hoverable)}
@@ -1136,12 +1154,11 @@ class MenuBar extends React.Component {
                     }
                 </div>
                 <Divider className={classNames(styles.divider)} />
-               {(window.scratchConfig && window.scratchConfig.arduino) && (
+               {isHardwareEnabled() && (
                  <div
-                    className={classNames(styles.menuBarItem, this.props.isRealtimeMode &&
-                        this.props.peripheralName ? styles.hoverable : styles.disabled)}
-                    onMouseUp={this.props.isRealtimeMode && this.props.peripheralName ?
-                        this.handleUploadFirmware : null}
+                    className={classNames(styles.menuBarItem,
+                        canUploadFirmware ? styles.hoverable : styles.disabled)}
+                    onMouseUp={canUploadFirmware ? this.handleUploadFirmware : null}
                 >
                     <img
                         alt="UploadFirmware"
