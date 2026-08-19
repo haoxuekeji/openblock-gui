@@ -123,6 +123,7 @@ import settingIcon from './icon--setting.svg';
 import uploadFirmwareIcon from './icon--upload-firmware.svg';
 import saveSvgAsPng from 'openblock-save-svg-as-png';
 import { showAlertWithTimeout } from '../../reducers/alerts';
+import MessageBoxType from '../../lib/message-box.js';
 
 import hxlogo from './hx-logo.png'
 import HXLib from '../../hx_tarin.js'
@@ -141,6 +142,29 @@ const isHardwareEnabled = () => Boolean(window.scratchConfig &&
     (typeof window.scratchConfig.hardware === 'undefined' ?
         window.scratchConfig.arduino :
         window.scratchConfig.hardware));
+
+// Opcode prefixes of the core scratch categories (same list as CORE_EXTENSIONS
+// in openblock-vm's sb3 serializer). Blocks with these prefixes stay fully
+// usable after a device is loaded, because realtime mode keeps the core
+// categories in the toolbox.
+const CORE_BLOCK_PREFIXES = ['argument', 'colour', 'control', 'data', 'event', 'looks',
+    'math', 'motion', 'operator', 'procedures', 'sensing', 'sound'];
+
+const isCoreScratchOpcode = opcode => {
+    if (!opcode) return true;
+    const index = opcode.indexOf('_');
+    // Primitive/shadow blocks like `text` or `note` have no prefix.
+    if (index === -1) return true;
+    return CORE_BLOCK_PREFIXES.indexOf(opcode.substring(0, index)) !== -1;
+};
+
+const deviceMessages = defineMessages({
+    clearWorkspaceToSelectDevice: {
+        id: 'gui.menuBar.clearWorkspaceToSelectDevice',
+        defaultMessage: '选择或切换设备将清空所有角色的积木程序，是否继续？',
+        description: 'Confirm message shown before selecting a device clears the workspace'
+    }
+});
 
 const ariaMessages = defineMessages({
     language: {
@@ -432,12 +456,42 @@ class MenuBar extends React.Component {
     }
 
     handleSelectDeviceMouseUp () {
-        const blocklyBlockCanvas = document.querySelector('.blocklyWorkspace .blocklyBlockCanvas');
-        if (blocklyBlockCanvas.childNodes.length === 0) {
+        // Check every target (not only the sprite currently shown in the
+        // workspace), otherwise blocks on other sprites or the stage would
+        // bypass this guard.
+        const targets = this.props.vm.runtime.targets.filter(target => target.isOriginal);
+        const allBlocks = targets.map(target => Object.values(target.blocks._blocks));
+
+        if (allBlocks.every(blocks => blocks.length === 0)) {
             this.props.onOpenDeviceLibrary();
-        } else {
-            this.props.onWorkspaceIsNotEmpty();
+            return;
         }
+
+        // Without a device selected, projects made only of core scratch
+        // blocks stay fully usable after a device is loaded (realtime mode
+        // keeps the core categories), so let them through without clearing.
+        if (!this.props.deviceId &&
+            allBlocks.every(blocks => blocks.every(block => isCoreScratchOpcode(block.opcode)))) {
+            this.props.onOpenDeviceLibrary();
+            return;
+        }
+
+        // Otherwise the existing blocks would be incompatible with the new
+        // device context (extension state is reset and device categories are
+        // replaced), so ask for confirmation and clear the workspace.
+        const readyToClear = this.props.onShowMessageBox(
+            MessageBoxType.confirm,
+            this.props.intl.formatMessage(deviceMessages.clearWorkspaceToSelectDevice)
+        );
+        if (!readyToClear) return;
+
+        targets.forEach(target => {
+            Object.keys(target.blocks._blocks)
+                .filter(blockId => target.blocks._blocks[blockId].topLevel)
+                .forEach(blockId => target.blocks.deleteBlock(blockId));
+        });
+        this.props.vm.emitWorkspaceUpdate();
+        this.props.onOpenDeviceLibrary();
     }
     handleProgramModeSwitchOnChange() {
         if (this.props.isRealtimeMode) {
@@ -1496,7 +1550,7 @@ MenuBar.propTypes = {
     peripheralName: PropTypes.string,
     onDisconnect: PropTypes.func.isRequired,
     onWorkspaceIsEmpty: PropTypes.func.isRequired,
-    onWorkspaceIsNotEmpty: PropTypes.func.isRequired,
+    onShowMessageBox: PropTypes.func.isRequired,
     onOpenDeviceLibrary: PropTypes.func,
     onSetStageLarge: PropTypes.func.isRequired,
     deviceId: PropTypes.string,
@@ -1587,7 +1641,6 @@ const mapDispatchToProps = dispatch => ({
     },
     onNoPeripheralIsConnected: () => showAlertWithTimeout(dispatch, 'connectAPeripheralFirst'),
     onWorkspaceIsEmpty: () => showAlertWithTimeout(dispatch, 'workspaceIsEmpty'),
-    onWorkspaceIsNotEmpty: () => showAlertWithTimeout(dispatch, 'workspaceIsNotEmpty'),
     onOpenDeviceLibrary: () => dispatch(openDeviceLibrary()),
     onDeviceIsEmpty: () => showAlertWithTimeout(dispatch, 'selectADeviceFirst'),
     onSetSession: s => dispatch(setSession(s)),
