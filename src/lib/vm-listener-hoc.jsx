@@ -10,7 +10,13 @@ import {updateBlockDrag} from '../reducers/block-drag';
 import {updateMonitors} from '../reducers/monitors';
 import {setProjectChanged, setProjectUnchanged} from '../reducers/project-changed';
 import {setRunningState, setTurboState, setStartedState} from '../reducers/vm-status';
-import {showDeviceAlert, showDeviceRealtimeAlert, clearDeviceRealtimeAlert} from '../reducers/alerts';
+import {
+    showDeviceAlert,
+    showDeviceRealtimeAlert,
+    clearDeviceRealtimeAlert,
+    showStandardAlert,
+    closeAlertWithId
+} from '../reducers/alerts';
 import {setRealtimeConnection} from '../reducers/connection-modal';
 import {updateMicIndicator} from '../reducers/mic-indicator';
 import {setDeviceData} from '../reducers/device-data';
@@ -33,7 +39,9 @@ const vmListenerHOC = function (WrappedComponent) {
                 'handleTargetsUpdate',
                 'handleDeviceAlert',
                 'handleDeviceRealtimeAlert',
-                'handleDeviceRealtimeSuccess'
+                'handleDeviceRealtimeSuccess',
+                'handlePeripheralReconnecting',
+                'handlePeripheralReconnectSettled'
             ]);
             // We have to start listening to the vm here rather than in
             // componentDidMount because the HOC mounts the wrapped component,
@@ -54,6 +62,9 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleDeviceAlert);
             this.props.vm.on('PERIPHERAL_REALTIME_CONNECTION_LOST_ERROR', this.handleDeviceRealtimeAlert);
             this.props.vm.on('PERIPHERAL_REALTIME_CONNECT_SUCCESS', this.handleDeviceRealtimeSuccess);
+            this.props.vm.on('PERIPHERAL_RECONNECTING', this.handlePeripheralReconnecting);
+            this.props.vm.on('PERIPHERAL_CONNECTED', this.handlePeripheralReconnectSettled);
+            this.props.vm.on('PERIPHERAL_DISCONNECTED', this.handlePeripheralReconnectSettled);
             this.props.vm.on('MIC_LISTENING', this.props.onMicListeningUpdate);
 
         }
@@ -88,6 +99,9 @@ const vmListenerHOC = function (WrappedComponent) {
                 this.handleDeviceRealtimeAlert);
             this.props.vm.removeListener('PERIPHERAL_REALTIME_CONNECT_SUCCESS',
                 this.handleDeviceRealtimeSuccess);
+            this.props.vm.removeListener('PERIPHERAL_RECONNECTING', this.handlePeripheralReconnecting);
+            this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handlePeripheralReconnectSettled);
+            this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.handlePeripheralReconnectSettled);
             if (this.props.attachKeyboardEvents) {
                 document.removeEventListener('keydown', this.handleKeyDown);
                 document.removeEventListener('keyup', this.handleKeyUp);
@@ -134,10 +148,18 @@ const vmListenerHOC = function (WrappedComponent) {
             }
         }
         handleDeviceAlert (data) {
+            // A reported loss ends any automatic reconnect attempt.
+            this.props.onClosePeripheralReconnectingAlert();
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
             if (device) {
                 this.props.onShowDeviceAlert(device);
             }
+        }
+        handlePeripheralReconnecting () {
+            this.props.onShowPeripheralReconnectingAlert();
+        }
+        handlePeripheralReconnectSettled () {
+            this.props.onClosePeripheralReconnectingAlert();
         }
         handleDeviceRealtimeAlert (data) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
@@ -181,6 +203,8 @@ const vmListenerHOC = function (WrappedComponent) {
                 onShowDeviceAlert,
                 onShowDeviceRealtimeAlert,
                 onClearDeviceRealtimeAlert,
+                onShowPeripheralReconnectingAlert,
+                onClosePeripheralReconnectingAlert,
                 onSetDeviceData,
                 /* eslint-enable no-unused-vars */
                 ...props
@@ -207,6 +231,8 @@ const vmListenerHOC = function (WrappedComponent) {
         onShowDeviceAlert: PropTypes.func.isRequired,
         onShowDeviceRealtimeAlert: PropTypes.func.isRequired,
         onClearDeviceRealtimeAlert: PropTypes.func.isRequired,
+        onShowPeripheralReconnectingAlert: PropTypes.func.isRequired,
+        onClosePeripheralReconnectingAlert: PropTypes.func.isRequired,
         onTargetsUpdate: PropTypes.func.isRequired,
         onTurboModeOff: PropTypes.func.isRequired,
         onTurboModeOn: PropTypes.func.isRequired,
@@ -258,6 +284,12 @@ const vmListenerHOC = function (WrappedComponent) {
         },
         onClearDeviceRealtimeAlert: device => {
             dispatch(clearDeviceRealtimeAlert(device));
+        },
+        onShowPeripheralReconnectingAlert: () => {
+            dispatch(showStandardAlert('peripheralReconnecting'));
+        },
+        onClosePeripheralReconnectingAlert: () => {
+            dispatch(closeAlertWithId('peripheralReconnecting'));
         },
         onSetDeviceData: data => dispatch(setDeviceData(data)),
         onSetRealtimeConnection: state => {

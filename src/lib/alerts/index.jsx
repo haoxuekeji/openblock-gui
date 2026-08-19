@@ -318,6 +318,21 @@ const alerts = [
         maxDisplaySecs: 5
     },
     {
+        alertId: 'peripheralReconnecting',
+        alertType: AlertTypes.STANDARD,
+        clearList: ['peripheralReconnecting'],
+        closeButton: true,
+        content: (
+            <FormattedMessage
+                defaultMessage="Connection lost, trying to reconnect…"
+                description="Message indicating the peripheral connection dropped and an automatic reconnect is running"
+                id="gui.alerts.peripheralReconnecting"
+            />
+        ),
+        iconSpinner: true,
+        level: AlertLevels.WARN
+    },
+    {
         alertId: 'codeEditorIsLocked',
         alertType: AlertTypes.STANDARD,
         clearList: ['codeEditorIsLocked', 'codeEditorIsUnlocked'],
