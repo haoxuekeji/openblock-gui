@@ -5,7 +5,7 @@
   "main": "./main/scratch-gui.js",
   "scripts": {
     "build": "npm run clean && webpack --colors --bail",
-    "build:kids": "npm run build && npm run deploy:kids",
+    "build:kids": "NODE_ENV=production npm run build && npm run deploy:kids",
     "deploy:kids": "node scripts/deploy-to-kids-platform.js",
     "postinstall": "node scripts/setup-local-deps.js",
     "setup:local-deps": "node scripts/setup-local-deps.js",
