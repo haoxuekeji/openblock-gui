@@ -96,6 +96,10 @@ services:
     environment:
       NODE_ENV: production
       DEPLOY_DEST: /deploy/scratch3
+      # npm7+ 在 NODE_ENV=production 下默认省略 devDependencies,而 webpack/mkdirp 都是 devDep
+      npm_config_include: dev
+      # Linux 主机上 bind mount 属主是普通 uid,npm-as-root 会降权跑脚本,写不了 /root/.npm
+      npm_config_cache: /tmp/.npm
     entrypoint: ["/bin/sh", "/entrypoint-dev.sh"]
     command:
       - sh
