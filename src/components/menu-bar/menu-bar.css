@@ -236,6 +236,24 @@
     height: 20px;
 }
 
+/* 设备仍连接但实时命令通道在重建:连接名旁的黄点脉冲提示,鼠标悬停有说明。 */
+.live-unavailable-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffbf00;
+    margin-left: 0.25rem;
+    flex-shrink: 0;
+    animation: live-unavailable-pulse 1s ease-in-out infinite;
+}
+
+@keyframes live-unavailable-pulse {
+    50% {
+        opacity: 0.35;
+    }
+}
+
 .device-icon {
     height: 20px;
 }

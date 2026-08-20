@@ -163,6 +163,11 @@ const deviceMessages = defineMessages({
         id: 'gui.menuBar.clearWorkspaceToSelectDevice',
         defaultMessage: '选择或切换设备将清空所有角色的积木程序，是否继续？',
         description: 'Confirm message shown before selecting a device clears the workspace'
+    },
+    liveChannelReconnecting: {
+        id: 'gui.menuBar.liveChannelReconnecting',
+        defaultMessage: 'Realtime channel reconnecting, sensor blocks are paused',
+        description: 'Tooltip of the yellow dot shown while the realtime command channel is being rebuilt'
     }
 });
 
@@ -976,6 +981,13 @@ class MenuBar extends React.Component {
                                         className={styles.connectedIcon}
                                         src={connectedIcon}
                                     />
+                                    {this.props.isRealtimeMode && this.props.liveUnavailable ? (
+                                        <span
+                                            className={styles.liveUnavailableDot}
+                                            title={this.props.intl.formatMessage(
+                                                deviceMessages.liveChannelReconnecting)}
+                                        />
+                                    ) : null}
                                     {this.props.peripheralName}
                                 </React.Fragment>
                             ) : (
@@ -1548,6 +1560,7 @@ MenuBar.propTypes = {
     onOpenConnectionModal: PropTypes.func,
     onOpenUploadProgress: PropTypes.func,
     peripheralName: PropTypes.string,
+    liveUnavailable: PropTypes.bool,
     onDisconnect: PropTypes.func.isRequired,
     onWorkspaceIsEmpty: PropTypes.func.isRequired,
     onShowMessageBox: PropTypes.func.isRequired,
@@ -1595,6 +1608,7 @@ const mapStateToProps = (state, ownProps) => {
         stageSizeMode: state.scratchGui.stageSize.stageSize,
         vm: state.scratchGui.vm,
         peripheralName: state.scratchGui.connectionModal.peripheralName,
+        liveUnavailable: state.scratchGui.connectionModal.liveUnavailable,
         deviceId: state.scratchGui.device.deviceId,
         deviceName: state.scratchGui.device.deviceName
     };
