@@ -19,9 +19,9 @@ const initialState = {
     // null means "auto": terminal for MicroPython devices, monitor otherwise.
     displayMode: null,
     isTimestamp: false,
-    // Collapse the docked console under the realtime stage to free vertical
-    // space on small screens.
-    isConsoleCollapsed: false
+    // The docked console under the realtime stage starts collapsed to keep
+    // the stage roomy; the collapsed bar expands it on demand.
+    isConsoleCollapsed: true
 };
 
 const reducer = function (state, action) {
