@@ -740,8 +740,9 @@ class MenuBar extends React.Component {
         // Show the About button only if we have a handler for it (like in the desktop app)
         const aboutButton = this.buildAboutMenu(this.props.onClickAbout);
         // Firmware flashing is only possible on some connection transports
-        // (USB serial via Link); grey the button out on the others instead
-        // of failing with an error after the click.
+        // (USB serial via Link, or Web Serial with a web-hosted firmware
+        // image flashed through esptool-js); grey the button out on the
+        // others instead of failing with an error after the click.
         const canUploadFirmware = this.props.isRealtimeMode &&
             Boolean(this.props.peripheralName) &&
             (typeof this.props.vm.canUploadFirmwareToPeripheral !== 'function' ||
