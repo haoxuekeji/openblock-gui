@@ -204,7 +204,19 @@ class ExtensionLibrary extends React.PureComponent {
                 (device && extension.supportDevice.includes(device.deviceExtensionsCompatible)) ||
                 extension.supportDevice.includes('*');
         };
+        // Extensions whose blocks are already covered by the built-in device
+        // categories declare `hiddenForDevices`; hide them from the library
+        // for those devices. Loading by id (e.g. opening old projects that
+        // used them) is not affected by this filter.
+        const hiddenForCurrentDevice = extension => {
+            if (!Array.isArray(extension.hiddenForDevices)) {
+                return false;
+            }
+            return extension.hiddenForDevices.includes(this.props.deviceId) ||
+                (device && extension.hiddenForDevices.includes(device.deviceExtensionsCompatible));
+        };
         const filterAndSort = extensions => extensions.filter(supportsCurrentDevice)
+            .filter(extension => !hiddenForCurrentDevice(extension))
             .map(extension => ({
                 rawURL: extension.iconURL || extensionIcon,
                 ...extension
