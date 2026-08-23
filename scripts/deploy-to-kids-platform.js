@@ -22,7 +22,10 @@
  *
  * 环境变量：
  *   DEPLOY_DEST    覆盖部署目标（默认 ../../kids-code-platform/scratch3）
- *   PROTECT_FILES  逗号分隔的顶层受保护文件（默认 editor.html,.DS_Store）
+ *   PROTECT_FILES  逗号分隔的顶层受保护文件/目录
+ *                  （默认 editor.html,.DS_Store,mediapipe：mediapipe/ 是
+ *                  kids-code-platform 侧用 fetch-mediapipe.sh 部署的模型镜像，
+ *                  不属于 gui 构建产物，镜像式部署不得删除）
  *   BACKUP_DIR     覆盖备份目录（默认 <openblock>/.ob-deploy-backups）
  */
 'use strict';
@@ -42,7 +45,7 @@ const BACKUP_DIR = path.resolve(
 );
 
 const PROTECTED_FILES = new Set(
-    (process.env.PROTECT_FILES || 'editor.html,.DS_Store')
+    (process.env.PROTECT_FILES || 'editor.html,.DS_Store,mediapipe')
         .split(',')
         .map(s => s.trim())
         .filter(Boolean)
