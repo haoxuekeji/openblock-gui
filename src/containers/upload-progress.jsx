@@ -35,6 +35,12 @@ const messages = defineMessages({
 });
 
 const UPLOAD_TIMEOUT_TIME = 60 * 1000; // 60s
+// After the user hit abort the vm normally answers within a few seconds
+// with PERIPHERAL_UPLOAD_SUCCESS(aborted). A transport wedged in a
+// never-settling operation (e.g. a Web Bluetooth GATT write on a dead
+// link) can not answer at all - without a watchdog the modal would then
+// keep both buttons disabled forever and only a page reload recovers.
+const ABORT_TIMEOUT_TIME = 10 * 1000; // 10s
 const AUTO_CLOSE_TIME = 3 * 1000; // 3s
 
 class UploadProgress extends React.Component {
@@ -90,7 +96,11 @@ class UploadProgress extends React.Component {
     }
     handleAbort () {
         this.props.vm.abortUploadToPeripheral(this.props.deviceId);
+        // Re-arm (not clear) the watchdog: if the vm can not finish the
+        // abort because the transport is stuck, the timeout phase still
+        // unlocks the close button.
         clearTimeout(this.uploadTimeout);
+        this.uploadTimeout = setTimeout(() => this.handleUploadTimeout(), ABORT_TIMEOUT_TIME);
         this.setState({abortEnabled: false});
     }
     handleCancel () {
