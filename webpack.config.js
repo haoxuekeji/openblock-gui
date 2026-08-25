@@ -172,7 +172,20 @@ module.exports = [
         optimization: {
             splitChunks: {
                 chunks: 'all',
-                name: 'lib.min'
+                name: 'lib.min',
+                cacheGroups: {
+                    // esptool-js (browser firmware flasher, loaded through a
+                    // dynamic import in openblock-vm) ships untranspiled
+                    // ES2017 that UglifyJS cannot parse; keep it and its
+                    // helpers out of the minified lib.min.js and in a lazy
+                    // chunk that only loads when flashing firmware.
+                    esptool: {
+                        test: /[\\/]node_modules[\\/](esptool-js|pako|tslib|atob-lite)[\\/]/,
+                        name: 'esptool-js',
+                        chunks: 'async',
+                        priority: 10
+                    }
+                }
             },
             runtimeChunk: {
                 name: 'lib.min'

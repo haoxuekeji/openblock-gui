@@ -512,12 +512,22 @@ class Blocks extends React.Component {
             const supportUploadMode = dev.programMode.includes('upload');
             const supportRealtimeMode = dev.programMode.includes('realtime');
 
+            // One-shot flag armed by vm.installDevice: the program mode was
+            // just restored from the loaded project. Consume it in every
+            // branch so it can not leak into the next device selection.
+            const programModeRestored =
+                typeof this.props.vm.runtime.consumeProgramModeRestored === 'function' &&
+                this.props.vm.runtime.consumeProgramModeRestored();
+
             // eslint-disable-next-line no-negated-condition
             if (supportUploadMode && supportRealtimeMode) {
                 this.props.onSetSupportSwitchMode(true);
 
+                // Apply the device's default mode only for fresh device
+                // selections; a project restored mode takes precedence so
+                // saved projects reopen in the mode they were saved in.
                 const defaultProgramMode = dev.defaultProgramMode;
-                if (dev.programMode.includes(defaultProgramMode)) {
+                if (!programModeRestored && dev.programMode.includes(defaultProgramMode)) {
                     if (defaultProgramMode === 'upload') {
                         this.props.vm.runtime.setRealtimeMode(false);
                     } else {

@@ -58,13 +58,13 @@ import speakInsetIconURL from './speak/speak-small.svg';
 import asrIconURL from './asr/asr.svg';
 import asrInsetIconURL from './asr/asr-small.svg';
 
-import aiChatIconURL from './aichat/aichat.svg';
+import aiChatIconURL from './aichat/aichat.png';
 import aiChatInsetIconURL from './aichat/aichat-small.svg';
 
-import mlClassifierIconURL from './mlClassifier/ml-classifier.svg';
+import mlClassifierIconURL from './mlClassifier/ml-classifier.png';
 import mlClassifierInsetIconURL from './mlClassifier/ml-classifier-small.svg';
 
-import bodySensingIconURL from './bodySensing/body-sensing.svg';
+import bodySensingIconURL from './bodySensing/body-sensing.png';
 import bodySensingInsetIconURL from './bodySensing/body-sensing-small.svg';
 export default [
     {

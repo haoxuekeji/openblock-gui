@@ -27,6 +27,34 @@
     flex-direction: column;
 }
 
+/* Slim clickable bar shown instead of the docked console when collapsed. */
+.console-collapsed-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 1.75rem;
+    padding: 0 0.5rem;
+    border: 1px solid $ui-black-transparent;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    background-color: rgb(249, 249, 249);
+    color: $text-primary;
+    font-size: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+}
+
+.console-collapsed-bar:hover {
+    background-color: $ui-black-transparent;
+}
+
+.console-collapse-chevron {
+    font-size: 0.625rem;
+    color: $text-primary;
+}
+
 .code-editor-wrapper {
     position: relative;
     display: flex;

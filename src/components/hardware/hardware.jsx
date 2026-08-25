@@ -20,6 +20,16 @@ const messages = defineMessages({
         defaultMessage: 'Save code to file',
         description: 'Button to download the generated code as a source file',
         id: 'gui.hardware.exportCode'
+    },
+    consoleLabel: {
+        defaultMessage: 'Serial console',
+        description: 'Label of the collapsed docked hardware console bar',
+        id: 'gui.hardware.consoleLabel'
+    },
+    expandConsole: {
+        defaultMessage: 'Expand console',
+        description: 'Button to expand the docked hardware console',
+        id: 'gui.hardware.expandConsole'
     }
 });
 
@@ -33,14 +43,36 @@ const HardwareComponent = props => {
         consoleOnly,
         intl,
         isCodeEditorLocked,
+        isConsoleCollapsed,
         onCodeEditorWillMount,
         onCodeEditorDidMount,
         onCodeEditorChange,
         onClickCodeEditorLock,
         onClickExportCode,
+        onToggleConsoleCollapse,
         stageSize
     } = props;
     const stageDimensions = getStageDimensions(stageSize, null);
+    if (consoleOnly && isConsoleCollapsed) {
+        return (
+            <Box
+                className={classNames(
+                    styles.hardwareWrapper,
+                    styles.consoleOnlyWrapper
+                )}
+            >
+                <button
+                    className={styles.consoleCollapsedBar}
+                    style={{width: stageDimensions.width + 2}}
+                    title={intl.formatMessage(messages.expandConsole)}
+                    onClick={onToggleConsoleCollapse}
+                >
+                    <span>{intl.formatMessage(messages.consoleLabel)}</span>
+                    <span className={styles.consoleCollapseChevron}>{'\u25B2'}</span>
+                </button>
+            </Box>
+        );
+    }
     return (
         <Box
             className={classNames(
@@ -93,6 +125,8 @@ const HardwareComponent = props => {
                 style={{width: stageDimensions.width + 2}}
             >
                 <HardwareConsole
+                    collapsible={consoleOnly}
+                    onClickCollapse={onToggleConsoleCollapse}
                     {...props}
                 />
             </Box>
@@ -117,6 +151,8 @@ HardwareComponent.propTypes = {
     codeEditorValue: PropTypes.string,
     intl: intlShape,
     isCodeEditorLocked: PropTypes.bool,
+    isConsoleCollapsed: PropTypes.bool,
+    onToggleConsoleCollapse: PropTypes.func,
     onCodeEditorWillMount: PropTypes.func,
     onCodeEditorDidMount: PropTypes.func,
     onCodeEditorChange: PropTypes.func,

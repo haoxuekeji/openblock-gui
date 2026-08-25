@@ -79,6 +79,11 @@ const messages = defineMessages({
         defaultMessage: 'Clean',
         description: 'Button to clean the console output',
         id: 'gui.hardwareConsole.clean'
+    },
+    collapse: {
+        defaultMessage: 'Collapse console',
+        description: 'Button to collapse the docked hardware console',
+        id: 'gui.hardwareConsole.collapse'
     }
 });
 
@@ -86,6 +91,7 @@ const HardwareConsoleComponent = props => {
     const {
         baudrate,
         baudrateList,
+        collapsible,
         consoleText,
         dataToSend,
         eol,
@@ -121,6 +127,7 @@ const HardwareConsoleComponent = props => {
         onSearchKeyDown,
         onSearchNext,
         onSearchPrev,
+        onClickCollapse,
         onSelectEol,
         searchValue,
         serialportMenuOpen,
@@ -253,6 +260,15 @@ const HardwareConsoleComponent = props => {
                         src={cleanIcon}
                     />
                 </button>
+                {collapsible ? (
+                    <button
+                        className={classNames(styles.button, styles.toolbarButton, styles.collapseButton)}
+                        title={intl.formatMessage(messages.collapse)}
+                        onClick={onClickCollapse}
+                    >
+                        {'\u25BC'}
+                    </button>
+                ) : null}
             </Box>
             {isTerminalMode ? (
                 <Box className={styles.terminalWrapper}>
@@ -434,6 +450,8 @@ const HardwareConsoleComponent = props => {
 
 HardwareConsoleComponent.propTypes = {
     baudrate: PropTypes.string.isRequired,
+    collapsible: PropTypes.bool,
+    onClickCollapse: PropTypes.func,
     baudrateList: PropTypes.arrayOf(
         PropTypes.shape({
             key: PropTypes.string.isRequired,

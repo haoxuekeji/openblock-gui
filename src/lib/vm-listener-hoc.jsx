@@ -10,8 +10,14 @@ import {updateBlockDrag} from '../reducers/block-drag';
 import {updateMonitors} from '../reducers/monitors';
 import {setProjectChanged, setProjectUnchanged} from '../reducers/project-changed';
 import {setRunningState, setTurboState, setStartedState} from '../reducers/vm-status';
-import {showDeviceAlert, showDeviceRealtimeAlert, clearDeviceRealtimeAlert} from '../reducers/alerts';
-import {setRealtimeConnection} from '../reducers/connection-modal';
+import {
+    showDeviceAlert,
+    showDeviceRealtimeAlert,
+    clearDeviceRealtimeAlert,
+    showStandardAlert,
+    closeAlertWithId
+} from '../reducers/alerts';
+import {setRealtimeConnection, setLiveUnavailable} from '../reducers/connection-modal';
 import {updateMicIndicator} from '../reducers/mic-indicator';
 import {setDeviceData} from '../reducers/device-data';
 
@@ -33,7 +39,11 @@ const vmListenerHOC = function (WrappedComponent) {
                 'handleTargetsUpdate',
                 'handleDeviceAlert',
                 'handleDeviceRealtimeAlert',
-                'handleDeviceRealtimeSuccess'
+                'handleDeviceRealtimeSuccess',
+                'handlePeripheralReconnecting',
+                'handlePeripheralReconnectSettled',
+                'handleLiveUnavailable',
+                'handleLiveAvailable'
             ]);
             // We have to start listening to the vm here rather than in
             // componentDidMount because the HOC mounts the wrapped component,
@@ -54,6 +64,11 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleDeviceAlert);
             this.props.vm.on('PERIPHERAL_REALTIME_CONNECTION_LOST_ERROR', this.handleDeviceRealtimeAlert);
             this.props.vm.on('PERIPHERAL_REALTIME_CONNECT_SUCCESS', this.handleDeviceRealtimeSuccess);
+            this.props.vm.on('PERIPHERAL_RECONNECTING', this.handlePeripheralReconnecting);
+            this.props.vm.on('PERIPHERAL_CONNECTED', this.handlePeripheralReconnectSettled);
+            this.props.vm.on('PERIPHERAL_DISCONNECTED', this.handlePeripheralReconnectSettled);
+            this.props.vm.on('PERIPHERAL_LIVE_UNAVAILABLE', this.handleLiveUnavailable);
+            this.props.vm.on('PERIPHERAL_LIVE_AVAILABLE', this.handleLiveAvailable);
             this.props.vm.on('MIC_LISTENING', this.props.onMicListeningUpdate);
 
         }
@@ -88,6 +103,11 @@ const vmListenerHOC = function (WrappedComponent) {
                 this.handleDeviceRealtimeAlert);
             this.props.vm.removeListener('PERIPHERAL_REALTIME_CONNECT_SUCCESS',
                 this.handleDeviceRealtimeSuccess);
+            this.props.vm.removeListener('PERIPHERAL_RECONNECTING', this.handlePeripheralReconnecting);
+            this.props.vm.removeListener('PERIPHERAL_CONNECTED', this.handlePeripheralReconnectSettled);
+            this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.handlePeripheralReconnectSettled);
+            this.props.vm.removeListener('PERIPHERAL_LIVE_UNAVAILABLE', this.handleLiveUnavailable);
+            this.props.vm.removeListener('PERIPHERAL_LIVE_AVAILABLE', this.handleLiveAvailable);
             if (this.props.attachKeyboardEvents) {
                 document.removeEventListener('keydown', this.handleKeyDown);
                 document.removeEventListener('keyup', this.handleKeyUp);
@@ -134,10 +154,26 @@ const vmListenerHOC = function (WrappedComponent) {
             }
         }
         handleDeviceAlert (data) {
+            // A reported loss ends any automatic reconnect attempt.
+            this.props.onClosePeripheralReconnectingAlert();
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
             if (device) {
                 this.props.onShowDeviceAlert(device);
             }
+        }
+        handlePeripheralReconnecting () {
+            this.props.onShowPeripheralReconnectingAlert();
+        }
+        handlePeripheralReconnectSettled () {
+            this.props.onClosePeripheralReconnectingAlert();
+            // 连接状态落定(重连成功或断开)后,实时通道提示交由新会话重新判定。
+            this.props.onSetLiveUnavailable(false);
+        }
+        handleLiveUnavailable () {
+            this.props.onSetLiveUnavailable(true);
+        }
+        handleLiveAvailable () {
+            this.props.onSetLiveUnavailable(false);
         }
         handleDeviceRealtimeAlert (data) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
@@ -181,6 +217,8 @@ const vmListenerHOC = function (WrappedComponent) {
                 onShowDeviceAlert,
                 onShowDeviceRealtimeAlert,
                 onClearDeviceRealtimeAlert,
+                onShowPeripheralReconnectingAlert,
+                onClosePeripheralReconnectingAlert,
                 onSetDeviceData,
                 /* eslint-enable no-unused-vars */
                 ...props
@@ -203,10 +241,13 @@ const vmListenerHOC = function (WrappedComponent) {
         onProjectSaved: PropTypes.func.isRequired,
         onRuntimeStarted: PropTypes.func.isRequired,
         onSetDeviceData: PropTypes.func.isRequired,
+        onSetLiveUnavailable: PropTypes.func.isRequired,
         onSetRealtimeConnection: PropTypes.func.isRequired,
         onShowDeviceAlert: PropTypes.func.isRequired,
         onShowDeviceRealtimeAlert: PropTypes.func.isRequired,
         onClearDeviceRealtimeAlert: PropTypes.func.isRequired,
+        onShowPeripheralReconnectingAlert: PropTypes.func.isRequired,
+        onClosePeripheralReconnectingAlert: PropTypes.func.isRequired,
         onTargetsUpdate: PropTypes.func.isRequired,
         onTurboModeOff: PropTypes.func.isRequired,
         onTurboModeOn: PropTypes.func.isRequired,
@@ -259,7 +300,16 @@ const vmListenerHOC = function (WrappedComponent) {
         onClearDeviceRealtimeAlert: device => {
             dispatch(clearDeviceRealtimeAlert(device));
         },
+        onShowPeripheralReconnectingAlert: () => {
+            dispatch(showStandardAlert('peripheralReconnecting'));
+        },
+        onClosePeripheralReconnectingAlert: () => {
+            dispatch(closeAlertWithId('peripheralReconnecting'));
+        },
         onSetDeviceData: data => dispatch(setDeviceData(data)),
+        onSetLiveUnavailable: liveUnavailable => {
+            dispatch(setLiveUnavailable(liveUnavailable));
+        },
         onSetRealtimeConnection: state => {
             dispatch(setRealtimeConnection(state));
         },

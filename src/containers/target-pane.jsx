@@ -23,6 +23,7 @@ import {highlightTarget} from '../reducers/targets';
 import {fetchSprite, fetchCode} from '../lib/backpack-api';
 import randomizeSpritePosition from '../lib/randomize-sprite-position';
 import downloadBlob from '../lib/download-blob';
+import log from '../lib/log.js';
 
 class TargetPane extends React.Component {
     constructor (props) {
@@ -157,7 +158,8 @@ class TargetPane extends React.Component {
     }
     handleBlockDragEnd (blocks) {
         if (this.props.hoveredTarget.sprite && this.props.hoveredTarget.sprite !== this.props.editingTarget) {
-            this.shareBlocks(blocks, this.props.hoveredTarget.sprite, this.props.editingTarget);
+            this.shareBlocks(blocks, this.props.hoveredTarget.sprite, this.props.editingTarget)
+                .catch(e => log.error(`Failed to share blocks to target: ${e}`));
             this.props.onReceivedBlocks(true);
         }
     }

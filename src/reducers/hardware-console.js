@@ -5,6 +5,7 @@ const SWITCH_AUTOSCROLL = 'scratch-gui/hardware-console/switchAutoScroll';
 const SWITCH_PAUSE = 'scratch-gui/hardware-console/switchPause';
 const SET_DISPLAY_MODE = 'scratch-gui/hardware-console/setDisplayMode';
 const SWITCH_TIMESTAMP = 'scratch-gui/hardware-console/switchTimestamp';
+const SWITCH_CONSOLE_COLLAPSE = 'scratch-gui/hardware-console/switchConsoleCollapse';
 
 const DISPLAY_MODE_TERMINAL = 'terminal';
 const DISPLAY_MODE_MONITOR = 'monitor';
@@ -17,7 +18,10 @@ const initialState = {
     isPause: false,
     // null means "auto": terminal for MicroPython devices, monitor otherwise.
     displayMode: null,
-    isTimestamp: false
+    isTimestamp: false,
+    // The docked console under the realtime stage starts collapsed to keep
+    // the stage roomy; the collapsed bar expands it on demand.
+    isConsoleCollapsed: true
 };
 
 const reducer = function (state, action) {
@@ -50,6 +54,10 @@ const reducer = function (state, action) {
     case SWITCH_TIMESTAMP:
         return Object.assign({}, state, {
             isTimestamp: !state.isTimestamp
+        });
+    case SWITCH_CONSOLE_COLLAPSE:
+        return Object.assign({}, state, {
+            isConsoleCollapsed: !state.isConsoleCollapsed
         });
     default:
         return state;
@@ -101,6 +109,12 @@ const switchTimestamp = function () {
     };
 };
 
+const switchConsoleCollapse = function () {
+    return {
+        type: SWITCH_CONSOLE_COLLAPSE
+    };
+};
+
 export {
     reducer as default,
     initialState as hardwareConsoleInitialState,
@@ -111,6 +125,7 @@ export {
     switchPause,
     setDisplayMode,
     switchTimestamp,
+    switchConsoleCollapse,
     DISPLAY_MODE_TERMINAL,
     DISPLAY_MODE_MONITOR
 };
