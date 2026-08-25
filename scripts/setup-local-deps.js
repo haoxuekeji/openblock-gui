@@ -76,6 +76,14 @@ if (process.env.OPENBLOCK_SKIP_LOCAL_DEPS === '1') {
     process.exit(0);
 }
 
+// GUI 被当作依赖安装（如 desktop 从 git 安装）时，OB_ROOT 会落在宿主的
+// node_modules 内，npm 装出来的 openblock-vm 会被误判成"本地仓库"并因缺少
+// 嵌套 node_modules 而报错。此场景没有本地多仓可同步，直接跳过。
+if (GUI_ROOT.split(path.sep).includes('node_modules')) {
+    log('GUI 位于 node_modules 内（作为依赖安装），跳过本地依赖同步');
+    process.exit(0);
+}
+
 /** 列出源仓库 git 跟踪文件（相对路径） */
 function gitTrackedFiles (repoDir) {
     const out = execFileSync('git', ['-C', repoDir, 'ls-files', '-z'], {
