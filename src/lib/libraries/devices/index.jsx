@@ -113,14 +113,16 @@ const microPythonEsp32ConnectionMethods = [
         ),
         description: (
             <FormattedMessage
-                defaultMessage="Connect wirelessly with Web Bluetooth. The board must use OpenBlock BLE firmware."
+                defaultMessage="Bluetooth via the browser or the Link service. Requires the OpenBlock BLE firmware."
                 description="Description of the Web Bluetooth connection method"
                 id="gui.connection.transport.webble.description"
             />
         ),
         serialportRequired: false,
         browserOnly: true,
-        requiresWebBluetooth: true,
+        // No requiresWebBluetooth flag: without Web Bluetooth the vm BLE
+        // facade falls back to the Link BLE endpoint (/scratch/ble), so
+        // the method stays usable on http deployments and in Firefox.
         programMode: ['realtime', 'upload']
     },
     {

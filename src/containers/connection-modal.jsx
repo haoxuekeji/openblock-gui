@@ -37,6 +37,20 @@ const availableConnectionMethods = device => {
     });
 };
 
+/**
+ * Whether this transport reaches the hardware through the local Link
+ * service: the link method always does, and the BLE method does when the
+ * browser has no Web Bluetooth (the vm then falls back to Link BLE).
+ * Scan errors on these transports mean "Link is not running" and show
+ * the install/start guidance instead of a generic error.
+ * @param {?object} method - the selected connection method.
+ * @return {boolean} - true when the transport goes through Link.
+ */
+const usesLinkService = method => !!method && (
+    method.id === 'link' ||
+    (method.id === 'webble' && !isWebBluetoothSupported())
+);
+
 const readPreferredTransport = deviceId => {
     try {
         return window.localStorage.getItem(`${TRANSPORT_STORAGE_PREFIX}${deviceId}`);
@@ -220,7 +234,7 @@ class ConnectionModal extends React.Component {
     }
 
     handleError (err) {
-        const usingLink = this.state.selectedMethod && this.state.selectedMethod.id === 'link';
+        const usingLink = usesLinkService(this.state.selectedMethod);
         if (usingLink && (this.state.phase === PHASES.scanning || this.state.phase === PHASES.unavailable)) {
             this.setState({
                 phase: PHASES.unavailable,
