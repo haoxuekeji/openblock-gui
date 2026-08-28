@@ -674,6 +674,45 @@ const deviceData = [
         helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32s3'
     },
     {
+        name: 'ESP32-S3 (MicroPython)',
+        deviceId: 'microPythonEsp32S3',
+        manufactor: 'espressif',
+        learnMore: 'https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/index.html',
+        type: DeviceType.microPython,
+        iconURL: esp32S3IconURL,
+        description: (
+            <FormattedMessage
+                defaultMessage="Program ESP32-S3 with MicroPython over USB, Bluetooth or OpenBlock Link."
+                description="Description for the esp32-s3 micropython device"
+                id="gui.device.microPythonEsp32S3.description"
+            />
+        ),
+        featured: true,
+        disabled: false,
+        bluetoothRequired: false,
+        serialportRequired: true,
+        defaultBaudRate: '115200',
+        internetConnectionRequired: false,
+        launchPeripheralConnectionFlow: true,
+        useAutoScan: false,
+        connectionIconURL: esp32S3ConnectionIconURLL,
+        connectionSmallIconURL: esp32S3ConnectionSmallIconURL,
+        connectingMessage: (
+            <FormattedMessage
+                defaultMessage="Connecting"
+                description="Message to help people connect to their device."
+                id="gui.device.connectingMessage"
+            />
+        ),
+        programMode: ['realtime', 'upload'],
+        defaultProgramMode: 'upload',
+        connectionMethods: microPythonEsp32ConnectionMethods,
+        programLanguage: ['block', 'microPython'],
+        tags: ['microPython'],
+        deviceExtensionsCompatible: 'microPythonEsp32',
+        helpLink: 'https://wiki.openblock.cc/general-hardware-guidelines/boards/esp32s3'
+    },
+    {
         name: 'NodeMCU',
         deviceId: 'arduinoEsp8266NodeMCU',
         manufactor: 'espressif',
