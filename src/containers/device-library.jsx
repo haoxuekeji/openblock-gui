@@ -14,14 +14,17 @@ import {makeDeviceLibrary} from '../lib/libraries/devices/index.jsx';
 import LibraryComponent from '../components/library/library.jsx';
 import deviceIcon from '../components/action-menu/icon--sprite.svg';
 
-// Legacy device ids encoded the transport as a separate device card. Keep
-// their metadata for loading old projects, but expose only the canonical board
-// and let the connection modal choose the transport.
-const LEGACY_TRANSPORT_DEVICE_IDS = new Set([
+// Legacy device ids that duplicated a canonical board as a separate card:
+// the ESP32 ids encoded the transport (now chosen in the connection modal),
+// and microbitV2 was functionally identical to microbit across the whole
+// stack (same blocks, same peripheral, same uploader). Keep their metadata
+// for loading old projects, but expose only the canonical board.
+const LEGACY_DEVICE_IDS = new Set([
     'microPythonEsp32Ble',
     'microPythonEsp32WebSerial',
     'microPythonEsp32C3Ble',
-    'microPythonEsp32C3WebSerial'
+    'microPythonEsp32C3WebSerial',
+    'microbitV2'
 ]);
 
 const messages = defineMessages({
@@ -110,7 +113,7 @@ class DeviceLibrary extends React.PureComponent {
 
     render () {
         const deviceLibraryThumbnailData = this.props.deviceData
-            .filter(device => !LEGACY_TRANSPORT_DEVICE_IDS.has(device.deviceId))
+            .filter(device => !LEGACY_DEVICE_IDS.has(device.deviceId))
             .map(device => ({
                 rawURL: device.iconURL || deviceIcon,
                 ...device
