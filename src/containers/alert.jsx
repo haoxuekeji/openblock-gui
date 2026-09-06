@@ -2,18 +2,16 @@ import React from 'react';
 import bindAll from 'lodash.bindall';
 import VM from 'openblock-vm';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import SB3Downloader from './sb3-downloader.jsx';
 import AlertComponent from '../components/alerts/alert.jsx';
-import { openConnectionModal, openUploadProgress } from '../reducers/modals';
-import { showAlertWithTimeout } from '../reducers/alerts';
-
-import { setConnectionModalExtensionId } from '../reducers/connection-modal';
-
-import { manualUpdateProject } from '../reducers/project-state';
+import {openConnectionModal, openUploadProgress} from '../reducers/modals';
+import {setConnectionModalTarget} from '../reducers/connection-modal';
+import extensionData from '../lib/libraries/extensions/index.jsx';
+import {showAlertWithTimeout} from '../reducers/alerts';
 
 class Alert extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'handleOnCloseAlert',
@@ -21,7 +19,7 @@ class Alert extends React.Component {
             'handleOnReconnect'
         ]);
     }
-    handleOnCloseAlert() {
+    handleOnCloseAlert () {
         this.props.onCloseAlert(this.props.index);
     }
     handleUploadFirmware () {
@@ -33,12 +31,12 @@ class Alert extends React.Component {
         }
         this.handleOnCloseAlert();
     }
-    handleOnReconnect() {
-        //this.props.onOpenConnectionModal();
+    handleOnReconnect () {
+        // this.props.onOpenConnectionModal();
         this.props.onOpenConnectionModal(this.props.extensionId);
         this.handleOnCloseAlert();
     }
-    render() {
+    render () {
         const {
             closeButton,
             content,
@@ -88,11 +86,16 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-    onOpenConnectionModal: () => {
+    onOpenConnectionModal: extensionId => {
+        // "Reconnect" on a Scratch extension peripheral's alert (WeDo 2.0,
+        // ...) targets that extension; device alerts carry the device id
+        // (or `${deviceId}alert`) and fall back to the hardware device.
+        const isExtension = extensionData.some(ext => ext.extensionId === extensionId);
+        dispatch(setConnectionModalTarget(isExtension ? extensionId : null));
         dispatch(openConnectionModal());
     },
     onOpenUploadProgress: () => dispatch(openUploadProgress()),
-    onNoPeripheralIsConnected: () => showAlertWithTimeout(dispatch, 'connectAPeripheralFirst'),
+    onNoPeripheralIsConnected: () => showAlertWithTimeout(dispatch, 'connectAPeripheralFirst')
 });
 
 // const mapStateToProps = () => ({});

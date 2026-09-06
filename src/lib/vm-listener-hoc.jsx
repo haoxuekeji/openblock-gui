@@ -22,6 +22,7 @@ import {updateMicIndicator} from '../reducers/mic-indicator';
 import {setDeviceData} from '../reducers/device-data';
 
 import {makeDeviceLibrary} from '../lib/libraries/devices/index.jsx';
+import extensionData from '../lib/libraries/extensions/index.jsx';
 
 /*
  * Higher Order Component to manage events emitted by the VM
@@ -159,6 +160,18 @@ const vmListenerHOC = function (WrappedComponent) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
             if (device) {
                 this.props.onShowDeviceAlert(device);
+                return;
+            }
+            // Scratch extensions with their own peripheral (WeDo 2.0, ...)
+            // report a lost link under their extension id; without this
+            // the loss went by unannounced.
+            const extension = extensionData.find(ext => ext.extensionId === data.deviceId);
+            if (extension) {
+                this.props.onShowDeviceAlert({
+                    deviceId: extension.extensionId,
+                    name: extension.name,
+                    connectionSmallIconURL: extension.connectionSmallIconURL
+                });
             }
         }
         handlePeripheralReconnecting () {

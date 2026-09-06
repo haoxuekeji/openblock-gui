@@ -33,7 +33,8 @@ class AutoScanningStep extends React.Component {
             newList[id]
         );
         if (peripheralArray.length > 0) {
-            this.props.onConnecting(peripheralArray[0].peripheralId);
+            // Hand the name along too: the menu bar shows it once connected.
+            this.props.onConnecting(peripheralArray[0].peripheralId, peripheralArray[0].name);
         }
     }
     bindPeripheralUpdates () {

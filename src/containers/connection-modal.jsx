@@ -254,15 +254,28 @@ class ConnectionModal extends React.Component {
     }
 
     handleConnected () {
+        // Auto-scanning transports connect to the first advertising
+        // peripheral without a click, so no name may have been handed in;
+        // fall back to the device's own name so the menu bar never says
+        // "Unconnected" over a live link.
+        const deviceName = this.state.device && this.state.device.name;
+        const peripheralName = this.state.peripheralName ||
+            (typeof deviceName === 'string' ? deviceName : this.props.deviceId);
         this.setState({
-            phase: PHASES.connected
+            phase: PHASES.connected,
+            peripheralName
         });
         // analytics.event({
         //     category: 'devices',
         //     action: 'connected',
         //     label: this.props.deviceId
         // });
-        this.props.onConnected(this.state.peripheralName);
+        // The menu bar indicator follows the hardware device; a Scratch
+        // extension peripheral connected alongside one keeps to its own
+        // status button in the palette.
+        if (this.props.isDeviceTarget) {
+            this.props.onConnected(peripheralName);
+        }
     }
 
     handleHelp () {
@@ -313,6 +326,7 @@ ConnectionModal.propTypes = {
     baudrate: PropTypes.string.isRequired,
     deviceId: PropTypes.string.isRequired,
     deviceData: PropTypes.instanceOf(Array).isRequired,
+    isDeviceTarget: PropTypes.bool,
     isRealtimeMode: PropTypes.bool,
     isListAll: PropTypes.bool,
     onCancel: PropTypes.func.isRequired,
@@ -322,13 +336,21 @@ ConnectionModal.propTypes = {
     vm: PropTypes.instanceOf(VM).isRequired
 };
 
-const mapStateToProps = state => ({
-    baudrate: state.scratchGui.hardwareConsole.baudrate,
-    deviceData: state.scratchGui.deviceData.deviceData,
-    deviceId: state.scratchGui.device.deviceId,
-    isRealtimeMode: state.scratchGui.programMode.isRealtimeMode,
-    isListAll: state.scratchGui.connectionModal.isListAll
-});
+const mapStateToProps = state => {
+    const hardwareDeviceId = state.scratchGui.device.deviceId;
+    // The peripheral this modal drives: a Scratch extension with its own
+    // connection flow (e.g. wedo2) when one was targeted, otherwise the
+    // selected hardware device.
+    const deviceId = state.scratchGui.connectionModal.targetId || hardwareDeviceId;
+    return {
+        baudrate: state.scratchGui.hardwareConsole.baudrate,
+        deviceData: state.scratchGui.deviceData.deviceData,
+        deviceId,
+        isDeviceTarget: !hardwareDeviceId || deviceId === hardwareDeviceId,
+        isRealtimeMode: state.scratchGui.programMode.isRealtimeMode,
+        isListAll: state.scratchGui.connectionModal.isListAll
+    };
+};
 
 const mapDispatchToProps = dispatch => ({
     onCancel: () => {

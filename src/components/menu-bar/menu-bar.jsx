@@ -1,7 +1,7 @@
 import classNames from 'classnames';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { defineMessages, FormattedMessage, injectIntl, intlShape } from 'react-intl';
+import {connect} from 'react-redux';
+import {compose} from 'redux';
+import {defineMessages, FormattedMessage, injectIntl, intlShape} from 'react-intl';
 import PropTypes from 'prop-types';
 import bindAll from 'lodash.bindall';
 import bowser from 'bowser';
@@ -15,14 +15,14 @@ import Button from '../button/button.jsx';
 import CommunityButton from './community-button.jsx'; // eslint-disable-line no-unused-vars
 import ShareButton from './share-button.jsx'; // eslint-disable-line no-unused-vars
 import ProfileButton from './profile-button.jsx';
-import { ComingSoonTooltip } from '../coming-soon/coming-soon.jsx';
+import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
 import LanguageSelector from '../../containers/language-selector.jsx';
 import SaveStatus from './save-status.jsx'; // eslint-disable-line no-unused-vars
 import ProjectWatcher from '../../containers/project-watcher.jsx'; // eslint-disable-line no-unused-vars
 
 import MenuBarMenu from './menu-bar-menu.jsx';
-import { MenuItem, MenuSection } from '../menu/menu.jsx';
+import {MenuItem, MenuSection} from '../menu/menu.jsx';
 import ProjectTitleInput from './project-title-input.jsx';
 import AuthorInfo from './author-info.jsx';
 
@@ -34,6 +34,7 @@ import DeletionRestorer from '../../containers/deletion-restorer.jsx';
 import TurboMode from '../../containers/turbo-mode.jsx';
 import MenuBarHOC from '../../containers/menu-bar-hoc.jsx';
 import {isScratchDesktop} from '../../lib/isScratchDesktop';
+import log from '../../lib/log';
 import {UPDATE_MODAL_STATE} from '../../lib/update-state.js';
 
 import {
@@ -44,7 +45,7 @@ import {
     openDeviceLibrary
 } from '../../reducers/modals';
 
-import { setPlayer } from '../../reducers/mode';
+import {setPlayer} from '../../reducers/mode';
 import {
     autoUpdateProject,
     getIsUpdating,
@@ -79,14 +80,18 @@ import {
     loginMenuOpen
 } from '../../reducers/menus';
 
-import { setStageSize } from '../../reducers/stage-size';
+import {setStageSize} from '../../reducers/stage-size';
 import {setCodePreviewVisible} from '../../reducers/code-preview';
-import { setUploadMode, setRealtimeMode } from '../../reducers/program-mode';
-import { setRealtimeConnection, clearConnectionModalPeripheralName } from '../../reducers/connection-modal';
-import { setUpdate } from '../../reducers/update';
-import { STAGE_SIZE_MODES } from '../../lib/layout-constants';
+import {setUploadMode, setRealtimeMode} from '../../reducers/program-mode';
+import {
+    setRealtimeConnection,
+    clearConnectionModalPeripheralName,
+    setConnectionModalTarget
+} from '../../reducers/connection-modal';
+import {setUpdate} from '../../reducers/update';
+import {STAGE_SIZE_MODES} from '../../lib/layout-constants';
 
-import { setSession } from '../../reducers/session';
+import {setSession} from '../../reducers/session';
 
 import collectMetadata from '../../lib/collect-metadata';
 
@@ -101,13 +106,10 @@ import remixIcon from './icon--remix.svg';
 import dropdownCaret from './dropdown-caret.svg';
 import languageIcon from '../language-selector/language-icon.svg';
 import aboutIcon from './icon--about.svg';
-import saveIcon from './icon--save.svg';
 // import linkSocketIcon from './icon--link-socket.svg';
 // import communityIcon from './icon--community.svg';
-import wikiIcon from './icon--wiki.svg';
 import fileIcon from './icon--file.svg';
 import editIcon from './icon--edit.svg';
-
 
 
 import sharedMessages from '../../lib/shared-messages';
@@ -122,11 +124,11 @@ import settingIcon from './icon--setting.svg';
 
 import uploadFirmwareIcon from './icon--upload-firmware.svg';
 import saveSvgAsPng from 'openblock-save-svg-as-png';
-import { showAlertWithTimeout } from '../../reducers/alerts';
+import {showAlertWithTimeout} from '../../reducers/alerts';
 import MessageBoxType from '../../lib/message-box.js';
 
-import hxlogo from './hx-logo.png'
-import HXLib from '../../hx_tarin.js'
+import hxlogo from './hx-logo.png';
+import HXLib from '../../hx_tarin.js';
 
 import fullScreenIcon from './icon--fullscreen.svg';
 import unFullScreenIcon from './icon--unfullscreen.svg';
@@ -229,7 +231,7 @@ MenuBarItemTooltip.propTypes = {
     place: PropTypes.oneOf(['top', 'bottom', 'left', 'right'])
 };
 
-const MenuItemTooltip = ({ id, isRtl, children, className }) => (
+const MenuItemTooltip = ({id, isRtl, children, className}) => (
     <ComingSoonTooltip
         className={classNames(styles.comingSoon, className)}
         isRtl={isRtl}
@@ -262,7 +264,7 @@ AboutButton.propTypes = {
 };
 
 class MenuBar extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'checkOverflow',
@@ -281,6 +283,7 @@ class MenuBar extends React.Component {
             'getSaveToComputerHandler',
             'restoreOptionMessage',
             'handleConnectionMouseUp',
+            'handlePeripheralDisconnected',
             'handleToggleCodePreview',
             'handleUploadFirmware',
             'handleWindowsResize',
@@ -299,9 +302,9 @@ class MenuBar extends React.Component {
             isOverflow: false
         };
     }
-    componentDidMount() {
+    componentDidMount () {
         document.addEventListener('keydown', this.handleKeyPress);
-        this.props.vm.on('PERIPHERAL_DISCONNECTED', this.props.onDisconnect);
+        this.props.vm.on('PERIPHERAL_DISCONNECTED', this.handlePeripheralDisconnected);
         this.props.vm.on('PROGRAM_MODE_UPDATE', this.handleProgramModeUpdate);
         window.addEventListener('resize', this.handleWindowsResize);
     }
@@ -311,9 +314,9 @@ class MenuBar extends React.Component {
             this.checkOverflow();
         }
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         document.removeEventListener('keydown', this.handleKeyPress);
-        this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.props.onDisconnect);
+        this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.handlePeripheralDisconnected);
         this.props.vm.removeListener('PROGRAM_MODE_UPDATE', this.handleProgramModeUpdate);
         window.removeEventListener('resize', this.handleWindowsResize);
     }
@@ -336,7 +339,7 @@ class MenuBar extends React.Component {
             this.setState({isOverflow: container.scrollWidth > container.clientWidth});
         }
     }
-    handleClickNew() {
+    handleClickNew () {
         // if the project is dirty, and user owns the project, we will autosave.
         // but if they are not logged in and can't save, user should consider
         // downloading or logging in first.
@@ -351,19 +354,19 @@ class MenuBar extends React.Component {
         }
         this.props.onRequestCloseFile();
     }
-    handleClickRemix() {
+    handleClickRemix () {
         this.props.onClickRemix();
         this.props.onRequestCloseFile();
     }
-    handleClickSave() {
+    handleClickSave () {
         this.props.onClickSave();
         this.props.onRequestCloseFile();
     }
-    handleClickSaveAsCopy() {
+    handleClickSaveAsCopy () {
         this.props.onClickSaveAsCopy();
         this.props.onRequestCloseFile();
     }
-    handleClickSeeCommunity(waitForUpdate) {
+    handleClickSeeCommunity (waitForUpdate) {
         if (this.props.shouldSaveBeforeTransition()) {
             this.props.autoUpdateProject(); // save before transitioning to project page
             waitForUpdate(true); // queue the transition to project page
@@ -371,7 +374,7 @@ class MenuBar extends React.Component {
             waitForUpdate(false); // immediately transition to project page
         }
     }
-    handleClickShare(waitForUpdate) {
+    handleClickShare (waitForUpdate) {
         if (!this.props.isShared) {
             if (this.props.canShare) { // save before transitioning to project page
                 this.props.onShare();
@@ -384,20 +387,20 @@ class MenuBar extends React.Component {
             }
         }
     }
-    handleRestoreOption(restoreFun) {
+    handleRestoreOption (restoreFun) {
         return () => {
             restoreFun();
             this.props.onRequestCloseEdit();
         };
     }
-    handleKeyPress(event) {
+    handleKeyPress (event) {
         const modifier = bowser.mac ? event.metaKey : event.ctrlKey;
         if (modifier && event.key === 's') {
             this.props.onClickSave();
             event.preventDefault();
         }
     }
-    getSaveToComputerHandler(downloadProjectCallback) {
+    getSaveToComputerHandler (downloadProjectCallback) {
         return () => {
             this.props.onRequestCloseFile();
             downloadProjectCallback();
@@ -407,7 +410,7 @@ class MenuBar extends React.Component {
             }
         };
     }
-    handleLanguageMouseUp(e) {
+    handleLanguageMouseUp (e) {
         if (!this.props.languageMenuOpen) {
             this.props.onClickLanguage(e);
         }
@@ -420,40 +423,51 @@ class MenuBar extends React.Component {
     }
     restoreOptionMessage (deletedItem) {
         switch (deletedItem) {
-            case 'Sprite':
-                return (<FormattedMessage
-                    defaultMessage="Restore Sprite"
-                    description="Menu bar item for restoring the last deleted sprite."
-                    id="gui.menuBar.restoreSprite"
-                />);
-            case 'Sound':
-                return (<FormattedMessage
-                    defaultMessage="Restore Sound"
-                    description="Menu bar item for restoring the last deleted sound."
-                    id="gui.menuBar.restoreSound"
-                />);
-            case 'Costume':
-                return (<FormattedMessage
-                    defaultMessage="Restore Costume"
-                    description="Menu bar item for restoring the last deleted costume."
-                    id="gui.menuBar.restoreCostume"
-                />);
-            default: {
-                return (<FormattedMessage
-                    defaultMessage="Restore"
-                    description="Menu bar item for restoring the last deleted item in its disabled state." /* eslint-disable-line max-len */
-                    id="gui.menuBar.restore"
-                />);
-            }
+        case 'Sprite':
+            return (<FormattedMessage
+                defaultMessage="Restore Sprite"
+                description="Menu bar item for restoring the last deleted sprite."
+                id="gui.menuBar.restoreSprite"
+            />);
+        case 'Sound':
+            return (<FormattedMessage
+                defaultMessage="Restore Sound"
+                description="Menu bar item for restoring the last deleted sound."
+                id="gui.menuBar.restoreSound"
+            />);
+        case 'Costume':
+            return (<FormattedMessage
+                defaultMessage="Restore Costume"
+                description="Menu bar item for restoring the last deleted costume."
+                id="gui.menuBar.restoreCostume"
+            />);
+        default: {
+            return (<FormattedMessage
+                defaultMessage="Restore"
+                description="Menu bar item for restoring the last deleted item in its disabled state." /* eslint-disable-line max-len */
+                id="gui.menuBar.restore"
+            />);
+        }
         }
     }
 
-    handleConnectionMouseUp() {
-        if (this.props.deviceId) {
-            this.props.onOpenConnectionModal();
+    handleConnectionMouseUp () {
+        // Without a hardware device the indicator stands for the Scratch
+        // extension peripheral (e.g. WeDo 2.0) last connected through the
+        // modal, so reopen the modal for it.
+        const targetId = this.props.deviceId || this.props.connectionTargetId;
+        if (targetId) {
+            this.props.onOpenConnectionModal(targetId);
         } else {
             this.props.onDeviceIsEmpty();
         }
+    }
+    handlePeripheralDisconnected () {
+        // Every peripheral (the hardware device, WeDo 2.0, ...) emits this
+        // event. The indicator follows the hardware device, so leave it
+        // alone while that device is still connected.
+        if (this.props.deviceId && this.props.vm.getPeripheralIsConnected(this.props.deviceId)) return;
+        this.props.onDisconnect();
     }
 
     handleToggleCodePreview () {
@@ -498,7 +512,7 @@ class MenuBar extends React.Component {
         this.props.vm.emitWorkspaceUpdate();
         this.props.onOpenDeviceLibrary();
     }
-    handleProgramModeSwitchOnChange() {
+    handleProgramModeSwitchOnChange () {
         if (this.props.isRealtimeMode) {
             this.props.vm.runtime.setRealtimeMode(false);
         } else {
@@ -512,7 +526,7 @@ class MenuBar extends React.Component {
             this.props.vm.runtime.setRealtimeMode(true);
         }
     }
-    handleProgramModeUpdate(data) {
+    handleProgramModeUpdate (data) {
         if (data.isRealtimeMode) {
             this.props.onSetRealtimeMode();
         } else {
@@ -551,7 +565,7 @@ class MenuBar extends React.Component {
         this.props.onSetUpdate({phase: UPDATE_MODAL_STATE.checkingApplication});
         this.props.onClickCheckUpdate();
     }
-    handleClearCache() {
+    handleClearCache () {
         const readyClearCache = this.props.confirmClearCache(
             this.props.intl.formatMessage(sharedMessages.clearCacheWarning)
         );
@@ -560,16 +574,16 @@ class MenuBar extends React.Component {
         }
     }
 
-    handleRenderLogin(e) {//登录操作
+    handleRenderLogin (e) { // 登录操作
         e.preventDefault();
-        //console.log(this.props);
-        let form = {
+        // console.log(this.props);
+        const form = {
             user: e.target.username.value,
-            pwd: e.target.password.value,
-        }
+            pwd: e.target.password.value
+        };
         window.api.login(form).then(res => {
-            const user = res.data
-            let data = {
+            const user = res.data;
+            const data = {
                 session: {
                     user: {
                         userid: user.id,
@@ -577,40 +591,40 @@ class MenuBar extends React.Component {
                         thumbnailUrl: user.avatar
                     }
                 }
-            }
+            };
             this.props.onSetSession(data);
-            window.localStorage.setItem('token', user.access_token)
-            //this.props.onSetProjectId();
-            //this.props.onCreateProject();
-            this.props.onRequestCloseAccount();//关闭登录后弹出账号菜单
+            window.localStorage.setItem('token', user.access_token);
+            // this.props.onSetProjectId();
+            // this.props.onCreateProject();
+            this.props.onRequestCloseAccount();// 关闭登录后弹出账号菜单
 
-            //restoreStateInLoginComponent()
+            // restoreStateInLoginComponent()
 
-        }).catch(err => {
-            //alert(res.status);//提示用户登录不成功的原因
-            console.log(err)
-            //restoreStateInLoginComponent()
-        });
+        })
+            .catch(err => {
+            // alert(res.status);//提示用户登录不成功的原因
+                log.error('Login failed', err);
+            // restoreStateInLoginComponent()
+            });
     }
-    handleLogout() { //退出账号登录状态
-        let data = {
+    handleLogout () { // 退出账号登录状态
+        const data = {
             session: {
                 user: {
                     username: ''
                 }
             }
-        }
+        };
         this.props.onSetSession(data);
-        window.api.logout().then(res => {
+        window.api.logout()
+            .finally(() => {
+                localStorage.removeItem('token');
+            });
 
-        }).finally(() => {
-            localStorage.removeItem('token')
-        })
-
-        this.props.onRequestCloseAccount()
+        this.props.onRequestCloseAccount();
     }
 
-    handleFullscreen() {
+    handleFullscreen () {
         if (document.fullscreen ||
             document.mozFullScreen ||
             document.webkitIsFullScreen ||
@@ -622,13 +636,13 @@ class MenuBar extends React.Component {
                 document.mozCancelFullScreen();
             } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
-            } else if (element.msExitFullscreen) {
-                element.msExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
             }
 
-            this.setState({ isFullscreen: false })
+            this.setState({isFullscreen: false});
         } else {
-            var ele = document.documentElement
+            const ele = document.documentElement;
             if (ele.requestFullscreen) {
                 ele.requestFullscreen();
             } else if (ele.mozRequestFullScreen) {
@@ -639,11 +653,11 @@ class MenuBar extends React.Component {
                 ele.msRequestFullscreen();
             }
 
-            this.setState({ isFullscreen: true })
+            this.setState({isFullscreen: true});
         }
     }
 
-    buildAboutMenu(onClickAbout) {
+    buildAboutMenu (onClickAbout) {
         if (!onClickAbout) {
             // hide the button
             return null;
@@ -667,13 +681,13 @@ class MenuBar extends React.Component {
             ))
         );
     }
-    wrapAboutMenuCallback(callback) {
+    wrapAboutMenuCallback (callback) {
         return () => {
             callback();
             this.props.onRequestCloseAbout();
         };
     }
-    render() {
+    render () {
         const saveNowMessage = (
             <FormattedMessage
                 defaultMessage="Save now"
@@ -807,7 +821,8 @@ class MenuBar extends React.Component {
                                 onRequestClose={this.props.onRequestCloseFile}
                             >
                                 <MenuSection>
-                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.newButton &&
+                                    {(window.scratchConfig && window.scratchConfig.menuBar &&
+                                        window.scratchConfig.menuBar.newButton &&
                                         window.scratchConfig.menuBar.newButton.show) && (
                                         <MenuItem
                                             isRtl={this.props.isRtl}
@@ -842,7 +857,8 @@ class MenuBar extends React.Component {
                                     >
                                         {this.props.intl.formatMessage(sharedMessages.loadFromComputerTitle)}
                                     </MenuItem>
-                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.saveFileButton &&
+                                    {(window.scratchConfig && window.scratchConfig.menuBar &&
+                                        window.scratchConfig.menuBar.saveFileButton &&
                                         window.scratchConfig.menuBar.saveFileButton.show) && (
                                         <SB3Downloader>{(className, downloadProjectCallback) => (
                                             <MenuItem
@@ -858,12 +874,14 @@ class MenuBar extends React.Component {
                                         )}</SB3Downloader>
                                     )}
 
-                                    {(window.scratchConfig && window.scratchConfig.menuBar && window.scratchConfig.menuBar.libButton &&
-                                        window.scratchConfig.menuBar.libButton.show && HXLib.isEnabled('project')) && (
-                                        <SB3Downloader>{(className, downloadProjectCallback) => (
+                                    {(window.scratchConfig && window.scratchConfig.menuBar &&
+                                        window.scratchConfig.menuBar.libButton &&
+                                        window.scratchConfig.menuBar.libButton.show &&
+                                        HXLib.isEnabled('project')) && (
+                                        <SB3Downloader>{className => (
                                             <MenuItem
                                                 className={className}
-                                                onClick={() => HXLib.opProjectClick()}
+                                                onClick={HXLib.handleProjectClick}
                                             >
                                                 <FormattedMessage
                                                     defaultMessage="从库中选取"
@@ -901,16 +919,16 @@ class MenuBar extends React.Component {
                             place={this.props.isRtl ? 'left' : 'right'}
                             onRequestClose={this.props.onRequestCloseEdit}
                         >
-                            <DeletionRestorer>{(handleRestore, { restorable, deletedItem }) => (
+                            <DeletionRestorer>{(handleRestore, {restorable, deletedItem}) => (
                                 <MenuItem
-                                    className={classNames({ [styles.disabled]: !restorable })}
+                                    className={classNames({[styles.disabled]: !restorable})}
                                     onClick={this.handleRestoreOption(handleRestore)}
                                 >
                                     {this.restoreOptionMessage(deletedItem)}
                                 </MenuItem>
                             )}</DeletionRestorer>
                             <MenuSection>
-                                <TurboMode>{(toggleTurboMode, { turboMode }) => (
+                                <TurboMode>{(toggleTurboMode, {turboMode}) => (
                                     <MenuItem onClick={toggleTurboMode}>
                                         {turboMode ? (
                                             <FormattedMessage
@@ -1177,70 +1195,76 @@ class MenuBar extends React.Component {
 
 
                 <div className={classNames(styles.menuBarItem)}>
-                    { //提交
-                        (window.scratchConfig && window.scratchConfig.shareButton && window.scratchConfig.shareButton.show) && (<ProfileButton
-                            className={styles.menuBarButton}
-                            // eslint-disable-next-line react/jsx-no-bind
-                            onClick={
-                                () => {
-                                    window.scratchConfig.shareButton.handleClick();
+                    { // 提交
+                        (window.scratchConfig && window.scratchConfig.shareButton &&
+                            window.scratchConfig.shareButton.show) && (
+                            <ProfileButton
+                                className={styles.menuBarButton}
+                                // eslint-disable-next-line react/jsx-no-bind
+                                onClick={
+                                    () => {
+                                        window.scratchConfig.shareButton.handleClick();
+                                    }
                                 }
-                            }
-                            buttonName={window.scratchConfig.shareButton.buttonName}
-                        />
+                                buttonName={window.scratchConfig.shareButton.buttonName}
+                            />
                         )}
                 </div>
 
                 <div className={classNames(styles.menuBarItem)}>
-                    { //我的作品
-                        (window.scratchConfig && window.scratchConfig.profileButton && window.scratchConfig.profileButton.show) && (<ProfileButton
-                            className={styles.menuBarButton}
-                            // eslint-disable-next-line react/jsx-no-bind
-                            onClick={
-                                () => {
-                                    window.scratchConfig.profileButton.handleClick();
+                    { // 我的作品
+                        (window.scratchConfig && window.scratchConfig.profileButton &&
+                            window.scratchConfig.profileButton.show) && (
+                            <ProfileButton
+                                className={styles.menuBarButton}
+                                // eslint-disable-next-line react/jsx-no-bind
+                                onClick={
+                                    () => {
+                                        window.scratchConfig.profileButton.handleClick();
+                                    }
                                 }
-                            }
-                            buttonName={window.scratchConfig.profileButton.buttonName}
-                        />
+                                buttonName={window.scratchConfig.profileButton.buttonName}
+                            />
                         )}
                 </div>
 
                 <div className={classNames(styles.menuBarItem)}>
                     {
-                        (window.scratchConfig && window.scratchConfig.guideButton && window.scratchConfig.guideButton.show) && (<ProfileButton
-                            className={styles.menuBarButton}
-                            // eslint-disable-next-line react/jsx-no-bind
-                            onClick={
-                                () => {
-                                    window.scratchConfig.guideButton.handleClick();
+                        (window.scratchConfig && window.scratchConfig.guideButton &&
+                            window.scratchConfig.guideButton.show) && (
+                            <ProfileButton
+                                className={styles.menuBarButton}
+                                // eslint-disable-next-line react/jsx-no-bind
+                                onClick={
+                                    () => {
+                                        window.scratchConfig.guideButton.handleClick();
+                                    }
                                 }
-                            }
-                            buttonName={window.scratchConfig.guideButton.buttonName}
-                        />)
-                    }
+                                buttonName={window.scratchConfig.guideButton.buttonName}
+                            />
+                        )}
                 </div>
                 <Divider className={classNames(styles.divider)} />
-               {isHardwareEnabled() && (
-                 <div
-                    className={classNames(styles.menuBarItem,
-                        canUploadFirmware ? styles.hoverable : styles.disabled)}
-                    onMouseUp={canUploadFirmware ? this.handleUploadFirmware : null}
-                >
-                    <img
-                        alt="UploadFirmware"
-                        className={classNames(styles.uploadFirmwareLogo)}
-                        draggable={false}
-                        src={uploadFirmwareIcon}
-                    />
-                    <FormattedMessage
-                        defaultMessage="Upload firmware"
-                        description="Button to upload the realtime firmware"
-                        id="gui.menuBar.uploadFirmware"
-                    />
-                </div>
-               )}
-                {!isScratchDesktop() ? (
+                {isHardwareEnabled() && (
+                    <div
+                        className={classNames(styles.menuBarItem,
+                            canUploadFirmware ? styles.hoverable : styles.disabled)}
+                        onMouseUp={canUploadFirmware ? this.handleUploadFirmware : null}
+                    >
+                        <img
+                            alt="UploadFirmware"
+                            className={classNames(styles.uploadFirmwareLogo)}
+                            draggable={false}
+                            src={uploadFirmwareIcon}
+                        />
+                        <FormattedMessage
+                            defaultMessage="Upload firmware"
+                            description="Button to upload the realtime firmware"
+                            id="gui.menuBar.uploadFirmware"
+                        />
+                    </div>
+                )}
+                {!isScratchDesktop() && (
                     <div
                         aria-label={this.props.intl.formatMessage(ariaMessages.tutorials)}
                         className={classNames(styles.menuBarItem, styles.hoverable)}
@@ -1253,7 +1277,7 @@ class MenuBar extends React.Component {
                         {this.state.isFullscreen ? '退出全屏' : '全屏'}
 
                     </div>
-                ) : null}
+                )}
 
                 <div className={classNames(styles.menuBarItem, styles.communityButtonWrapper)}>
                     {this.props.enableCommunity ? (
@@ -1295,7 +1319,7 @@ class MenuBar extends React.Component {
                                 this.props.username ? (
                                     // ************ user is logged in ************
                                     <React.Fragment>
-                                        {/*<a href="/mystuff/">
+                                        {/* <a href="/mystuff/">
                                     <div
                                         className={classNames(
                                             styles.menuBarItem,
@@ -1313,7 +1337,7 @@ class MenuBar extends React.Component {
                                             className={classNames(
                                                 styles.menuBarItem,
                                                 styles.hoverable,
-                                                { [styles.active]: this.props.accountMenuOpen }
+                                                {[styles.active]: this.props.accountMenuOpen}
                                             )}
                                             isOpen={this.props.accountMenuOpen}
                                             isRtl={this.props.isRtl}
@@ -1327,7 +1351,7 @@ class MenuBar extends React.Component {
                                     // ********* user not logged in, but a session exists
                                     // ********* so they can choose to log in
                                     <React.Fragment>
-                                        {/*<div
+                                        {/* <div
                                     className={classNames(
                                         styles.menuBarItem,
                                         styles.hoverable
@@ -1359,8 +1383,12 @@ class MenuBar extends React.Component {
                                                 className={classNames(styles.menuBarMenu)}
                                                 isOpen={this.props.loginMenuOpen}
                                                 isRtl={this.props.isRtl}
-                                                //renderLogin={this.props.renderLogin}
+                                                // renderLogin={this.props.renderLogin}
                                                 onClose={this.props.onRequestCloseLogin}
+                                                // renderLogin is the prop name the embedding
+                                                // platform supplies, so it cannot follow the
+                                                // on*/handle* pairing the rule expects.
+                                                // eslint-disable-next-line react/jsx-handler-names
                                                 onLogin={this.props.renderLogin}
                                             />
                                         </div>
@@ -1534,6 +1562,7 @@ MenuBar.propTypes = {
     onRequestOpenAbout: PropTypes.func,
     onRequestCloseAbout: PropTypes.func,
     onRequestCloseAccount: PropTypes.func,
+    onSetSession: PropTypes.func,
     onRequestCloseEdit: PropTypes.func,
     onRequestCloseFile: PropTypes.func,
     onRequestCloseSetting: PropTypes.func,
@@ -1567,6 +1596,7 @@ MenuBar.propTypes = {
     onShowMessageBox: PropTypes.func.isRequired,
     onOpenDeviceLibrary: PropTypes.func,
     onSetStageLarge: PropTypes.func.isRequired,
+    connectionTargetId: PropTypes.string,
     deviceId: PropTypes.string,
     deviceName: PropTypes.string,
     onDeviceIsEmpty: PropTypes.func
@@ -1577,7 +1607,7 @@ MenuBar.defaultProps = {
     vm: PropTypes.instanceOf(VM).isRequired,
     onSetSession: PropTypes.func,
     onShare: () => { },
-    logoSmall: hxlogo,
+    logoSmall: hxlogo
 
 };
 
@@ -1609,6 +1639,7 @@ const mapStateToProps = (state, ownProps) => {
         stageSizeMode: state.scratchGui.stageSize.stageSize,
         vm: state.scratchGui.vm,
         peripheralName: state.scratchGui.connectionModal.peripheralName,
+        connectionTargetId: state.scratchGui.connectionModal.targetId,
         liveUnavailable: state.scratchGui.connectionModal.liveUnavailable,
         deviceId: state.scratchGui.device.deviceId,
         deviceName: state.scratchGui.device.deviceName
@@ -1644,7 +1675,10 @@ const mapDispatchToProps = dispatch => ({
     onSetRealtimeConnection: state => dispatch(setRealtimeConnection(state)),
     onSetRealtimeMode: () => dispatch(setRealtimeMode()),
     onSetStageLarge: () => dispatch(setStageSize(STAGE_SIZE_MODES.large)),
-    onOpenConnectionModal: () => dispatch(openConnectionModal()),
+    onOpenConnectionModal: targetId => {
+        dispatch(setConnectionModalTarget(targetId));
+        dispatch(openConnectionModal());
+    },
     onOpenUploadProgress: () => dispatch(openUploadProgress()),
     onDisconnect: () => {
         dispatch(clearConnectionModalPeripheralName());
@@ -1660,7 +1694,7 @@ const mapDispatchToProps = dispatch => ({
     onDeviceIsEmpty: () => showAlertWithTimeout(dispatch, 'selectADeviceFirst'),
     onSetSession: s => dispatch(setSession(s)),
     onCreateProject: () => dispatch(createProject()),
-    onSetCodePreviewVisible: visible => dispatch(setCodePreviewVisible(visible)),
+    onSetCodePreviewVisible: visible => dispatch(setCodePreviewVisible(visible))
 });
 
 export default compose(
