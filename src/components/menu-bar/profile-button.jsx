@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import {FormattedMessage} from 'react-intl';
 import PropTypes from 'prop-types';
 import React from 'react';
 import Button from '../button/button.jsx';
@@ -18,7 +17,7 @@ const ProfileButton = ({
         )}
         onClick={onClick}
     >
-        {buttonName ? buttonName: "个人中心"}
+        {buttonName ? buttonName : '个人中心'}
     </Button>
 );
 

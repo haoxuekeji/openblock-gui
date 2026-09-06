@@ -15,14 +15,14 @@ import storage from '../lib/storage';
  * @return {Promise} A promise that resolves when the network request resolves.
  */
 export default function (projectId, vmState, params) {
-  let token = window.localStorage.getItem('token')
+    const token = window.localStorage.getItem('token');
     const opts = {
         body: vmState,
         // If we set json:true then the body is double-stringified, so don't
         headers: {
             'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + token,
-            'x-token': token,
+            'Authorization': `Bearer ${token}`,
+            'x-token': token
         },
         withCredentials: true
     };
@@ -58,11 +58,11 @@ export default function (projectId, vmState, params) {
             }
             body.id = projectId;
             if (creatingProject) {
-                if(body['content-name']) {
-                   body.id = body['content-name']; 
+                if (body['content-name']) {
+                    body.id = body['content-name'];
                 } else {
-                    body.id = body['data']['id'];
-                }               
+                    body.id = body.data.id;
+                }
             }
             resolve(body);
         });

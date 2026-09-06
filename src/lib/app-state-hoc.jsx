@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Provider } from 'react-redux';
-import { createStore, combineReducers, compose } from 'redux';
+import {Provider} from 'react-redux';
+import {createStore, combineReducers, compose} from 'redux';
 import ConnectedIntlProvider from './connected-intl-provider.jsx';
 
-import localesReducer, { initLocale, localesInitialState } from '../reducers/locales';
+import localesReducer, {initLocale, localesInitialState} from '../reducers/locales';
 
-import { setPlayer, setFullScreen } from '../reducers/mode.js';
+import {setPlayer, setFullScreen} from '../reducers/mode.js';
 
 
 import locales from 'hxblock-l10n';
-import { detectLocale } from './detect-locale';
+import {detectLocale} from './detect-locale';
 
-import { initializedSession } from '../reducers/session'
+import {initializedSession} from '../reducers/session';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -27,7 +27,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
  */
 const AppStateHOC = function (WrappedComponent, localesOnly) {
     class AppStateWrapper extends React.Component {
-        constructor(props) {
+        constructor (props) {
             super(props);
             let initialState = {};
             let reducers = {};
@@ -41,8 +41,8 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
             if (localesOnly) {
                 // Used for instantiating minimal state for the unsupported
                 // browser modal
-                reducers = { locales: localesReducer };
-                initialState = { locales: initializedLocales };
+                reducers = {locales: localesReducer};
+                initialState = {locales: initializedLocales};
                 enhancer = composeEnhancers();
             } else {
                 // You are right, this is gross. But it's necessary to avoid
@@ -56,7 +56,7 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
                     initPlayer,
                     initTelemetryModal
                 } = guiRedux;
-                const { ScratchPaintReducer } = require('scratch-paint');
+                const {ScratchPaintReducer} = require('scratch-paint');
 
                 let initializedGui = guiInitialState;
                 if (props.isFullScreen || props.isPlayerOnly) {
@@ -69,8 +69,8 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
                 } else if (props.showTelemetryModal) {
                     initializedGui = initTelemetryModal(initializedGui);
                 }
-                const session = require('../reducers/session')
-                const s = session.default
+                const session = require('../reducers/session');
+                const s = session.default;
                 reducers = {
                     locales: localesReducer,
                     scratchGui: guiReducer,
@@ -91,21 +91,20 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
                 enhancer
             );
         }
-        componentDidUpdate(prevProps) {
-            console.log('handleSeeCommunity')
+        componentDidUpdate (prevProps) {
             if (localesOnly) return;
             if (prevProps.isPlayerOnly !== this.props.isPlayerOnly) {
                 this.store.dispatch(setPlayer(this.props.isPlayerOnly));
 
                 if (window.scratchConfig && window.scratchConfig.handleSeeCommunity) {
-                    window.scratchConfig.handleSeeCommunity()
+                    window.scratchConfig.handleSeeCommunity();
                 }
             }
             if (prevProps.isFullScreen !== this.props.isFullScreen) {
                 this.store.dispatch(setFullScreen(this.props.isFullScreen));
             }
         }
-        render() {
+        render () {
             const {
                 isFullScreen, // eslint-disable-line no-unused-vars
                 isPlayerOnly, // eslint-disable-line no-unused-vars

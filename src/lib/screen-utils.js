@@ -73,14 +73,14 @@ const getStageDimensions = (stageSize, isFullScreen) => {
 
         if (window.scratchConfig && window.scratchConfig.isPlayerOnly) {
             stageDimensions.width = window.innerWidth;
-            stageDimensions.height = stageDimensions.width * .75; 
+            stageDimensions.height = stageDimensions.width * .75;
         }
     }
 
-    if(window.scratchConfig && window.scratchConfig.mobilePlayer) {
+    if (window.scratchConfig && window.scratchConfig.mobilePlayer) {
         stageDimensions.width = window.innerWidth;
-         stageDimensions.height = stageDimensions.width * .75; 
-     }
+        stageDimensions.height = stageDimensions.width * .75;
+    }
 
 
     // Round off dimensions to prevent resampling/blurriness

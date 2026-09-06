@@ -14,7 +14,7 @@ import {
 import DragConstants from '../lib/drag-constants';
 import DropAreaHOC from '../lib/drop-area-hoc.jsx';
 
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import storage from '../lib/storage';
 import VM from 'openblock-vm';
 
@@ -23,7 +23,7 @@ const dragTypes = [DragConstants.COSTUME, DragConstants.SOUND, DragConstants.SPR
 const DroppableBackpack = DropAreaHOC(dragTypes)(BackpackComponent);
 
 class Backpack extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'handleDrop',
@@ -62,24 +62,24 @@ class Backpack extends React.Component {
             storage._hasAddedBackpackSource = true;
         }
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.vm.addListener('BLOCK_DRAG_END', this.handleBlockDragEnd);
         this.props.vm.addListener('BLOCK_DRAG_UPDATE', this.handleBlockDragUpdate);
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.props.vm.removeListener('BLOCK_DRAG_END', this.handleBlockDragEnd);
         this.props.vm.removeListener('BLOCK_DRAG_UPDATE', this.handleBlockDragUpdate);
     }
-    getBackpackAssetURL(asset) {
+    getBackpackAssetURL (asset) {
 
         if ('assetCDN' in window.scratchConfig) {
             return `${window.scratchConfig.assetCDN}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
         }
         return `${this.props.host}/${asset.assetId}.${asset.dataFormat}`;
     }
-    handleToggle() {
+    handleToggle () {
         const newState = !this.state.expanded;
-        this.setState({ expanded: newState, contents: [] }, () => {
+        this.setState({expanded: newState, contents: []}, () => {
             // Emit resize on window to get blocks to resize
             window.dispatchEvent(new Event('resize'));
         });
@@ -87,29 +87,29 @@ class Backpack extends React.Component {
             this.getContents();
         }
     }
-    handleDrop(dragInfo) {
+    handleDrop (dragInfo) {
         let payloader = null;
         let presaveAsset = null;
         switch (dragInfo.dragType) {
-            case DragConstants.COSTUME:
-                payloader = costumePayload;
-                presaveAsset = dragInfo.payload.asset;
-                break;
-            case DragConstants.SOUND:
-                payloader = soundPayload;
-                presaveAsset = dragInfo.payload.asset;
-                break;
-            case DragConstants.SPRITE:
-                payloader = spritePayload;
-                break;
-            case DragConstants.CODE:
-                payloader = codePayload;
-                break;
+        case DragConstants.COSTUME:
+            payloader = costumePayload;
+            presaveAsset = dragInfo.payload.asset;
+            break;
+        case DragConstants.SOUND:
+            payloader = soundPayload;
+            presaveAsset = dragInfo.payload.asset;
+            break;
+        case DragConstants.SPRITE:
+            payloader = spritePayload;
+            break;
+        case DragConstants.CODE:
+            payloader = codePayload;
+            break;
         }
         if (!payloader) return;
 
         // Creating the payload is async, so set loading before starting
-        this.setState({ loading: true }, () => {
+        this.setState({loading: true}, () => {
             payloader(dragInfo.payload, this.props.vm)
                 .then(payload => {
                     // Force the asset to save to the asset server before storing in backpack
@@ -137,13 +137,13 @@ class Backpack extends React.Component {
                     });
                 })
                 .catch(error => {
-                    this.setState({ error: true, loading: false });
+                    this.setState({error: true, loading: false});
                     throw error;
                 });
         });
     }
-    handleDelete(id) {
-        this.setState({ loading: true }, () => {
+    handleDelete (id) {
+        this.setState({loading: true}, () => {
             deleteBackpackObject({
                 host: this.props.host,
                 token: this.props.token,
@@ -157,14 +157,14 @@ class Backpack extends React.Component {
                     });
                 })
                 .catch(error => {
-                    this.setState({ error: true, loading: false });
+                    this.setState({error: true, loading: false});
                     throw error;
                 });
         });
     }
-    getContents() {
+    getContents () {
         if (this.props.token && this.props.username) {
-            this.setState({ loading: true, error: false }, () => {
+            this.setState({loading: true, error: false}, () => {
                 getBackpackContents({
                     host: this.props.host,
                     token: this.props.token,
@@ -180,30 +180,30 @@ class Backpack extends React.Component {
                         });
                     })
                     .catch(error => {
-                        this.setState({ error: true, loading: false });
+                        this.setState({error: true, loading: false});
                         throw error;
                     });
             });
         }
     }
-    handleBlockDragUpdate(isOutsideWorkspace) {
+    handleBlockDragUpdate (isOutsideWorkspace) {
         this.setState({
             blockDragOutsideWorkspace: isOutsideWorkspace
         });
     }
-    handleMouseEnter() {
+    handleMouseEnter () {
         if (this.state.blockDragOutsideWorkspace) {
             this.setState({
                 blockDragOverBackpack: true
             });
         }
     }
-    handleMouseLeave() {
+    handleMouseLeave () {
         this.setState({
             blockDragOverBackpack: false
         });
     }
-    handleBlockDragEnd(blocks, topBlockId) {
+    handleBlockDragEnd (blocks, topBlockId) {
         if (this.state.blockDragOverBackpack) {
             this.handleDrop({
                 dragType: DragConstants.CODE,
@@ -218,10 +218,10 @@ class Backpack extends React.Component {
             blockDragOutsideWorkspace: false
         });
     }
-    handleMore() {
+    handleMore () {
         this.getContents();
     }
-    render() {
+    render () {
         return (
             <DroppableBackpack
                 blockDragOver={this.state.blockDragOverBackpack}

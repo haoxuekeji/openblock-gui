@@ -28,7 +28,7 @@
  *                  不属于 gui 构建产物，镜像式部署不得删除）
  *   BACKUP_DIR     覆盖备份目录（默认 <openblock>/.ob-deploy-backups）
  */
-'use strict';
+
 
 const {execFileSync} = require('child_process');
 const crypto = require('crypto');
@@ -59,7 +59,9 @@ const ROLLBACK = argv.includes('--rollback');
 const keepIdx = argv.indexOf('--keep-backups');
 const KEEP_BACKUPS = keepIdx >= 0 ? parseInt(argv[keepIdx + 1], 10) : 5;
 
-const ts = () => new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+const ts = () => new Date().toISOString()
+    .replace(/[-:T]/g, '')
+    .slice(0, 14);
 const log = msg => process.stdout.write(`${msg}\n`);
 const die = msg => {
     process.stderr.write(`ERROR: ${msg}\n`);
@@ -93,7 +95,8 @@ function aggregateHash (base, excludeProtected) {
 }
 
 function sha256File (file) {
-    return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    return crypto.createHash('sha256').update(fs.readFileSync(file))
+        .digest('hex');
 }
 
 function copyTree (srcBase, destBase, rels) {

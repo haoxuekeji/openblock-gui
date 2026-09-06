@@ -4,10 +4,10 @@ import React from 'react';
 import VM from 'openblock-vm';
 
 
-import { compose } from 'redux';
-import { connect } from 'react-redux';
+import {compose} from 'redux';
+import {connect} from 'react-redux';
 
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {defineMessages, injectIntl, intlShape} from 'react-intl';
 
 import extensionLibraryContent from '../lib/libraries/extensions/index.jsx';
 
@@ -67,12 +67,12 @@ const messages = defineMessages({
     }
 });
 
-const SHIELD_TAG = { tag: 'shield', intlLabel: messages.shieldTag };
-const ACTUATOR_TAG = { tag: 'actuator', intlLabel: messages.actuatorTag };
-const SENSOR_TAG = { tag: 'sensor', intlLabel: messages.sensorTag };
-const DISPLAY_TAG = { tag: 'display', intlLabel: messages.displayTag };
-const COMMUNICATION_TAG = { tag: 'communication', intlLabel: messages.communicationTag };
-const OTHER_TAG = { tag: 'other', intlLabel: messages.otherTag };
+const SHIELD_TAG = {tag: 'shield', intlLabel: messages.shieldTag};
+const ACTUATOR_TAG = {tag: 'actuator', intlLabel: messages.actuatorTag};
+const SENSOR_TAG = {tag: 'sensor', intlLabel: messages.sensorTag};
+const DISPLAY_TAG = {tag: 'display', intlLabel: messages.displayTag};
+const COMMUNICATION_TAG = {tag: 'communication', intlLabel: messages.communicationTag};
+const OTHER_TAG = {tag: 'other', intlLabel: messages.otherTag};
 const tagListPrefix = [SHIELD_TAG, ACTUATOR_TAG, SENSOR_TAG, DISPLAY_TAG, COMMUNICATION_TAG, OTHER_TAG];
 
 const STAGE_TAG = {tag: 'stage', intlLabel: messages.stageTag};
@@ -90,7 +90,7 @@ const supportsProgramMode = (extension, mode) => {
 
 
 class ExtensionLibrary extends React.PureComponent {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'updateScratchExtensions',
@@ -135,12 +135,12 @@ class ExtensionLibrary extends React.PureComponent {
         this.props.vm.extensionManager.getDeviceExtensionsList()
             .then(data => {
                 if (this._mounted && data) {
-                    this.setState({ deviceExtensions: data });
+                    this.setState({deviceExtensions: data});
                 }
             });
     }
 
-    handleItemSelect(item) {
+    handleItemSelect (item) {
         const id = item.extensionId;
 
         // Device extension items carry the `isDeviceExtension` flag, so the
@@ -190,7 +190,7 @@ class ExtensionLibrary extends React.PureComponent {
             }
         }
     }
-    render() {
+    render () {
         let extensionLibraryThumbnailData = [];
         const device = this.props.deviceData.find(dev => dev.deviceId === this.props.deviceId);
         const supportsCurrentDevice = extension => {
@@ -283,6 +283,7 @@ ExtensionLibrary.propTypes = {
     deviceId: PropTypes.string,
     intl: intlShape.isRequired,
     isRealtimeMode: PropTypes.bool,
+    onCategorySelected: PropTypes.func,
     onRequestClose: PropTypes.func,
     visible: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired // eslint-disable-line react/no-unused-prop-types
@@ -300,4 +301,3 @@ export default compose(
         mapStateToProps
     )
 )(ExtensionLibrary);
-

@@ -219,8 +219,8 @@ class HardwareTerminal {
      */
     writeSystemLine (text) {
         this._ensureTerminal();
-        const line = (this._atLineStart ? '' : '\r\n') +
-            `\u001b[2m${text}\u001b[0m\r\n`;
+        const line = `${this._atLineStart ? '' : '\r\n'
+        }\u001b[2m${text}\u001b[0m\r\n`;
         this._atLineStart = true;
         if (this._paused) {
             const bytes = new TextEncoder().encode(line);

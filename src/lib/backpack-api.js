@@ -22,7 +22,7 @@ const getBackpackContents = ({
     xhr({
         method: 'GET',
         uri: `${host}?user_id=${username}&limit=${limit}&offset=${offset}`,
-        headers: { 'Authorization': 'Bearer ' + token},
+        headers: {Authorization: `Bearer ${token}`},
         json: true
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
@@ -48,8 +48,8 @@ const saveBackpackObject = ({
     xhr({
         method: 'POST',
         uri: `${host}?user_id=${username}`,
-        headers: { 'Authorization': 'Bearer ' + token },
-        json: { type, mime, name, body, thumbnail }
+        headers: {Authorization: `Bearer ${token}`},
+        json: {type, mime, name, body, thumbnail}
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
@@ -70,7 +70,7 @@ const deleteBackpackObject = ({
     xhr({
         method: 'DELETE',
         uri: `${host}?user_id=${username}&backpack_id=${id}`,
-        headers: { 'Authorization': 'Bearer ' + token }
+        headers: {Authorization: `Bearer ${token}`}
     }, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
@@ -82,7 +82,7 @@ const deleteBackpackObject = ({
 // Two types of backpack items are not retreivable through storage
 // code, as json and sprite3 as arraybuffer zips.
 const fetchAs = (responseType, uri) => new Promise((resolve, reject) => {
-    xhr({ uri, responseType }, (error, response) => {
+    xhr({uri, responseType}, (error, response) => {
         if (error || response.statusCode !== 200) {
             return reject(new Error(response.status));
         }

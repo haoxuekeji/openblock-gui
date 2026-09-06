@@ -1,3 +1,6 @@
 node_modules/*
 build/*
 dist/*
+# Fetched copy of the external resources bundle (gitignored build input),
+# not GUI source.
+external-resources-static/*

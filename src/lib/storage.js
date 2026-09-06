@@ -7,11 +7,11 @@ import defaultProject from './default-project';
  * @todo make this more configurable
  */
 class Storage extends ScratchStorage {
-    constructor() {
+    constructor () {
         super();
         this.cacheDefaultProject();
     }
-    addOfficialScratchWebStores() {
+    addOfficialScratchWebStores () {
         this.addWebStore(
             [this.AssetType.Project],
             this.getProjectGetConfig.bind(this),
@@ -32,10 +32,10 @@ class Storage extends ScratchStorage {
             asset => `static/extension-assets/scratch3_music/${asset.assetId}.${asset.dataFormat}`
         );
     }
-    setProjectHost(projectHost) {
+    setProjectHost (projectHost) {
         this.projectHost = projectHost;
     }
-    getProjectGetConfig(projectAsset) {
+    getProjectGetConfig (projectAsset) {
         const url = `${this.projectHost}/${projectAsset.assetId}`;
         // Unpublished drafts are only served to their author, so send the
         // platform token along (web embeds shim localStorage to hand out the
@@ -54,37 +54,37 @@ class Storage extends ScratchStorage {
         }
         return url;
     }
-    getProjectCreateConfig() {
+    getProjectCreateConfig () {
         return {
             url: `${this.projectHost}/`,
             withCredentials: true
         };
     }
-    getProjectUpdateConfig(projectAsset) {
+    getProjectUpdateConfig (projectAsset) {
         return {
             url: `${this.projectHost}/${projectAsset.assetId}`,
             withCredentials: true
         };
     }
-    setAssetHost(assetHost) {
+    setAssetHost (assetHost) {
         this.assetHost = assetHost;
     }
-    getAssetGetConfig(asset) {
-        //return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+    getAssetGetConfig (asset) {
+        // return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
         if ('assetCDN' in window.scratchConfig) {
             return `${window.scratchConfig.assetCDN}/internalapi/asset/${asset.assetId}.${asset.dataFormat}`;
-        } else {
-            return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
         }
+        return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+        
     }
-    getAssetCreateConfig(asset) {
-        let url
+    getAssetCreateConfig (asset) {
+        let url;
         if ('assetCDN' in window.scratchConfig) {
             url = `${window.scratchConfig.assetCDN}/api/v1/scratch/asset/${asset.assetId}.${asset.dataFormat}`;
         } else {
             url = `${this.assetHost}/api/v1/asset/${asset.assetId}.${asset.dataFormat}`;
         }
-        let token = window.localStorage.getItem('token')
+        const token = window.localStorage.getItem('token');
         return {
             // There is no such thing as updating assets, but storage assumes it
             // should update if there is an assetId, and the asset store uses the
@@ -94,15 +94,15 @@ class Storage extends ScratchStorage {
             url: url,
             withCredentials: true,
             headers: {
-                Authorization: 'Bearer ' + token,
+                Authorization: `Bearer ${token}`
             }
         };
     }
-    setTranslatorFunction(translator) {
+    setTranslatorFunction (translator) {
         this.translator = translator;
         this.cacheDefaultProject();
     }
-    cacheDefaultProject() {
+    cacheDefaultProject () {
         const defaultProjectAssets = defaultProject(this.translator);
         defaultProjectAssets.forEach(asset => this.builtinHelper._store(
             this.AssetType[asset.assetType],

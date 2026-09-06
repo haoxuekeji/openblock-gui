@@ -2,17 +2,16 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import bindAll from 'lodash.bindall';
 
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { injectIntl, intlShape, defineMessages } from 'react-intl';
+import {connect} from 'react-redux';
+import {compose} from 'redux';
+import {injectIntl, intlShape, defineMessages} from 'react-intl';
 
 import VM from 'openblock-vm';
-import analytics from '../lib/analytics';
 import MessageBoxType from '../lib/message-box';
-import { closeUploadProgress } from '../reducers/modals';
-import { showAlertWithTimeout } from '../reducers/alerts';
+import {closeUploadProgress} from '../reducers/modals';
+import {showAlertWithTimeout} from '../reducers/alerts';
 
-import UploadProgressComponent, { PHASES } from '../components/upload-progress/upload-progress.jsx';
+import UploadProgressComponent, {PHASES} from '../components/upload-progress/upload-progress.jsx';
 
 const messages = defineMessages({
     uploadErrorMessage: {
@@ -44,7 +43,7 @@ const ABORT_TIMEOUT_TIME = 10 * 1000; // 10s
 const AUTO_CLOSE_TIME = 3 * 1000; // 3s
 
 class UploadProgress extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'handleAbort',
@@ -77,7 +76,7 @@ class UploadProgress extends React.Component {
         // });
         this.scrollableRef = React.createRef();
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.vm.on('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
         this.props.vm.on('PERIPHERAL_UPLOAD_ERROR', this.handleUploadError);
         this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleConnectionLostError);
@@ -85,7 +84,7 @@ class UploadProgress extends React.Component {
         this.props.vm.on('PERIPHERAL_SET_UPLOAD_ABORT_ENABLED', this.handleSetUploadAbortEnabled);
         this.props.vm.on('PERIPHERAL_UPLOAD_FIRMWARE_CONFIRM', this.handleFirmwareConfirm);
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_STDOUT', this.handleStdout);
         this.props.vm.removeListener('PERIPHERAL_UPLOAD_ERROR', this.handleUploadError);
         this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleConnectionLostError);
@@ -106,7 +105,7 @@ class UploadProgress extends React.Component {
     handleCancel () {
         this.props.oncloseUploadProgress();
     }
-    handleHelp() {
+    handleHelp () {
         window.open(this.state.extension.helpLink, '_blank');
         // analytics.event({
         //     category: 'devices',
@@ -114,7 +113,7 @@ class UploadProgress extends React.Component {
         //     label: this.props.deviceId
         // });
     }
-    handleStdout(data) {
+    handleStdout (data) {
         this.setState({
             text: this.state.text + data.message
         });
@@ -185,7 +184,7 @@ class UploadProgress extends React.Component {
 
         clearTimeout(this.uploadTimeout);
     }
-    handleUploadTimeout() {
+    handleUploadTimeout () {
         this.setState({
             text: `${this.state.text}\r\n${this.props.intl.formatMessage(messages.uploadTimeout)}`,
             phase: PHASES.timeout
@@ -207,7 +206,7 @@ class UploadProgress extends React.Component {
         }
     }
 
-    render() {
+    render () {
         return (
             <UploadProgressComponent
                 connectionSmallIconURL={this.state.extension && this.state.extension.connectionSmallIconURL}

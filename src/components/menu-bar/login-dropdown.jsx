@@ -7,12 +7,12 @@ eventually be consolidated.
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { defineMessages } from 'react-intl';
+import {defineMessages} from 'react-intl';
 
 import MenuBarMenu from './menu-bar-menu.jsx';
 
 import styles from './login-dropdown.css';
-const Login = require('./login.jsx');
+import Login from './login.jsx';
 // these are here as a hack to get them translated, so that equivalent messages will be translated
 // when passed in from www via gui's renderLogin() function
 const LoginDropdownMessages = defineMessages({ // eslint-disable-line no-unused-vars
@@ -49,7 +49,6 @@ const LoginDropdown = ({
     isOpen,
     isRtl,
     onClose,
-    renderLogin,
     onLogin
 }) => (
     <MenuBarMenu
@@ -65,7 +64,7 @@ const LoginDropdown = ({
                 styles.login
             )}
         >
-            {/*renderLogin({
+            {/* renderLogin({
                 onClose: onClose
             })*/}
             <Login
@@ -81,7 +80,6 @@ LoginDropdown.propTypes = {
     isOpen: PropTypes.bool,
     isRtl: PropTypes.bool,
     onClose: PropTypes.func,
-    renderLogin: PropTypes.func,
     onLogin: PropTypes.func
 };
 

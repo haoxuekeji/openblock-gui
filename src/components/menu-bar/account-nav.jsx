@@ -28,7 +28,6 @@ const AccountNavComponent = ({
     onClick,
     onClose,
     onLogOut,
-    profileUrl,
     thumbnailUrl,
     username
 }) => (
@@ -64,7 +63,7 @@ const AccountNavComponent = ({
             place={isRtl ? 'right' : 'left'}
             onRequestClose={onClose}
         >
-            {/*<MenuItemContainer href={profileUrl}>
+            {/* <MenuItemContainer href={profileUrl}>
                 <FormattedMessage
                     defaultMessage="Profile"
                     description="Text to link to my user profile, in the account navigation menu"
@@ -80,7 +79,7 @@ const AccountNavComponent = ({
             </MenuItemContainer>
 
             <MenuItemContainer href="/student/task-list">
-                我的任务
+                {'我的任务'}
             </MenuItemContainer>
             {isEducator ? (
                 <MenuItemContainer href="/educators/classes/">
@@ -131,7 +130,6 @@ AccountNavComponent.propTypes = {
     onClick: PropTypes.func,
     onClose: PropTypes.func,
     onLogOut: PropTypes.func,
-    profileUrl: PropTypes.string,
     thumbnailUrl: PropTypes.string,
     username: PropTypes.string
 };

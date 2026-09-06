@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { defineMessages, injectIntl, intlShape } from 'react-intl';
+import {defineMessages, injectIntl, intlShape} from 'react-intl';
 
 import Box from '../box/box.jsx';
 import SpriteInfo from '../../containers/sprite-info.jsx';
 import SpriteList from './sprite-list.jsx';
 import ActionMenu from '../action-menu/action-menu.jsx';
-import { STAGE_DISPLAY_SIZES } from '../../lib/layout-constants';
-import { isRtl } from 'hxblock-l10n';
+import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants';
+import {isRtl} from 'hxblock-l10n';
 
 import styles from './sprite-selector.css';
 
@@ -16,8 +16,8 @@ import paintIcon from '../action-menu/icon--paint.svg';
 import spriteIcon from '../action-menu/icon--sprite.svg';
 import surpriseIcon from '../action-menu/icon--surprise.svg';
 import searchIcon from '../action-menu/icon--search.svg';
-import hxlibIcon from '../action-menu/hx-logo.png'
-import HX_Lib from '../../hx_tarin.js'
+import hxlibIcon from '../action-menu/hx-logo.png';
+import HxLib from '../../hx_tarin.js';
 
 const messages = defineMessages({
     addSpriteFromLibrary: {
@@ -144,10 +144,10 @@ const SpriteSelectorComponent = function (props) {
                         img: searchIcon,
                         onClick: onNewSpriteClick
                     },
-                    ...(HX_Lib.isEnabled('sprite') ? [{
+                    ...(HxLib.isEnabled('sprite') ? [{
                         title: intl.formatMessage(messages.addSpriteFromLib),
                         img: hxlibIcon,
-                        onClick: () => HX_Lib.onSpriteClick()
+                        onClick: () => HxLib.handleSpriteClick()
                     }] : [])
                 ]}
                 title={intl.formatMessage(messages.addSpriteFromLibrary)}

@@ -1,7 +1,7 @@
 import bindAll from 'lodash.bindall';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { defineMessages, injectIntl, intlShape, FormattedMessage } from 'react-intl';
+import {defineMessages, injectIntl, intlShape, FormattedMessage} from 'react-intl';
 import ReactModal from 'react-modal';
 
 import Box from '../box/box.jsx';
@@ -23,7 +23,8 @@ const messages = defineMessages({
         id: 'gui.telemetryOptIn.body1_bak'
     },
     bodyText2: {
-        // defaultMessage: 'The information we collect includes language selection, blocks usage, and some events like ' +
+        // defaultMessage: 'The information we collect includes language selection, blocks usage, and some ' +
+        //     'events like ' +
         //     'saving, loading, and uploading a project. We DO NOT collect any personal information. Please see our ' +
         //     '{privacyPolicyLink} for more information.',
         defaultMessage: '我们收集的信息包括所选语言、积木使用情况以及诸如保存、加载和上传作品等功能的使用情况。我们不会收集任何个人信息。',
@@ -56,7 +57,7 @@ const messages = defineMessages({
         id: 'gui.telemetryOptIn.optOutTooltip'
     },
     yesButton: {
-        defaultMessage: "好的，我愿意帮助改进",
+        defaultMessage: '好的，我愿意帮助改进',
         description: 'Text for telemetry modal opt-in button',
         id: 'gui.telemetryOptIn.buttonTextYes_bak'
     },
@@ -76,7 +77,7 @@ const messages = defineMessages({
 const SETTING_WAS_UPDATED_DURATION_MS = 3000;
 
 class TelemetryModal extends React.PureComponent {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'handleCancel',
@@ -87,18 +88,18 @@ class TelemetryModal extends React.PureComponent {
             settingWasUpdatedTimer: null
         };
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         if (this.state.settingWasUpdatedTimer) {
             clearTimeout(this.state.settingWasUpdatedTimer);
         }
     }
-    handleCancel() {
+    handleCancel () {
         this.props.onRequestClose();
         if (this.props.onCancel) {
             this.props.onCancel();
         }
     }
-    handleOptInOutChanged(e) {
+    handleOptInOutChanged (e) {
         if (e.target.value === 'true') {
             if (this.props.onOptIn) {
                 this.props.onOptIn();
@@ -111,7 +112,7 @@ class TelemetryModal extends React.PureComponent {
             }
         }
     }
-    handleSettingWasUpdated() {
+    handleSettingWasUpdated () {
         if (this.state.settingWasUpdatedTimer) {
             clearTimeout(this.state.settingWasUpdatedTimer);
         }
@@ -123,7 +124,7 @@ class TelemetryModal extends React.PureComponent {
             settingWasUpdatedTimer: newTimer
         });
     }
-    handleSettingWasUpdatedTimeout(thisTimer) {
+    handleSettingWasUpdatedTimeout (thisTimer) {
         if (thisTimer !== this.state.settingWasUpdatedTimer) {
             // some other timer has taken over
             return;
@@ -132,7 +133,7 @@ class TelemetryModal extends React.PureComponent {
             settingWasUpdatedTimer: null
         });
     }
-    render() {
+    render () {
         const isUndecided = (typeof this.props.isTelemetryEnabled !== 'boolean');
         const isOff = (this.props.isTelemetryEnabled === false);
         const isOn = (this.props.isTelemetryEnabled === true);

@@ -1,13 +1,12 @@
-const bindAll = require('lodash.bindall');
-const FormattedMessage = require('react-intl').FormattedMessage;
-const PropTypes = require('prop-types');
-const React = require('react');
+import bindAll from 'lodash.bindall';
+import PropTypes from 'prop-types';
+import React from 'react';
+import {FormattedMessage} from 'react-intl';
 
-const styles = require('./login.css');
-//require('./login.scss');
+import styles from './login.css';
 
 class Login extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         bindAll(this, [
             'handleSubmit'
@@ -16,28 +15,29 @@ class Login extends React.Component {
             waiting: false
         };
     }
-    handleSubmit(e) {
+    handleSubmit (e) {
         e.preventDefault();
-        let form = {
+        const form = {
             user: e.target.username.value,
-            pwd: e.target.password.value,
-        }
-        this.setState({ waiting: true });
-        this.props.onLogIn(form, this.props.onClose, (result) => {
+            pwd: e.target.password.value
+        };
+        this.setState({waiting: true});
+        this.props.onLogIn(form, this.props.onClose, result => {
             if (result.success === true) {
-                this.props.onClose()
+                this.props.onClose();
 
             }
-            this.setState({ waiting: false });
+            this.setState({waiting: false});
         });
     }
-    render() {
+    render () {
         let error;
         if (this.props.error) {
             error = <div className="error">{this.props.error}</div>;
         }
         return (
             <div className="login">
+                {error}
                 <form onSubmit={this.handleSubmit}>
                     <label
                         htmlFor="username"
@@ -71,7 +71,9 @@ class Login extends React.Component {
 
                     <button
                         className={styles.btnSubmit}
-                        type="submit" disabled={this.state.waiting}>登录</button>
+                        type="submit"
+                        disabled={this.state.waiting}
+                    >{'登录'}</button>
                 </form>
             </div>
         );
@@ -79,8 +81,9 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
+    error: PropTypes.node,
     onLogIn: PropTypes.func,
-    onClose: PropTypes.func,
+    onClose: PropTypes.func
 };
 
-module.exports = Login;
+export default Login;

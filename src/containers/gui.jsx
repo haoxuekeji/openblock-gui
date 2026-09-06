@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
+import {compose} from 'redux';
+import {connect} from 'react-redux';
 import ReactModal from 'react-modal';
 import VM from 'openblock-vm';
-import { injectIntl, intlShape } from 'react-intl';
+import {injectIntl, intlShape} from 'react-intl';
 
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
-import { setPlayer } from '../reducers/mode';
+import {setPlayer} from '../reducers/mode';
 import {
     getIsError,
     getIsShowingProject,
@@ -29,7 +29,7 @@ import {
     openPythonRunnerModal
 } from '../reducers/modals';
 
-import { setSession } from '../reducers/session'
+import {setSession} from '../reducers/session';
 
 import FontLoaderHOC from '../lib/font-loader-hoc.jsx';
 import LocalizationHOC from '../lib/localization-hoc.jsx';
@@ -44,7 +44,7 @@ import vmManagerHOC from '../lib/vm-manager-hoc.jsx';
 import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 
 import GUIComponent from '../components/gui/gui.jsx';
-import { setIsScratchDesktop } from '../lib/isScratchDesktop.js';
+import {setIsScratchDesktop} from '../lib/isScratchDesktop.js';
 
 // Production uses the static external-resources snapshot deployed with the
 // GUI. Docker development deliberately leaves the base unset so the VM reads
@@ -62,14 +62,14 @@ if (
 }
 
 class GUI extends React.Component {
-    componentDidMount() {
+    componentDidMount () {
         setIsScratchDesktop(this.props.isScratchDesktop);
         this.props.onStorageInit(storage);
         this.props.onVmInit(this.props.vm);
 
         this.isDefaultProjectLoaded = false;
 
-        window.scratch = window.scratch || {}
+        window.scratch = window.scratch || {};
 
         // if (window.scratchConfig && window.scratchConfig.login) {
         //     window.api.getInfo().then(res => {
@@ -90,62 +90,62 @@ class GUI extends React.Component {
         //     })
         // }
 
-        var that = this
-        document.addEventListener("loadProject", function (e) {
-            that.loadProjectByURL(e.detail.url, e.detail.callback)
-        })
-        document.addEventListener("getProjectFile", function (e) {
-            that.getProjectFile(e.detail.callback)
-        })
-        document.addEventListener("getProjectCover", function (e) {
-            that.getProjectCover(e.detail.callback)
-        })
-        document.addEventListener("setProjectId", function (e) {
-            that.setProjectId(e.detail.projectId)
-        })
+        const that = this;
+        document.addEventListener('loadProject', e => {
+            that.loadProjectByURL(e.detail.url, e.detail.callback);
+        });
+        document.addEventListener('getProjectFile', e => {
+            that.getProjectFile(e.detail.callback);
+        });
+        document.addEventListener('getProjectCover', e => {
+            that.getProjectCover(e.detail.callback);
+        });
+        document.addEventListener('setProjectId', e => {
+            that.setProjectId(e.detail.projectId);
+        });
 
-        window.scratch.getProjectCover = (callback) => {
-            var event = new CustomEvent('getProjectCover', { "detail": { callback: callback } });
+        window.scratch.getProjectCover = callback => {
+            const event = new CustomEvent('getProjectCover', {detail: {callback: callback}});
             document.dispatchEvent(event);
-        }
+        };
 
-        window.scratch.getProjectCoverBlob = (callback) => {
-            var event = new CustomEvent('getProjectCoverBlob', { "detail": { callback: callback } });
+        window.scratch.getProjectCoverBlob = callback => {
+            const event = new CustomEvent('getProjectCoverBlob', {detail: {callback: callback}});
             document.dispatchEvent(event);
-        }
+        };
 
-        window.scratch.getProjectFile = (callback) => {
-            var event = new CustomEvent('getProjectFile', { "detail": { callback: callback } });
+        window.scratch.getProjectFile = callback => {
+            const event = new CustomEvent('getProjectFile', {detail: {callback: callback}});
             document.dispatchEvent(event);
-        }
+        };
 
         window.scratch.loadProject = (url, callback) => {
-            var event = new CustomEvent('loadProject', { "detail": { url: url, callback: callback } });
+            const event = new CustomEvent('loadProject', {detail: {url: url, callback: callback}});
             document.dispatchEvent(event);
-        }
+        };
 
-        window.scratch.setProjectId = (projectId) => {
-            var event = new CustomEvent('setProjectId', { "detail": { projectId: projectId } });
+        window.scratch.setProjectId = projectId => {
+            const event = new CustomEvent('setProjectId', {detail: {projectId: projectId}});
             document.dispatchEvent(event);
-        }
-        window.scratch.onSeeInside = (isPlayerOnly) => {
-            this.onSeeInside(isPlayerOnly)
-        }
+        };
+        window.scratch.onSeeInside = isPlayerOnly => {
+            this.onSeeInside(isPlayerOnly);
+        };
         // Platform works browser (desktop menu bar wires its
         // profileButton.handleClick to this entry point).
         window.scratch.openMyWorks = () => {
-            this.props.onOpenMyWorks()
-        }
+            this.props.onOpenMyWorks();
+        };
         // Local python runner (desktop menu bar wires a config button here).
         window.scratch.openPythonRunner = () => {
-            this.props.onOpenPythonRunner()
-        }
+            this.props.onOpenPythonRunner();
+        };
 
         if (window.scratchConfig && 'handleVmInitialized' in window.scratchConfig) {
-            window.scratchConfig.handleVmInitialized(this.props.vm)
+            window.scratchConfig.handleVmInitialized(this.props.vm);
         }
     }
-    componentDidUpdate(prevProps) {
+    componentDidUpdate (prevProps) {
         if (this.props.projectId !== prevProps.projectId && this.props.projectId !== null) {
             this.props.onUpdateProjectId(this.props.projectId);
         }
@@ -154,16 +154,16 @@ class GUI extends React.Component {
             // At this time the project view in www doesn't need to know when a project is unloaded
             this.props.onProjectLoaded();
 
-            //加载项目回调
+            // 加载项目回调
             if (window.scratchConfig && 'handleProjectLoaded' in window.scratchConfig) {
-                window.scratchConfig.handleProjectLoaded()
+                window.scratchConfig.handleProjectLoaded();
             }
 
-            //加载默认项目回调
+            // 加载默认项目回调
             if (!this.isDefaultProjectLoaded) {
-                this.isDefaultProjectLoaded = true
+                this.isDefaultProjectLoaded = true;
                 if (window.scratchConfig && 'handleDefaultProjectLoaded' in window.scratchConfig) {
-                    window.scratchConfig.handleDefaultProjectLoaded()
+                    window.scratchConfig.handleDefaultProjectLoaded();
                 }
             }
         }
@@ -171,57 +171,58 @@ class GUI extends React.Component {
             this.props.onActivateBlocksTab();
         }
     }
-    getProjectFile(callback) {
+    getProjectFile (callback) {
         this.props.vm.saveProjectSb3().then(res => {
-            callback(res)
-        })
+            callback(res);
+        });
     }
-    getProjectCover(callback) {
-        this.props.vm.postIOData('video', { forceTransparentPreview: true });
+    getProjectCover (callback) {
+        this.props.vm.postIOData('video', {forceTransparentPreview: true});
         this.props.vm.renderer.requestSnapshot(dataURI => {
-            this.props.vm.postIOData('video', { forceTransparentPreview: false });
+            this.props.vm.postIOData('video', {forceTransparentPreview: false});
             callback(dataURI);
         });
         this.props.vm.renderer.draw();
     }
-    getProjectCoverBlob(callback) {
-        this.props.vm.renderer.draw()
-        let canvas = vm.renderer.canvas
-        canvas.toBlob(function (blob) {
-            callback(blob)
-        })
+    getProjectCoverBlob (callback) {
+        this.props.vm.renderer.draw();
+        const canvas = this.props.vm.renderer.canvas;
+        canvas.toBlob(blob => {
+            callback(blob);
+        });
     }
-    loadProjectByURL(url, callback) {
-        //console.log("从URL加载项目" + url)
+    loadProjectByURL (url, callback) {
+        // console.log("从URL加载项目" + url)
         // this.props.onLoadingStarted()
         // this.props.vm.clear()
-        return fetch(url).then(r => r.blob()).then(blob => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.props.vm.loadProject(reader.result).then(() => {
+        return fetch(url).then(r => r.blob())
+            .then(blob => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    this.props.vm.loadProject(reader.result).then(() => {
                     // this.props.onUpdateProjectTitle(projectName)
                     //   this.props.onLoadedProject(this.props.loadingState, this.props.canSave);
                     //   setTimeout(() => this.props.onSetProjectUnchanged());
                     //   if (!this.props.isStarted) {
                     //     setTimeout(() => this.props.vm.renderer.draw());
                     //   }
-                    callback()
-                })
-            };
-            reader.readAsArrayBuffer(blob);
-        });
+                        callback();
+                    });
+                };
+                reader.readAsArrayBuffer(blob);
+            });
     }
-    setProjectId(projectId) {
-        this.props.onSetProjectId(projectId)
+    setProjectId (projectId) {
+        this.props.onSetProjectId(projectId);
     }
-    setSession(session) {
-        this.props.onSetSession(session)
+    setSession (session) {
+        this.props.onSetSession(session);
     }
-    onSeeInside(isPlayerOnly) {
-        this.props.onSeeInside(isPlayerOnly)
+    onSeeInside (isPlayerOnly) {
+        this.props.onSeeInside(isPlayerOnly);
     }
 
-    render() {
+    render () {
         if (this.props.isError) {
             throw new Error(
                 `Error in Scratch GUI [location=${window.location}]: ${this.props.error}`);
@@ -272,8 +273,13 @@ GUI.propTypes = {
     isShowingProject: PropTypes.bool,
     loadingStateVisible: PropTypes.bool,
     onActivateBlocksTab: PropTypes.func,
+    onOpenMyWorks: PropTypes.func,
+    onOpenPythonRunner: PropTypes.func,
     onProjectLoaded: PropTypes.func,
     onSeeCommunity: PropTypes.func,
+    onSeeInside: PropTypes.func,
+    onSetProjectId: PropTypes.func,
+    onSetSession: PropTypes.func,
     onStorageInit: PropTypes.func,
     onUpdateProjectId: PropTypes.func,
     onVmInit: PropTypes.func,
@@ -326,7 +332,7 @@ const mapStateToProps = state => {
         telemetryModalVisible: state.scratchGui.modals.telemetryModal,
         tipsLibraryVisible: state.scratchGui.modals.tipsLibrary,
         vm: state.scratchGui.vm,
-        isRealtimeMode: state.scratchGui.programMode.isRealtimeMode,
+        isRealtimeMode: state.scratchGui.programMode.isRealtimeMode
     };
 };
 

@@ -238,8 +238,10 @@ module.exports = [
                 from: 'extension-worker.{js,js.map}',
                 context: (function () {
                     var web = path.resolve(__dirname, 'node_modules/openblock-vm/dist/web');
-                    return fs.existsSync(web) ? web : path.resolve(__dirname, 'node_modules/openblock-vm/src/extension-support');
-                })()
+                    return fs.existsSync(web) ?
+                        web :
+                        path.resolve(__dirname, 'node_modules/openblock-vm/src/extension-support');
+                }())
             }]),
             // Static snapshot of external devices/extensions so browser-direct
             // deployments do not need the local openblock-resource service.
@@ -287,8 +289,10 @@ module.exports = [
                     from: 'extension-worker.{js,js.map}',
                     context: (function () {
                         var web = path.resolve(__dirname, 'node_modules/openblock-vm/dist/web');
-                        return fs.existsSync(web) ? web : path.resolve(__dirname, 'node_modules/openblock-vm/src/extension-support');
-                    })()
+                        return fs.existsSync(web) ?
+                            web :
+                            path.resolve(__dirname, 'node_modules/openblock-vm/src/extension-support');
+                    }())
                 }]),
                 // Include library JSON files for scratch-desktop to use for downloading
                 new CopyWebpackPlugin([{

@@ -1,9 +1,8 @@
-
 const SET_SESSION = 'session/SET_SESSION';
-//登录状态
+// 登录状态
 const initialState = {
     session: {
-        user:{
+        user: {
             userid: 0,
             thumbnailUrl: '',
             nickname: '',
@@ -21,12 +20,10 @@ const reducer = function (state, action) {
     }
     return state;
 };
-const setSession = session => { 
-    return {
-        type: SET_SESSION,
-        session: session
-    }
-};
+const setSession = session => ({
+    type: SET_SESSION,
+    session: session
+});
 
 export {
     reducer as default,

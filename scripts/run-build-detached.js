@@ -5,7 +5,7 @@
  * log instead of holding the process. Streams stdout/stderr to
  * /tmp/gui-build.log and appends a final "=== EXIT <code> ===" marker.
  */
-'use strict';
+
 
 const {spawn} = require('child_process');
 const fs = require('fs');

@@ -22,9 +22,10 @@
  * node_modules/openblock-vm/node_modules 下。闭包从 VM 仓库自身的
  * node_modules 递归解析复制，无需网络。
  */
-'use strict';
+
 
 const {execFileSync} = require('child_process');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -89,7 +90,8 @@ function gitTrackedFiles (repoDir) {
     const out = execFileSync('git', ['-C', repoDir, 'ls-files', '-z'], {
         maxBuffer: 64 * 1024 * 1024
     });
-    return out.toString('utf8').split('\0').filter(Boolean);
+    return out.toString('utf8').split('\0')
+        .filter(Boolean);
 }
 
 /** 递归收集目录下所有文件（相对 base 的路径） */
@@ -134,7 +136,6 @@ function resolveClosure (repoNodeModules, rootPkgs) {
 
 /** 计算一组文件的聚合 sha256（路径 + 内容，顺序稳定） */
 function aggregateSha256 (baseDir, relFiles) {
-    const crypto = require('crypto');
     const hash = crypto.createHash('sha256');
     for (const rel of [...relFiles].sort()) {
         hash.update(rel.replace(/\\/g, '/'));
@@ -192,12 +193,16 @@ function syncDep (dep) {
         }
     }
 
-    const head = execFileSync('git', ['-C', repoDir, 'rev-parse', 'HEAD']).toString().trim();
-    const dirty = execFileSync('git', ['-C', repoDir, 'status', '--short']).toString().trim().length > 0;
+    const head = execFileSync('git', ['-C', repoDir, 'rev-parse', 'HEAD']).toString()
+        .trim();
+    const dirty = execFileSync('git', ['-C', repoDir, 'status', '--short']).toString()
+        .trim().length > 0;
     const commitLabel = `${head.slice(0, 12)}${dirty ? '+dirty' : ''}`;
 
     if (CHECK_ONLY) {
-        log(`${dep.pkg}: ${inSync ? 'in-sync' : 'OUT-OF-SYNC'} (source ${dep.repo}@${commitLabel}, files=${srcFiles.length}, sha256=${srcHash.slice(0, 16)}…)`);
+        log(`${dep.pkg}: ${inSync ? 'in-sync' : 'OUT-OF-SYNC'} ` +
+            `(source ${dep.repo}@${commitLabel}, files=${srcFiles.length}, ` +
+            `sha256=${srcHash.slice(0, 16)}…)`);
         return {pkg: dep.pkg, status: inSync ? 'in-sync' : 'out-of-sync', commit: commitLabel, hash: srcHash};
     }
 

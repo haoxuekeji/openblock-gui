@@ -8,18 +8,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 
-//import analytics from '../lib/analytics';
+// import analytics from '../lib/analytics';
 import AppStateHOC from '../lib/app-state-hoc.jsx';
 import BrowserModalComponent from '../components/browser-modal/browser-modal.jsx';
 import supportedBrowser from '../lib/supported-browser';
 
 import styles from './index.css';
 // Register "base" page view
-//analytics.pageview('/');
+// analytics.pageview('/');
 
 const appTarget = document.getElementById('scratch');
 appTarget.className = styles.app;
-//document.body.appendChild(appTarget);
+// document.body.appendChild(appTarget);
 
 
 if (supportedBrowser()) {

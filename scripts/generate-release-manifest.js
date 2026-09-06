@@ -18,7 +18,7 @@
  *
  * 退出码 0 = 成功生成；任何仓库 dirty 会在 manifest 中如实标注。
  */
-'use strict';
+
 
 const {execFileSync} = require('child_process');
 const crypto = require('crypto');
@@ -255,7 +255,8 @@ fs.mkdirSync(path.dirname(OUT_JSON), {recursive: true});
 fs.writeFileSync(OUT_JSON, `${JSON.stringify(manifest, null, 2)}\n`);
 
 const mdRepoRows = manifest.repos.map(r =>
-    `| ${r.name} | ${r.branch || '-'} | \`${(r.head || '').slice(0, 12)}\` | ${r.dirty ? '**dirty**' : 'clean'} | ${r.lastCommitSubject || r.error || ''} |`).join('\n');
+    `| ${r.name} | ${r.branch || '-'} | \`${(r.head || '').slice(0, 12)}\` | ` +
+    `${r.dirty ? '**dirty**' : 'clean'} | ${r.lastCommitSubject || r.error || ''} |`).join('\n');
 
 const mdOverlayRows = manifest.localDependencyOverlay.map(o =>
     `| ${o.package} | ${o.installedVersion} | \`${o.aggregateSha256.slice(0, 16)}…\` | ${o.fileCount} |`).join('\n');

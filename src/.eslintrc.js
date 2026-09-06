@@ -6,7 +6,9 @@ module.exports = {
         browser: true
     },
     globals: {
-        process: true
+        process: true,
+        // Provided by webpack's node polyfills, not by the browser.
+        Buffer: true
     },
     rules: {
         'import/no-mutable-exports': 'error',
