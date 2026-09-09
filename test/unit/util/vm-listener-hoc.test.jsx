@@ -281,4 +281,20 @@ describe('VMListenerHOC', () => {
             .map(action => action.alertId);
         expect(closed).toEqual(['peripheralReconnecting', 'liveProgramNotStoppable']);
     });
+
+    test('realtime channel events for an unknown device are ignored instead of throwing', () => {
+        const Component = () => (<div />);
+        const WrappedComponent = vmListenerHOC(Component);
+        mount(
+            <WrappedComponent
+                store={store}
+                vm={vm}
+            />
+        );
+        // deviceData is empty in guiInitialState: the lookup yields undefined.
+        expect(() => vm.emit('PERIPHERAL_REALTIME_CONNECTION_LOST_ERROR', {deviceId: 'gone', message: 'x'}))
+            .not.toThrow();
+        expect(() => vm.emit('PERIPHERAL_REALTIME_CONNECT_SUCCESS', {deviceId: 'gone'})).not.toThrow();
+        expect(store.getActions()).toEqual([]);
+    });
 });

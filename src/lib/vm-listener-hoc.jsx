@@ -198,16 +198,18 @@ const vmListenerHOC = function (WrappedComponent) {
         }
         handleDeviceRealtimeAlert (data) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
-            device.message = data.message;
+            // The Firmata channel reports under the serial device id; a device
+            // not in the list (unloaded meanwhile) has nothing to show.
             if (device) {
+                device.message = data.message;
                 this.props.onShowDeviceRealtimeAlert(device);
                 this.props.onSetRealtimeConnection(false);
             }
         }
         handleDeviceRealtimeSuccess (data) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
-            device.message = data.message;
             if (device) {
+                device.message = data.message;
                 this.props.onClearDeviceRealtimeAlert(device);
                 this.props.onSetRealtimeConnection(true);
             }
