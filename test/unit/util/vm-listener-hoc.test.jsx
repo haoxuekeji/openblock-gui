@@ -186,4 +186,99 @@ describe('VMListenerHOC', () => {
         eventTriggers.keyup({key: 'Dead', keyCode: 10, target: document});
         expect(vm.postIOData).toHaveBeenLastCalledWith('keyboard', {key: 10, isDown: false});
     });
+
+    test('a live channel rebuild flags the channel without an alert', () => {
+        const Component = () => (<div />);
+        const WrappedComponent = vmListenerHOC(Component);
+        mount(
+            <WrappedComponent
+                store={store}
+                vm={vm}
+            />
+        );
+        vm.emit('PERIPHERAL_LIVE_UNAVAILABLE', {deviceId: 'microPythonEsp32', reason: 'channel'});
+        const actions = store.getActions();
+        expect(actions).toEqual([{
+            type: 'scratch-gui/connection-modal/setLiveUnavailable',
+            liveUnavailable: true,
+            reason: 'channel'
+        }]);
+    });
+
+    test('a program that cannot be stopped raises the hint plus a one-shot alert, cleared on recovery', () => {
+        const Component = () => (<div />);
+        const WrappedComponent = vmListenerHOC(Component);
+        mount(
+            <WrappedComponent
+                store={store}
+                vm={vm}
+            />
+        );
+        vm.emit('PERIPHERAL_LIVE_UNAVAILABLE', {deviceId: 'microPythonEsp32', reason: 'interrupt-failed'});
+        let actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'scratch-gui/connection-modal/setLiveUnavailable',
+            liveUnavailable: true,
+            reason: 'interrupt-failed'
+        });
+        expect(actions[1].type).toEqual('scratch-gui/alerts/SHOW_ALERT');
+        expect(actions[1].alertId).toEqual('liveProgramNotStoppable');
+
+        store.clearActions();
+        vm.emit('PERIPHERAL_LIVE_AVAILABLE', {deviceId: 'microPythonEsp32'});
+        actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'scratch-gui/connection-modal/setLiveUnavailable',
+            liveUnavailable: false,
+            reason: null
+        });
+        expect(actions[1].type).toEqual('scratch-gui/alerts/CLOSE_ALERT_WITH_ID');
+        expect(actions[1].alertId).toEqual('liveProgramNotStoppable');
+    });
+
+    test('the not-stoppable alert is not re-raised while the same episode lasts', () => {
+        const Component = () => (<div />);
+        const WrappedComponent = vmListenerHOC(Component);
+        // The store already reflects the first report of this episode.
+        store = mockStore({
+            scratchGui: {
+                ...guiInitialState,
+                connectionModal: {
+                    ...guiInitialState.connectionModal,
+                    liveUnavailable: true,
+                    liveUnavailableReason: 'interrupt-failed'
+                },
+                mode: {},
+                modals: {},
+                vm: vm
+            }
+        });
+        mount(
+            <WrappedComponent
+                store={store}
+                vm={vm}
+            />
+        );
+        vm.emit('PERIPHERAL_LIVE_UNAVAILABLE', {deviceId: 'microPythonEsp32', reason: 'interrupt-failed'});
+        const actions = store.getActions();
+        expect(actions.map(action => action.type)).toEqual(['scratch-gui/connection-modal/setLiveUnavailable']);
+    });
+
+    test('a settled connection clears the live hint and the alert', () => {
+        const Component = () => (<div />);
+        const WrappedComponent = vmListenerHOC(Component);
+        mount(
+            <WrappedComponent
+                store={store}
+                vm={vm}
+            />
+        );
+        vm.emit('PERIPHERAL_DISCONNECTED');
+        const types = store.getActions().map(action => action.type);
+        expect(types).toContain('scratch-gui/connection-modal/setLiveUnavailable');
+        const closed = store.getActions()
+            .filter(action => action.type === 'scratch-gui/alerts/CLOSE_ALERT_WITH_ID')
+            .map(action => action.alertId);
+        expect(closed).toEqual(['peripheralReconnecting', 'liveProgramNotStoppable']);
+    });
 });

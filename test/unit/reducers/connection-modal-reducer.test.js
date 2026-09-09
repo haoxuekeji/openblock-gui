@@ -3,7 +3,8 @@ import connectionModalReducer, {
     connectionModalInitialState,
     setConnectionModalTarget,
     setConnectionModalPeripheralName,
-    clearConnectionModalPeripheralName
+    clearConnectionModalPeripheralName,
+    setLiveUnavailable
 } from '../../../src/reducers/connection-modal';
 
 test('initialState targets the hardware device and shows no peripheral', () => {
@@ -34,4 +35,26 @@ test('peripheral name updates leave the target alone', () => {
     const cleared = connectionModalReducer(named, clearConnectionModalPeripheralName());
     expect(cleared.peripheralName).toBeNull();
     expect(cleared.targetId).toBe('wedo2');
+});
+
+test('setLiveUnavailable records the reason and defaults it to a channel rebuild', () => {
+    expect(connectionModalInitialState.liveUnavailable).toBe(false);
+    expect(connectionModalInitialState.liveUnavailableReason).toBeNull();
+
+    const rebuilding = connectionModalReducer(connectionModalInitialState, setLiveUnavailable(true));
+    expect(rebuilding.liveUnavailable).toBe(true);
+    expect(rebuilding.liveUnavailableReason).toBe('channel');
+
+    const stuck = connectionModalReducer(rebuilding, setLiveUnavailable(true, 'interrupt-failed'));
+    expect(stuck.liveUnavailableReason).toBe('interrupt-failed');
+});
+
+test('clearing the live-unavailable flag forgets the reason as well', () => {
+    const stuck = connectionModalReducer(connectionModalInitialState, setLiveUnavailable(true, 'interrupt-failed'));
+    const recovered = connectionModalReducer(stuck, setLiveUnavailable(false));
+    expect(recovered.liveUnavailable).toBe(false);
+    expect(recovered.liveUnavailableReason).toBeNull();
+    // A reason passed alongside "available" is meaningless and dropped.
+    expect(connectionModalReducer(stuck, setLiveUnavailable(false, 'interrupt-failed')).liveUnavailableReason)
+        .toBeNull();
 });

@@ -170,6 +170,11 @@ const deviceMessages = defineMessages({
         id: 'gui.menuBar.liveChannelReconnecting',
         defaultMessage: 'Realtime channel reconnecting, sensor blocks are paused',
         description: 'Tooltip of the yellow dot shown while the realtime command channel is being rebuilt'
+    },
+    liveProgramNotStoppable: {
+        id: 'gui.menuBar.liveProgramNotStoppable',
+        defaultMessage: 'Realtime channel blocked: the program on the board cannot be stopped',
+        description: 'Tooltip of the yellow dot when the uploaded program on the board keeps running through interrupts'
     }
 });
 
@@ -1004,7 +1009,9 @@ class MenuBar extends React.Component {
                                         <span
                                             className={styles.liveUnavailableDot}
                                             title={this.props.intl.formatMessage(
-                                                deviceMessages.liveChannelReconnecting)}
+                                                this.props.liveUnavailableReason === 'interrupt-failed' ?
+                                                    deviceMessages.liveProgramNotStoppable :
+                                                    deviceMessages.liveChannelReconnecting)}
                                         />
                                     ) : null}
                                     {this.props.peripheralName}
@@ -1591,6 +1598,7 @@ MenuBar.propTypes = {
     onOpenUploadProgress: PropTypes.func,
     peripheralName: PropTypes.string,
     liveUnavailable: PropTypes.bool,
+    liveUnavailableReason: PropTypes.string,
     onDisconnect: PropTypes.func.isRequired,
     onWorkspaceIsEmpty: PropTypes.func.isRequired,
     onShowMessageBox: PropTypes.func.isRequired,
@@ -1641,6 +1649,7 @@ const mapStateToProps = (state, ownProps) => {
         peripheralName: state.scratchGui.connectionModal.peripheralName,
         connectionTargetId: state.scratchGui.connectionModal.targetId,
         liveUnavailable: state.scratchGui.connectionModal.liveUnavailable,
+        liveUnavailableReason: state.scratchGui.connectionModal.liveUnavailableReason,
         deviceId: state.scratchGui.device.deviceId,
         deviceName: state.scratchGui.device.deviceName
     };

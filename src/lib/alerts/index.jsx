@@ -333,6 +333,20 @@ const alerts = [
         level: AlertLevels.WARN
     },
     {
+        alertId: 'liveProgramNotStoppable',
+        alertType: AlertTypes.STANDARD,
+        clearList: ['liveProgramNotStoppable'],
+        closeButton: true,
+        content: (
+            <FormattedMessage
+                defaultMessage="The program running on the board could not be stopped, so realtime blocks get no data. Upload an empty program or reset the board, then switch to realtime mode again." // eslint-disable-line max-len
+                description="Message shown when the realtime session cannot start because the uploaded program on the board keeps running through every interrupt" // eslint-disable-line max-len
+                id="gui.alerts.liveProgramNotStoppable"
+            />
+        ),
+        level: AlertLevels.WARN
+    },
+    {
         alertId: 'codeEditorIsLocked',
         alertType: AlertTypes.STANDARD,
         clearList: ['codeEditorIsLocked', 'codeEditorIsUnlocked'],

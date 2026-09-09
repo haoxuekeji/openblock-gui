@@ -181,12 +181,20 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.onClosePeripheralReconnectingAlert();
             // 连接状态落定(重连成功或断开)后,实时通道提示交由新会话重新判定。
             this.props.onSetLiveUnavailable(false);
+            this.props.onCloseLiveProgramNotStoppableAlert();
         }
-        handleLiveUnavailable () {
-            this.props.onSetLiveUnavailable(true);
+        handleLiveUnavailable (data) {
+            const reason = (data && data.reason) || 'channel';
+            this.props.onSetLiveUnavailable(true, reason);
+            // 板上程序停不下来不是通道抖动,黄点之外再给一次可操作的弹窗;
+            // 同一次故障期间重复上报不再重复弹。
+            if (reason === 'interrupt-failed' && this.props.liveUnavailableReason !== 'interrupt-failed') {
+                this.props.onShowLiveProgramNotStoppableAlert();
+            }
         }
         handleLiveAvailable () {
             this.props.onSetLiveUnavailable(false);
+            this.props.onCloseLiveProgramNotStoppableAlert();
         }
         handleDeviceRealtimeAlert (data) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
@@ -232,6 +240,10 @@ const vmListenerHOC = function (WrappedComponent) {
                 onClearDeviceRealtimeAlert,
                 onShowPeripheralReconnectingAlert,
                 onClosePeripheralReconnectingAlert,
+                onShowLiveProgramNotStoppableAlert,
+                onCloseLiveProgramNotStoppableAlert,
+                onSetLiveUnavailable,
+                liveUnavailableReason,
                 onSetDeviceData,
                 /* eslint-enable no-unused-vars */
                 ...props
@@ -242,6 +254,7 @@ const vmListenerHOC = function (WrappedComponent) {
     VMListener.propTypes = {
         attachKeyboardEvents: PropTypes.bool,
         deviceData: PropTypes.instanceOf(Array).isRequired,
+        liveUnavailableReason: PropTypes.string,
         onBlockDragUpdate: PropTypes.func.isRequired,
         onGreenFlag: PropTypes.func,
         onKeyDown: PropTypes.func,
@@ -261,6 +274,8 @@ const vmListenerHOC = function (WrappedComponent) {
         onClearDeviceRealtimeAlert: PropTypes.func.isRequired,
         onShowPeripheralReconnectingAlert: PropTypes.func.isRequired,
         onClosePeripheralReconnectingAlert: PropTypes.func.isRequired,
+        onShowLiveProgramNotStoppableAlert: PropTypes.func.isRequired,
+        onCloseLiveProgramNotStoppableAlert: PropTypes.func.isRequired,
         onTargetsUpdate: PropTypes.func.isRequired,
         onTurboModeOff: PropTypes.func.isRequired,
         onTurboModeOn: PropTypes.func.isRequired,
@@ -276,6 +291,7 @@ const vmListenerHOC = function (WrappedComponent) {
     };
     const mapStateToProps = state => ({
         deviceData: state.scratchGui.deviceData.deviceData,
+        liveUnavailableReason: state.scratchGui.connectionModal.liveUnavailableReason,
         projectChanged: state.scratchGui.projectChanged,
         // Do not emit target or project updates in fullscreen or player only mode
         // or when recording sounds (it leads to garbled recordings on low-power machines)
@@ -319,9 +335,15 @@ const vmListenerHOC = function (WrappedComponent) {
         onClosePeripheralReconnectingAlert: () => {
             dispatch(closeAlertWithId('peripheralReconnecting'));
         },
+        onShowLiveProgramNotStoppableAlert: () => {
+            dispatch(showStandardAlert('liveProgramNotStoppable'));
+        },
+        onCloseLiveProgramNotStoppableAlert: () => {
+            dispatch(closeAlertWithId('liveProgramNotStoppable'));
+        },
         onSetDeviceData: data => dispatch(setDeviceData(data)),
-        onSetLiveUnavailable: liveUnavailable => {
-            dispatch(setLiveUnavailable(liveUnavailable));
+        onSetLiveUnavailable: (liveUnavailable, reason) => {
+            dispatch(setLiveUnavailable(liveUnavailable, reason));
         },
         onSetRealtimeConnection: state => {
             dispatch(setRealtimeConnection(state));
