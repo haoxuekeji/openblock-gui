@@ -219,6 +219,28 @@ describe('projectSaverHOC', () => {
         expect(mockedStoreProject).toHaveBeenCalled();
     });
 
+    test('creating a new project sends the current title', () => {
+        const Component = () => <div />;
+        const WrappedComponent = projectSaverHOC(Component);
+        const mockedStoreProject = jest.fn(() => Promise.resolve());
+        WrappedComponent.WrappedComponent.prototype.storeProject = mockedStoreProject;
+        const mounted = mount(
+            <WrappedComponent
+                isCreatingNew={false}
+                isShowingWithoutId
+                loadingState={LoadingState.SHOWING_WITHOUT_ID}
+                reduxProjectTitle="我的小游戏"
+                store={store}
+                vm={vm}
+            />
+        );
+        mounted.setProps({
+            isCreatingNew: true,
+            loadingState: LoadingState.CREATING_NEW
+        });
+        expect(mockedStoreProject).toHaveBeenCalledWith(null, {title: '我的小游戏'});
+    });
+
     test('if we enter remixing state, vm project should be requested, and alert should show', () => {
         const mockedShowCreatingRemixAlert = jest.fn();
         const Component = () => <div />;

@@ -175,7 +175,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 });
         }
         createNewProjectToStorage () {
-            return this.storeProject(null)
+            // 作品等第一次改动才创建，孩子可能已经先改了名字
+            const title = this.props.reduxProjectTitle;
+            return this.storeProject(null, title ? {title} : {})
                 .then(response => {
                     this.props.onCreatedProject(response.id.toString(), this.props.loadingState);
                     this.updateProjectId(response.id.toString());
