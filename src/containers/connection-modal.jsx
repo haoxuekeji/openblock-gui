@@ -51,6 +51,21 @@ const usesLinkService = method => !!method && (
     (method.id === 'webble' && !isWebBluetoothSupported())
 );
 
+/**
+ * Whether a scan error on this device means "Link is not running". Devices
+ * without a connectionMethods list (the Arduino boards and other legacy
+ * devices) have no selected method and always go through Link.
+ * @param {?object} method - the selected connection method.
+ * @param {VM} vm - the vm, used to read the device's active transport.
+ * @param {string} deviceId - the device or extension id.
+ * @return {boolean} - true when the transport goes through Link.
+ */
+const isLinkTransport = (method, vm, deviceId) => {
+    if (method) return usesLinkService(method);
+    const transportId = vm && vm.getPeripheralTransport ? vm.getPeripheralTransport(deviceId) : null;
+    return !transportId || usesLinkService({id: transportId});
+};
+
 const readPreferredTransport = deviceId => {
     try {
         return window.localStorage.getItem(`${TRANSPORT_STORAGE_PREFIX}${deviceId}`);
@@ -234,7 +249,7 @@ class ConnectionModal extends React.Component {
     }
 
     handleError (err) {
-        const usingLink = usesLinkService(this.state.selectedMethod);
+        const usingLink = isLinkTransport(this.state.selectedMethod, this.props.vm, this.props.deviceId);
         if (usingLink && (this.state.phase === PHASES.scanning || this.state.phase === PHASES.unavailable)) {
             this.setState({
                 phase: PHASES.unavailable,
@@ -371,3 +386,5 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(ConnectionModal);
+
+export {isLinkTransport};

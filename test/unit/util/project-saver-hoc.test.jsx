@@ -587,11 +587,57 @@ describe('projectSaverHOC', () => {
             expect(autosaveCalls({autosave: true, canSave: true}, {username: 'student1'})).toHaveBeenCalled();
         });
 
-        test('read-only views, the player and anonymous users do not autosave', () => {
+        test('read-only views, the player, anonymous users and the off switch do not autosave', () => {
             expect(autosaveCalls({autosave: true, canSave: false}, {username: 'student1'})).not.toHaveBeenCalled();
             expect(autosaveCalls({autosave: true, isPlayerOnly: true}, {username: 'student1'})).not.toHaveBeenCalled();
             expect(autosaveCalls({autosave: true}, {username: ''})).not.toHaveBeenCalled();
+            expect(autosaveCalls({autosave: false, canSave: true}, {username: 'student1'})).not.toHaveBeenCalled();
         });
+
+        test('the autosave interval can be set through scratchConfig', () => {
+            window.scratchConfig = {autoSaveIntervalSecs: 60};
+            const Component = () => <div />;
+            const WrappedComponent = projectSaverHOC(Component);
+            const mockedAutoUpdate = jest.fn(() => Promise.resolve());
+            const mounted = mount(
+                <WrappedComponent
+                    isShowingSaveable
+                    isShowingWithId
+                    loadingState={LoadingState.SHOWING_WITH_ID}
+                    store={store}
+                    vm={vm}
+                    onAutoUpdateProject={mockedAutoUpdate}
+                />
+            );
+            mounted.setProps({projectChanged: true});
+            const advance = jest.advanceTimersByTime || jest.runTimersToTime;
+            advance(59 * 1000);
+            expect(mockedAutoUpdate).not.toHaveBeenCalled();
+            advance(1000);
+            expect(mockedAutoUpdate).toHaveBeenCalled();
+            mounted.unmount();
+        });
+    });
+
+    test('after a failed save it tries again after the interval', () => {
+        const Component = () => <div />;
+        const WrappedComponent = projectSaverHOC(Component);
+        const mockedAutoUpdate = jest.fn(() => Promise.resolve());
+        const mounted = mount(
+            <WrappedComponent
+                isShowingSaveable
+                isShowingWithId
+                isUpdating
+                projectChanged
+                loadingState={LoadingState.AUTO_UPDATING}
+                store={store}
+                vm={vm}
+                onAutoUpdateProject={mockedAutoUpdate}
+            />
+        );
+        mounted.setProps({isUpdating: false, loadingState: LoadingState.SHOWING_WITH_ID});
+        jest.runAllTimers();
+        expect(mockedAutoUpdate).toHaveBeenCalled();
     });
 
     describe('saveIfChanged (called by the platform before leaving the editor)', () => {
@@ -630,6 +676,25 @@ describe('projectSaverHOC', () => {
             await expect(window.scratch.saveIfChanged()).resolves.toBe(false);
             expect(readOnly.mockedStoreProject).not.toHaveBeenCalled();
             readOnly.mounted.unmount();
+        });
+
+        test('if the save fails, autosave is scheduled again', async () => {
+            const setTimeoutId = jest.fn();
+            const {mounted, mockedStoreProject} = mountSaver({
+                isShowingSaveable: true,
+                projectChanged: true,
+                setAutoSaveTimeoutId: setTimeoutId
+            });
+            mockedStoreProject.mockImplementation(() => Promise.reject(new Error('offline')));
+            let error = null;
+            try {
+                await window.scratch.saveIfChanged();
+            } catch (e) {
+                error = e;
+            }
+            expect(error && error.message).toBe('offline');
+            expect(setTimeoutId).toHaveBeenCalled();
+            mounted.unmount();
         });
 
         test('is removed when the editor unmounts', () => {

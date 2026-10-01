@@ -60,6 +60,17 @@ const isAutosaveEnabled = state => {
     return Boolean(config && config.autosave && config.canSave !== false && !config.isPlayerOnly && user.username);
 };
 
+/**
+ * Autosave interval set in the platform's admin settings (passed through
+ * scratchConfig); undefined falls back to the component default.
+ * @return {number|undefined} - interval in seconds.
+ */
+const configuredAutosaveInterval = () => {
+    const config = typeof window === 'object' ? window.scratchConfig : null;
+    const secs = config ? Number(config.autoSaveIntervalSecs) : NaN;
+    return secs >= 10 && secs <= 600 ? secs : undefined; // eslint-disable-line no-undefined
+};
+
 const ProjectSaverHOC = function (WrappedComponent) {
     class ProjectSaverComponent extends React.Component {
         constructor (props) {
@@ -98,6 +109,11 @@ const ProjectSaverHOC = function (WrappedComponent) {
             }
 
             if (this.props.projectChanged && !prevProps.projectChanged) {
+                this.scheduleAutoSave();
+            }
+            // 保存失败后作品仍是「有改动」，上面的条件不会再触发：隔一个间隔自动再试，网络断一下、
+            // 电脑睡眠后会话刚过期都能自己恢复（存成功后「作品未能保存」提示会自动消失）
+            if (prevProps.isUpdating && !this.props.isUpdating && this.props.projectChanged) {
                 this.scheduleAutoSave();
             }
             if (this.props.isUpdating && !prevProps.isUpdating) {
@@ -188,7 +204,11 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 if (!this.props.projectChanged || !this.props.isShowingSaveable || !this.props.reduxProjectId) {
                     return false;
                 }
-                return this.storeProject(this.props.reduxProjectId).then(() => true);
+                return this.storeProject(this.props.reduxProjectId).then(() => true, err => {
+                    // 留在编辑器里时自动保存接着试（storeProject 开头清掉了定时器）
+                    this.scheduleAutoSave();
+                    throw err;
+                });
             });
         }
         isShowingCreatable (props) {
@@ -473,6 +493,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
         const loadingState = state.scratchGui.projectState.loadingState;
         const isShowingWithId = getIsShowingWithId(loadingState);
         return {
+            autoSaveIntervalSecs: configuredAutosaveInterval(),
             autoSaveTimeoutId: state.scratchGui.timeout.autoSaveTimeoutId,
             isAnyCreatingNewState: getIsAnyCreatingNewState(loadingState),
             isLoading: getIsLoading(loadingState),
