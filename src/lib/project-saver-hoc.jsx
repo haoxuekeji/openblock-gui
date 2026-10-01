@@ -53,11 +53,17 @@ import {
  * @param {object} state - redux state.
  * @return {boolean} - true when autosave is on.
  */
-const isAutosaveEnabled = state => {
+const isSaveAllowed = state => {
     const user = state.session.session.user;
     if (user.autosave) return true;
     const config = typeof window === 'object' ? window.scratchConfig : null;
-    return Boolean(config && config.autosave && config.canSave !== false && !config.isPlayerOnly && user.username);
+    return Boolean(config && config.canSave !== false && !config.isPlayerOnly && user.username);
+};
+
+const isAutosaveEnabled = state => {
+    if (state.session.session.user.autosave) return true;
+    const config = typeof window === 'object' ? window.scratchConfig : null;
+    return Boolean(config && config.autosave && isSaveAllowed(state));
 };
 
 /**
@@ -77,6 +83,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             super(props);
             bindAll(this, [
                 'getProjectThumbnail',
+                'handleAutoSaveTimeout',
                 'leavePageConfirm',
                 'saveIfChanged',
                 'tryToAutoSave',
@@ -182,10 +189,15 @@ const ProjectSaverHOC = function (WrappedComponent) {
         }
         scheduleAutoSave () {
             if (this.props.isShowingSaveable && this.props.autoSaveTimeoutId === null) {
-                const timeoutId = setTimeout(this.tryToAutoSave,
+                const timeoutId = setTimeout(this.handleAutoSaveTimeout,
                     this.props.autoSaveIntervalSecs * 1000);
                 this.props.setAutoSaveTimeoutId(timeoutId);
             }
+        }
+        handleAutoSaveTimeout () {
+            // 定时器已触发，记下的 id 作废：这次没存（正在保存、状态不对、没改动）时，之后的改动还能再排上
+            this.props.setAutoSaveTimeoutId(null);
+            this.tryToAutoSave();
         }
         tryToAutoSave () {
             if (this.props.projectChanged && this.props.isShowingSaveable) {
@@ -201,7 +213,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
         saveIfChanged () {
             const pending = this.pendingStore || Promise.resolve();
             return pending.catch(() => null).then(() => {
-                if (!this.props.projectChanged || !this.props.isShowingSaveable || !this.props.reduxProjectId) {
+                if (!this.props.projectChanged || !this.props.isShowingSaveableOnLeave || !this.props.reduxProjectId) {
                     return false;
                 }
                 return this.storeProject(this.props.reduxProjectId).then(() => true, err => {
@@ -451,6 +463,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
         isRemixing: PropTypes.bool,
         isShared: PropTypes.bool,
         isShowingSaveable: PropTypes.bool,
+        isShowingSaveableOnLeave: PropTypes.bool,
         isShowingWithId: PropTypes.bool,
         isShowingWithoutId: PropTypes.bool,
         isUpdating: PropTypes.bool,
@@ -502,6 +515,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
             isRemixing: getIsRemixing(loadingState),
             // TODO 任务题下保存
             isShowingSaveable: isAutosaveEnabled(state) && isShowingWithId,
+            // 后台关掉自动保存也照样在离开编辑器前保存
+            isShowingSaveableOnLeave: isSaveAllowed(state) && isShowingWithId,
             isShowingWithId: isShowingWithId,
             isShowingWithoutId: getIsShowingWithoutId(loadingState),
             isUpdating: getIsUpdating(loadingState),

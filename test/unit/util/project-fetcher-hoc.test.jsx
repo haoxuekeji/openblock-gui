@@ -34,6 +34,25 @@ describe('ProjectFetcherHOC', () => {
         );
         expect(mockSetProjectIdFunc.mock.calls[0][0]).toBe('100');
     });
+    test('returning from a (failed) save keeps unsaved changes; finishing a load marks the project unchanged', () => {
+        const Component = () => <div />;
+        const WrappedComponent = ProjectFetcherHOC(Component);
+        const onProjectUnchanged = jest.fn();
+        const mounted = mountWithIntl(
+            <WrappedComponent
+                isShowingProject={false}
+                loadingState={LoadingState.AUTO_UPDATING}
+                store={store}
+                onProjectUnchanged={onProjectUnchanged}
+            />
+        );
+        mounted.setProps({isShowingProject: true, loadingState: LoadingState.SHOWING_WITH_ID});
+        expect(onProjectUnchanged).not.toHaveBeenCalled();
+
+        mounted.setProps({isShowingProject: false, loadingState: LoadingState.LOADING_VM_WITH_ID});
+        mounted.setProps({isShowingProject: true, loadingState: LoadingState.SHOWING_WITH_ID});
+        expect(onProjectUnchanged).toHaveBeenCalledTimes(1);
+    });
     test('when there is a reduxProjectId and isFetchingWithProjectId is true, it loads the project', () => {
         const mockedOnFetchedProject = jest.fn();
         const originalLoad = storage.load;

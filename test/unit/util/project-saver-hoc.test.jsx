@@ -660,19 +660,38 @@ describe('projectSaverHOC', () => {
         };
 
         test('saves unsaved changes of a saved project right away', async () => {
-            const {mounted, mockedStoreProject} = mountSaver({isShowingSaveable: true, projectChanged: true});
+            const {mounted, mockedStoreProject} = mountSaver({isShowingSaveableOnLeave: true, projectChanged: true});
             await expect(window.scratch.saveIfChanged()).resolves.toBe(true);
             expect(mockedStoreProject).toHaveBeenCalledWith('42');
             mounted.unmount();
         });
 
+        test('still saves when autosave is switched off in the platform settings', async () => {
+            window.scratchConfig = {autosave: false, canSave: true};
+            const platformStore = mockStore({
+                scratchGui: {
+                    projectChanged: false,
+                    projectState: {loadingState: LoadingState.SHOWING_WITH_ID, projectId: '42'},
+                    projectTitle: '我的作品',
+                    timeout: {autoSaveTimeoutId: null}
+                },
+                locales: {locale: 'zh-cn'},
+                session: {session: {user: {username: 'student1'}}}
+            });
+            const {mounted, mockedStoreProject} = mountSaver({projectChanged: true, store: platformStore});
+            await expect(window.scratch.saveIfChanged()).resolves.toBe(true);
+            expect(mockedStoreProject).toHaveBeenCalledWith('42');
+            mounted.unmount();
+            delete window.scratchConfig;
+        });
+
         test('does nothing without changes or when the project cannot be saved', async () => {
-            const unchanged = mountSaver({isShowingSaveable: true, projectChanged: false});
+            const unchanged = mountSaver({isShowingSaveableOnLeave: true, projectChanged: false});
             await expect(window.scratch.saveIfChanged()).resolves.toBe(false);
             expect(unchanged.mockedStoreProject).not.toHaveBeenCalled();
             unchanged.mounted.unmount();
 
-            const readOnly = mountSaver({isShowingSaveable: false, projectChanged: true});
+            const readOnly = mountSaver({isShowingSaveableOnLeave: false, projectChanged: true});
             await expect(window.scratch.saveIfChanged()).resolves.toBe(false);
             expect(readOnly.mockedStoreProject).not.toHaveBeenCalled();
             readOnly.mounted.unmount();
@@ -682,6 +701,7 @@ describe('projectSaverHOC', () => {
             const setTimeoutId = jest.fn();
             const {mounted, mockedStoreProject} = mountSaver({
                 isShowingSaveable: true,
+                isShowingSaveableOnLeave: true,
                 projectChanged: true,
                 setAutoSaveTimeoutId: setTimeoutId
             });

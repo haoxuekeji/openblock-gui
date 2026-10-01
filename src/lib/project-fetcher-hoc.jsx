@@ -7,10 +7,13 @@ import {connect} from 'react-redux';
 import {setProjectUnchanged} from '../reducers/project-changed';
 import {
     LoadingStates,
+    getIsCreatingCopy,
     getIsCreatingNew,
     getIsFetchingWithId,
     getIsLoading,
+    getIsRemixing,
     getIsShowingProject,
+    getIsUpdating,
     onFetchedProjectData,
     projectError,
     setProjectId
@@ -60,7 +63,13 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             if (this.props.isFetchingWithId && !prevProps.isFetchingWithId) {
                 this.fetchProject(this.props.reduxProjectId, this.props.loadingState);
             }
-            if (this.props.isShowingProject && !prevProps.isShowingProject) {
+            // 保存（成功或失败）回到展示状态时不在这里标「没改动」：存成功时保存逻辑自己会标；
+            // 存失败时改动还没上服务器，标掉了自动保存就不会再试，改动会悄悄丢掉（上游的写法）
+            const returningFromSave = getIsUpdating(prevProps.loadingState) ||
+                getIsCreatingNew(prevProps.loadingState) ||
+                getIsCreatingCopy(prevProps.loadingState) ||
+                getIsRemixing(prevProps.loadingState);
+            if (this.props.isShowingProject && !prevProps.isShowingProject && !returningFromSave) {
                 this.props.onProjectUnchanged();
             }
             if (this.props.isShowingProject && (prevProps.isLoadingProject || prevProps.isCreatingNew)) {
