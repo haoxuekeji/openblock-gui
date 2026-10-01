@@ -549,4 +549,94 @@ describe('projectSaverHOC', () => {
         expect(setSaver).toHaveBeenCalledTimes(2);
         expect(setSaver.mock.calls[1][0]).toBe(null);
     });
+
+    describe('autosave from the platform config', () => {
+        const autosaveCalls = (scratchConfig, user) => {
+            window.scratchConfig = scratchConfig;
+            const platformStore = mockStore({
+                scratchGui: {
+                    projectChanged: false,
+                    projectState: {loadingState: LoadingState.SHOWING_WITH_ID, projectId: '42'},
+                    projectTitle: '我的作品',
+                    timeout: {autoSaveTimeoutId: null}
+                },
+                locales: {locale: 'zh-cn'},
+                session: {session: {user}}
+            });
+            const Component = () => <div />;
+            const WrappedComponent = projectSaverHOC(Component);
+            const mockedAutoUpdate = jest.fn(() => Promise.resolve());
+            const mounted = mount(
+                <WrappedComponent
+                    store={platformStore}
+                    vm={vm}
+                    onAutoUpdateProject={mockedAutoUpdate}
+                />
+            );
+            mounted.setProps({projectChanged: true});
+            jest.runAllTimers();
+            mounted.unmount();
+            return mockedAutoUpdate;
+        };
+
+        afterEach(() => {
+            delete window.scratchConfig;
+        });
+
+        test('scratchConfig.autosave turns autosave on for a logged-in editor', () => {
+            expect(autosaveCalls({autosave: true, canSave: true}, {username: 'student1'})).toHaveBeenCalled();
+        });
+
+        test('read-only views, the player and anonymous users do not autosave', () => {
+            expect(autosaveCalls({autosave: true, canSave: false}, {username: 'student1'})).not.toHaveBeenCalled();
+            expect(autosaveCalls({autosave: true, isPlayerOnly: true}, {username: 'student1'})).not.toHaveBeenCalled();
+            expect(autosaveCalls({autosave: true}, {username: ''})).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('saveIfChanged (called by the platform before leaving the editor)', () => {
+        const mountSaver = props => {
+            const Component = () => <div />;
+            const WrappedComponent = projectSaverHOC(Component);
+            const mockedStoreProject = jest.fn(() => Promise.resolve({id: 42}));
+            WrappedComponent.WrappedComponent.prototype.storeProject = mockedStoreProject;
+            const mounted = mount(
+                <WrappedComponent
+                    isShowingWithId
+                    loadingState={LoadingState.SHOWING_WITH_ID}
+                    reduxProjectId="42"
+                    store={store}
+                    vm={vm}
+                    {...props}
+                />
+            );
+            return {mounted, mockedStoreProject};
+        };
+
+        test('saves unsaved changes of a saved project right away', async () => {
+            const {mounted, mockedStoreProject} = mountSaver({isShowingSaveable: true, projectChanged: true});
+            await expect(window.scratch.saveIfChanged()).resolves.toBe(true);
+            expect(mockedStoreProject).toHaveBeenCalledWith('42');
+            mounted.unmount();
+        });
+
+        test('does nothing without changes or when the project cannot be saved', async () => {
+            const unchanged = mountSaver({isShowingSaveable: true, projectChanged: false});
+            await expect(window.scratch.saveIfChanged()).resolves.toBe(false);
+            expect(unchanged.mockedStoreProject).not.toHaveBeenCalled();
+            unchanged.mounted.unmount();
+
+            const readOnly = mountSaver({isShowingSaveable: false, projectChanged: true});
+            await expect(window.scratch.saveIfChanged()).resolves.toBe(false);
+            expect(readOnly.mockedStoreProject).not.toHaveBeenCalled();
+            readOnly.mounted.unmount();
+        });
+
+        test('is removed when the editor unmounts', () => {
+            const {mounted} = mountSaver({});
+            expect(typeof window.scratch.saveIfChanged).toBe('function');
+            mounted.unmount();
+            expect(window.scratch.saveIfChanged).toBeUndefined();
+        });
+    });
 });

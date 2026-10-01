@@ -44,6 +44,22 @@ import {
  *     <WrappedComponent />
  * </ProjectSaverHOC>
  */
+/**
+ * Whether changes to the shown project should be saved automatically.
+ * The platform's editor.html turns autosave on through scratchConfig.autosave;
+ * its login session carries no autosave field, so checking the session alone
+ * meant autosave never ran. Read-only views (scratchConfig.canSave === false)
+ * and the player never autosave.
+ * @param {object} state - redux state.
+ * @return {boolean} - true when autosave is on.
+ */
+const isAutosaveEnabled = state => {
+    const user = state.session.session.user;
+    if (user.autosave) return true;
+    const config = typeof window === 'object' ? window.scratchConfig : null;
+    return Boolean(config && config.autosave && config.canSave !== false && !config.isPlayerOnly && user.username);
+};
+
 const ProjectSaverHOC = function (WrappedComponent) {
     class ProjectSaverComponent extends React.Component {
         constructor (props) {
@@ -51,6 +67,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             bindAll(this, [
                 'getProjectThumbnail',
                 'leavePageConfirm',
+                'saveIfChanged',
                 'tryToAutoSave',
                 'updateProjectId'
             ]);
@@ -60,6 +77,10 @@ const ProjectSaverHOC = function (WrappedComponent) {
                 // Note: it might be better to use a listener instead of assigning onbeforeunload;
                 // but then it'd be hard to turn this listening off in our tests
                 window.onbeforeunload = e => this.leavePageConfirm(e);
+                // 平台页面里离开编辑器（返回课程、我的作品、浏览器后退）只是移除 iframe，
+                // 不会触发 beforeunload，平台在离开前调用它把没存的改动先存好
+                window.scratch = window.scratch || {};
+                window.scratch.saveIfChanged = this.saveIfChanged;
             }
 
             // Allow the GUI consumer to pass in a function to receive a trigger
@@ -125,6 +146,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
             // Remove project thumbnailer function since the components are unmounting
             this.props.onSetProjectThumbnailer(null);
             this.props.onSetProjectSaver(null);
+            if (typeof window === 'object' && window.scratch && window.scratch.saveIfChanged === this.saveIfChanged) {
+                delete window.scratch.saveIfChanged;
+            }
         }
         leavePageConfirm (e) {
             if (this.props.projectChanged) {
@@ -151,6 +175,21 @@ const ProjectSaverHOC = function (WrappedComponent) {
             if (this.props.projectChanged && this.props.isShowingSaveable) {
                 this.props.onAutoUpdateProject();
             }
+        }
+        /**
+         * Save unsaved changes right away, after any save that is already in flight.
+         * New projects are created by componentDidUpdate on the first change, so only
+         * projects that already have an id are saved here.
+         * @return {Promise<boolean>} resolves true when a save was performed.
+         */
+        saveIfChanged () {
+            const pending = this.pendingStore || Promise.resolve();
+            return pending.catch(() => null).then(() => {
+                if (!this.props.projectChanged || !this.props.isShowingSaveable || !this.props.reduxProjectId) {
+                    return false;
+                }
+                return this.storeProject(this.props.reduxProjectId).then(() => true);
+            });
         }
         isShowingCreatable (props) {
             return props.canCreateNew && props.isShowingWithoutId;
@@ -237,7 +276,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             // Hardware projects additionally carry a Python code snapshot in
             // meta so the platform can show a blocks/code dual view (FUN-001C).
             const savedVMState = attachPythonSnapshot(this.props.vm.toJSON());
-            return Promise.all(this.props.vm.assets
+            const stored = Promise.all(this.props.vm.assets
                 .filter(asset => !asset.clean)
                 .map(
                     asset => storage.store(
@@ -269,6 +308,12 @@ const ProjectSaverHOC = function (WrappedComponent) {
                     log.error(err);
                     throw err; // pass the error up the chain
                 });
+            this.pendingStore = stored;
+            const clearPending = () => {
+                if (this.pendingStore === stored) this.pendingStore = null;
+            };
+            stored.then(clearPending, clearPending);
+            return stored;
         }
 
         /**
@@ -417,7 +462,8 @@ const ProjectSaverHOC = function (WrappedComponent) {
         vm: PropTypes.instanceOf(VM).isRequired
     };
     ProjectSaverComponent.defaultProps = {
-        autoSaveIntervalSecs: 120,
+        // 上游是 120 秒；教室里常常直接关浏览器或关机，间隔短一点少丢作品
+        autoSaveIntervalSecs: 30,
         onRemixing: () => { },
         onSetProjectThumbnailer: () => { },
         onSetProjectSaver: () => { },
@@ -434,7 +480,7 @@ const ProjectSaverHOC = function (WrappedComponent) {
             isCreatingNew: getIsCreatingNew(loadingState),
             isRemixing: getIsRemixing(loadingState),
             // TODO 任务题下保存
-            isShowingSaveable: state.session.session.user.autosave && isShowingWithId,
+            isShowingSaveable: isAutosaveEnabled(state) && isShowingWithId,
             isShowingWithId: isShowingWithId,
             isShowingWithoutId: getIsShowingWithoutId(loadingState),
             isUpdating: getIsUpdating(loadingState),
