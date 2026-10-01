@@ -99,8 +99,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
             //
             // don't try to create or save immediately after trying to create
             if (prevProps.isCreatingNew) return;
-            // if we're newly able to create this project, create it!
-            if (this.isShowingCreatable(this.props) && !this.isShowingCreatable(prevProps)) {
+            // 新作品等孩子真的改动过（projectChanged）才在服务器上创建：上游一打开就创建，
+            // 孩子什么都没做就退出也会留下一个空白的「我的作品」
+            if (this.shouldCreateOnServer(this.props) && !this.shouldCreateOnServer(prevProps)) {
                 this.props.onCreateProject();
             }
 
@@ -153,6 +154,9 @@ const ProjectSaverHOC = function (WrappedComponent) {
         }
         isShowingCreatable (props) {
             return props.canCreateNew && props.isShowingWithoutId;
+        }
+        shouldCreateOnServer (props) {
+            return this.isShowingCreatable(props) && props.projectChanged;
         }
         updateProjectToStorage () {
             this.props.onShowSavingAlert();

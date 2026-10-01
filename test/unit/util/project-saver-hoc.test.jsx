@@ -25,6 +25,11 @@ describe('projectSaverHOC', () => {
             },
             locales: {
                 locale: 'en'
+            },
+            session: {
+                session: {
+                    user: {}
+                }
             }
         });
         vm = new VM();
@@ -105,7 +110,7 @@ describe('projectSaverHOC', () => {
         expect(mockedCreateProject).not.toHaveBeenCalled();
     });
 
-    test('if canCreateNew becomes true when showing a project without an id, project will be created', () => {
+    test('if canCreateNew becomes true while an unchanged new project is shown, it will NOT be created', () => {
         const mockedCreateProject = jest.fn();
         const Component = () => <div />;
         const WrappedComponent = projectSaverHOC(Component);
@@ -117,6 +122,31 @@ describe('projectSaverHOC', () => {
                 isShowingWithId={false}
                 isUpdating={false}
                 loadingState={LoadingState.SHOWING_WITHOUT_ID}
+                projectChanged={false}
+                store={store}
+                vm={vm}
+                onCreateProject={mockedCreateProject}
+            />
+        );
+        mounted.setProps({
+            canCreateNew: true
+        });
+        expect(mockedCreateProject).not.toHaveBeenCalled();
+    });
+
+    test('if canCreateNew becomes true when showing a changed project without an id, project will be created', () => {
+        const mockedCreateProject = jest.fn();
+        const Component = () => <div />;
+        const WrappedComponent = projectSaverHOC(Component);
+        const mounted = mount(
+            <WrappedComponent
+                isShowingWithoutId
+                canCreateNew={false}
+                isCreatingNew={false}
+                isShowingWithId={false}
+                isUpdating={false}
+                loadingState={LoadingState.SHOWING_WITHOUT_ID}
+                projectChanged
                 store={store}
                 vm={vm}
                 onCreateProject={mockedCreateProject}
@@ -128,7 +158,7 @@ describe('projectSaverHOC', () => {
         expect(mockedCreateProject).toHaveBeenCalled();
     });
 
-    test('if canCreateNew is true and we transition to showing new project, project will be created', () => {
+    test('if canCreateNew is true and we show a new project, it will be created only once it is changed', () => {
         const mockedCreateProject = jest.fn();
         const Component = () => <div />;
         const WrappedComponent = projectSaverHOC(Component);
@@ -140,6 +170,7 @@ describe('projectSaverHOC', () => {
                 isShowingWithoutId={false}
                 isUpdating={false}
                 loadingState={LoadingState.LOADING_VM_NEW_DEFAULT}
+                projectChanged={false}
                 store={store}
                 vm={vm}
                 onCreateProject={mockedCreateProject}
@@ -149,7 +180,15 @@ describe('projectSaverHOC', () => {
             isShowingWithoutId: true,
             loadingState: LoadingState.SHOWING_WITHOUT_ID
         });
-        expect(mockedCreateProject).toHaveBeenCalled();
+        expect(mockedCreateProject).not.toHaveBeenCalled();
+        mounted.setProps({
+            projectChanged: true
+        });
+        expect(mockedCreateProject).toHaveBeenCalledTimes(1);
+        mounted.setProps({
+            loadingState: LoadingState.SHOWING_WITHOUT_ID
+        });
+        expect(mockedCreateProject).toHaveBeenCalledTimes(1);
     });
 
     test('if we enter creating new state, vm project should be requested', () => {

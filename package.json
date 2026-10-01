@@ -21,7 +21,6 @@
     "test:lint": "eslint . --ext .js,.jsx",
     "lint:fix": "eslint . --ext .js,.jsx --fix",
     "test:unit": "jest --runInBand test/unit",
-    "test:unit:known-divergence": "jest --runInBand test/unit/util/project-saver-hoc.test.jsx --testPathIgnorePatterns=src/test.js",
     "test:smoke": "jest --runInBand test[\\\\/]smoke",
     "watch": "webpack --colors --watch"
   },
@@ -156,8 +155,7 @@
       "<rootDir>/test/helpers/enzyme-setup.js"
     ],
     "testPathIgnorePatterns": [
-      "src/test.js",
-      "test/unit/util/project-saver-hoc.test.jsx"
+      "src/test.js"
     ],
     "moduleNameMapper": {
       "^node:(.*)$": "$1",
