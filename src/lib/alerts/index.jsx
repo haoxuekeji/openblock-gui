@@ -3,6 +3,7 @@ import {FormattedMessage} from 'react-intl';
 import keyMirror from 'keymirror';
 
 import successImage from '../assets/icon--success.svg';
+import {REALTIME_BOARD_ERROR_ALERT_IDS} from '../realtime-board-error';
 
 const AlertTypes = keyMirror({
     STANDARD: null,
@@ -342,6 +343,48 @@ const alerts = [
                 defaultMessage="The program running on the board could not be stopped, so realtime blocks get no data. Upload an empty program or reset the board, then switch to realtime mode again." // eslint-disable-line max-len
                 description="Message shown when the realtime session cannot start because the uploaded program on the board keeps running through every interrupt" // eslint-disable-line max-len
                 id="gui.alerts.liveProgramNotStoppable"
+            />
+        ),
+        level: AlertLevels.WARN
+    },
+    {
+        alertId: 'realtimeBoardError',
+        alertType: AlertTypes.STANDARD,
+        clearList: REALTIME_BOARD_ERROR_ALERT_IDS,
+        closeButton: true,
+        content: (
+            <FormattedMessage
+                defaultMessage="The board reported an error while running a block, so the block did not work:"
+                description="Message shown when the board raised an error while running a realtime block; the board's error line is shown below it" // eslint-disable-line max-len
+                id="gui.alerts.realtimeBoardError"
+            />
+        ),
+        level: AlertLevels.WARN
+    },
+    {
+        alertId: 'realtimeBoardErrorNotReady',
+        alertType: AlertTypes.STANDARD,
+        clearList: REALTIME_BOARD_ERROR_ALERT_IDS,
+        closeButton: true,
+        content: (
+            <FormattedMessage
+                defaultMessage="A module is not ready yet: run its init (or connect) block first, then run this block again." // eslint-disable-line max-len
+                description="Message shown when a realtime block used a module whose init/connect block has not run; the board's error line is shown below it" // eslint-disable-line max-len
+                id="gui.alerts.realtimeBoardErrorNotReady"
+            />
+        ),
+        level: AlertLevels.WARN
+    },
+    {
+        alertId: 'realtimeBoardErrorNotFound',
+        alertType: AlertTypes.STANDARD,
+        clearList: REALTIME_BOARD_ERROR_ALERT_IDS,
+        closeButton: true,
+        content: (
+            <FormattedMessage
+                defaultMessage="The board cannot find this module: check the wiring (power, GND, SDA/SCL or the signal pin), then try again." // eslint-disable-line max-len
+                description="Message shown when a realtime block talked to a module that did not answer; the board's error line is shown below it" // eslint-disable-line max-len
+                id="gui.alerts.realtimeBoardErrorNotFound"
             />
         ),
         level: AlertLevels.WARN

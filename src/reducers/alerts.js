@@ -188,13 +188,17 @@ const closeAlertWithId = function (alertId) {
  * Action creator to show an alert with the given alertId.
  *
  * @param {string} alertId - id string of the alert to show
+ * @param {object} [data] - optional per-instance data, e.g. {message}: a
+ *     detail line shown below the alert content
  * @return {object} - an object to be passed to the reducer.
  */
-const showStandardAlert = function (alertId) {
-    return {
+const showStandardAlert = function (alertId, data) {
+    const action = {
         type: SHOW_ALERT,
         alertId
     };
+    if (data) action.data = data;
+    return action;
 };
 
 /**

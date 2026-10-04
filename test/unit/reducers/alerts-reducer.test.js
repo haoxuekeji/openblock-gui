@@ -28,6 +28,16 @@ test('create one standard alert', () => {
     expect(resultState.alertsList[0].level).toBe(AlertLevels.SUCCESS);
 });
 
+test('a standard alert can carry a detail message', () => {
+    let defaultState;
+    expect(showStandardAlert('creating')).toEqual({type: 'scratch-gui/alerts/SHOW_ALERT', alertId: 'creating'});
+    const action = showStandardAlert('realtimeBoardError', {message: 'ValueError: invalid pin'});
+    const resultState = alertsReducer(defaultState, action);
+    expect(resultState.alertsList.length).toBe(1);
+    expect(resultState.alertsList[0].alertId).toBe('realtimeBoardError');
+    expect(resultState.alertsList[0].message).toBe('ValueError: invalid pin');
+});
+
 test('add several standard alerts', () => {
     const initialState = {
         visible: true,

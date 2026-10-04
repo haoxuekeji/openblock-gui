@@ -23,6 +23,7 @@ const AlertComponent = ({
     iconSpinner,
     iconURL,
     level,
+    message,
     showDownload,
     showSaveNow,
     onCloseAlert,
@@ -69,7 +70,12 @@ const AlertComponent = ({
                         }}
                     />
                 )
-            ) : content}
+            ) : (message ? (
+                <div className={styles.alertMessageStack}>
+                    {content}
+                    <span className={styles.alertDetail}>{message}</span>
+                </div>
+            ) : content)}
         </div>
         <div className={styles.alertButtons}>
             {showSaveNow && (
@@ -144,6 +150,7 @@ AlertComponent.propTypes = {
     iconSpinner: PropTypes.bool,
     iconURL: PropTypes.string,
     level: PropTypes.string,
+    message: PropTypes.string,
     onCloseAlert: PropTypes.func.isRequired,
     onDownload: PropTypes.func,
     onUploadFirmware: PropTypes.func,

@@ -23,6 +23,13 @@ import {setDeviceData} from '../reducers/device-data';
 
 import {makeDeviceLibrary} from '../lib/libraries/devices/index.jsx';
 import extensionData from '../lib/libraries/extensions/index.jsx';
+import {REALTIME_BOARD_ERROR_ALERT_IDS, boardErrorAlertId, boardErrorLine} from './realtime-board-error';
+
+// A realtime board error stays on screen this long after its last
+// occurrence; while the same error keeps coming back (a failing block in a
+// forever loop) it is re-shown at most this often, so closing it by hand
+// is not undone right away.
+const BOARD_ERROR_DISPLAY_MS = 15000;
 
 /*
  * Higher Order Component to manage events emitted by the VM
@@ -44,8 +51,13 @@ const vmListenerHOC = function (WrappedComponent) {
                 'handlePeripheralReconnecting',
                 'handlePeripheralReconnectSettled',
                 'handleLiveUnavailable',
-                'handleLiveAvailable'
+                'handleLiveAvailable',
+                'handleLiveError',
+                'closeBoardErrorAlert'
             ]);
+            this.boardErrorShown = null;
+            this.boardErrorShownAt = 0;
+            this.boardErrorTimer = null;
             // We have to start listening to the vm here rather than in
             // componentDidMount because the HOC mounts the wrapped component,
             // so the HOC componentDidMount triggers after the wrapped component
@@ -70,6 +82,7 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.on('PERIPHERAL_DISCONNECTED', this.handlePeripheralReconnectSettled);
             this.props.vm.on('PERIPHERAL_LIVE_UNAVAILABLE', this.handleLiveUnavailable);
             this.props.vm.on('PERIPHERAL_LIVE_AVAILABLE', this.handleLiveAvailable);
+            this.props.vm.on('PERIPHERAL_LIVE_ERROR', this.handleLiveError);
             this.props.vm.on('MIC_LISTENING', this.props.onMicListeningUpdate);
 
         }
@@ -109,6 +122,8 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.handlePeripheralReconnectSettled);
             this.props.vm.removeListener('PERIPHERAL_LIVE_UNAVAILABLE', this.handleLiveUnavailable);
             this.props.vm.removeListener('PERIPHERAL_LIVE_AVAILABLE', this.handleLiveAvailable);
+            this.props.vm.removeListener('PERIPHERAL_LIVE_ERROR', this.handleLiveError);
+            clearTimeout(this.boardErrorTimer);
             if (this.props.attachKeyboardEvents) {
                 document.removeEventListener('keydown', this.handleKeyDown);
                 document.removeEventListener('keyup', this.handleKeyUp);
@@ -182,6 +197,7 @@ const vmListenerHOC = function (WrappedComponent) {
             // 连接状态落定(重连成功或断开)后,实时通道提示交由新会话重新判定。
             this.props.onSetLiveUnavailable(false);
             this.props.onCloseLiveProgramNotStoppableAlert();
+            if (this.boardErrorTimer) this.closeBoardErrorAlert();
         }
         handleLiveUnavailable (data) {
             const reason = (data && data.reason) || 'channel';
@@ -195,6 +211,24 @@ const vmListenerHOC = function (WrappedComponent) {
         handleLiveAvailable () {
             this.props.onSetLiveUnavailable(false);
             this.props.onCloseLiveProgramNotStoppableAlert();
+        }
+        handleLiveError (data) {
+            const line = boardErrorLine(data && data.message);
+            if (!line) return;
+            const now = Date.now();
+            if (line !== this.boardErrorShown || now - this.boardErrorShownAt >= BOARD_ERROR_DISPLAY_MS) {
+                this.boardErrorShown = line;
+                this.boardErrorShownAt = now;
+                this.props.onShowRealtimeBoardErrorAlert(boardErrorAlertId(line), line);
+            }
+            clearTimeout(this.boardErrorTimer);
+            this.boardErrorTimer = setTimeout(this.closeBoardErrorAlert, BOARD_ERROR_DISPLAY_MS);
+        }
+        closeBoardErrorAlert () {
+            clearTimeout(this.boardErrorTimer);
+            this.boardErrorTimer = null;
+            this.boardErrorShown = null;
+            this.props.onCloseRealtimeBoardErrorAlert();
         }
         handleDeviceRealtimeAlert (data) {
             const device = this.props.deviceData.find(dev => dev.deviceId === data.deviceId);
@@ -244,6 +278,8 @@ const vmListenerHOC = function (WrappedComponent) {
                 onClosePeripheralReconnectingAlert,
                 onShowLiveProgramNotStoppableAlert,
                 onCloseLiveProgramNotStoppableAlert,
+                onShowRealtimeBoardErrorAlert,
+                onCloseRealtimeBoardErrorAlert,
                 onSetLiveUnavailable,
                 liveUnavailableReason,
                 onSetDeviceData,
@@ -278,6 +314,8 @@ const vmListenerHOC = function (WrappedComponent) {
         onClosePeripheralReconnectingAlert: PropTypes.func.isRequired,
         onShowLiveProgramNotStoppableAlert: PropTypes.func.isRequired,
         onCloseLiveProgramNotStoppableAlert: PropTypes.func.isRequired,
+        onShowRealtimeBoardErrorAlert: PropTypes.func.isRequired,
+        onCloseRealtimeBoardErrorAlert: PropTypes.func.isRequired,
         onTargetsUpdate: PropTypes.func.isRequired,
         onTurboModeOff: PropTypes.func.isRequired,
         onTurboModeOn: PropTypes.func.isRequired,
@@ -342,6 +380,12 @@ const vmListenerHOC = function (WrappedComponent) {
         },
         onCloseLiveProgramNotStoppableAlert: () => {
             dispatch(closeAlertWithId('liveProgramNotStoppable'));
+        },
+        onShowRealtimeBoardErrorAlert: (alertId, message) => {
+            dispatch(showStandardAlert(alertId, {message}));
+        },
+        onCloseRealtimeBoardErrorAlert: () => {
+            REALTIME_BOARD_ERROR_ALERT_IDS.forEach(alertId => dispatch(closeAlertWithId(alertId)));
         },
         onSetDeviceData: data => dispatch(setDeviceData(data)),
         onSetLiveUnavailable: (liveUnavailable, reason) => {

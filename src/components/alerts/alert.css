@@ -55,6 +55,21 @@
     padding-right: .5rem;
 }
 
+.alert-message-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.alert-detail {
+    margin-top: .375rem;
+    color: $text-primary;
+    font-family: monospace;
+    font-weight: normal;
+    font-size: .75rem;
+    line-height: 1rem;
+    word-break: break-word;
+}
+
 .alert-buttons {
     display: flex;
     flex-direction: row;

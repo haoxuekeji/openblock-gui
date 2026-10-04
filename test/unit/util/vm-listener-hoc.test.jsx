@@ -282,6 +282,94 @@ describe('VMListenerHOC', () => {
         expect(closed).toEqual(['peripheralReconnecting', 'liveProgramNotStoppable']);
     });
 
+    describe('realtime board errors', () => {
+        const OLED_TRACEBACK = 'Traceback (most recent call last):\r\n' +
+            '  File "<stdin>", line 2, in <module>\r\n' +
+            'RuntimeError: OLED is not initialized. Run the OLED init block first\r\n';
+        const ENODEV_TRACEBACK = 'Traceback (most recent call last):\r\n' +
+            '  File "<stdin>", line 1, in <module>\r\n' +
+            'OSError: [Errno 19] ENODEV\r\n';
+        const ALL_IDS = ['realtimeBoardError', 'realtimeBoardErrorNotReady', 'realtimeBoardErrorNotFound'];
+        let now;
+
+        beforeEach(() => {
+            jest.useFakeTimers();
+            now = jest.spyOn(Date, 'now').mockReturnValue(1000);
+            const WrappedComponent = vmListenerHOC(() => (<div />));
+            mount(
+                <WrappedComponent
+                    store={store}
+                    vm={vm}
+                />
+            );
+        });
+
+        afterEach(() => {
+            now.mockRestore();
+            jest.useRealTimers();
+        });
+
+        const shown = () => store.getActions()
+            .filter(action => action.type === 'scratch-gui/alerts/SHOW_ALERT');
+        const closedIds = () => store.getActions()
+            .filter(action => action.type === 'scratch-gui/alerts/CLOSE_ALERT_WITH_ID')
+            .map(action => action.alertId);
+
+        test('show one alert with the error line, closed once the error stops recurring', () => {
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: OLED_TRACEBACK});
+            expect(store.getActions()).toEqual([{
+                type: 'scratch-gui/alerts/SHOW_ALERT',
+                alertId: 'realtimeBoardErrorNotReady',
+                data: {message: 'RuntimeError: OLED is not initialized. Run the OLED init block first'}
+            }]);
+
+            // The failing block keeps running in a loop: no second alert,
+            // and the alert stays up while the error keeps coming.
+            store.clearActions();
+            now.mockReturnValue(9000);
+            jest.runTimersToTime(8000);
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: OLED_TRACEBACK});
+            jest.runTimersToTime(14000);
+            expect(store.getActions()).toEqual([]);
+
+            jest.runTimersToTime(1000);
+            expect(shown()).toEqual([]);
+            expect(closedIds()).toEqual(ALL_IDS);
+        });
+
+        test('a different error replaces the alert at once, the same one returns after the display time', () => {
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: OLED_TRACEBACK});
+            now.mockReturnValue(2000);
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: ENODEV_TRACEBACK});
+            now.mockReturnValue(3000);
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: ENODEV_TRACEBACK});
+            expect(shown().map(action => action.alertId)).toEqual([
+                'realtimeBoardErrorNotReady', 'realtimeBoardErrorNotFound'
+            ]);
+            expect(shown()[1].data.message).toEqual('OSError: [Errno 19] ENODEV');
+
+            // Closed by hand while the loop keeps failing: back after the
+            // display time, not on the very next occurrence.
+            now.mockReturnValue(17000);
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: ENODEV_TRACEBACK});
+            expect(shown().length).toEqual(3);
+        });
+
+        test('a disconnect clears a shown board error, an empty message shows nothing', () => {
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: '\r\n'});
+            expect(store.getActions()).toEqual([]);
+
+            vm.emit('PERIPHERAL_LIVE_ERROR', {deviceId: 'microPythonEsp32', message: OLED_TRACEBACK});
+            store.clearActions();
+            vm.emit('PERIPHERAL_DISCONNECTED');
+            expect(closedIds()).toEqual(['peripheralReconnecting', 'liveProgramNotStoppable'].concat(ALL_IDS));
+
+            store.clearActions();
+            jest.runTimersToTime(20000);
+            expect(store.getActions()).toEqual([]);
+        });
+    });
+
     test('realtime channel events for an unknown device are ignored instead of throwing', () => {
         const Component = () => (<div />);
         const WrappedComponent = vmListenerHOC(Component);
