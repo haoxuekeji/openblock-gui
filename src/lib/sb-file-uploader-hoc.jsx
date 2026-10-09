@@ -15,6 +15,7 @@ import {
     requestProjectUpload
 } from '../reducers/project-state';
 import {setProjectTitle} from '../reducers/project-title';
+import {setProjectChanged} from '../reducers/project-changed';
 import {
     openLoadingProject,
     closeLoadingProject
@@ -248,6 +249,14 @@ const SBFileUploaderHOC = function (WrappedComponent) {
         // loading screen and file menu
         onLoadingFinished: (loadingState, success) => {
             dispatch(onLoadedProject(loadingState, ownProps.canSave, success));
+            // Bringing in a file from the computer is real, unsaved content: mark
+            // the project changed so it actually gets created/saved on the server.
+            // Without this, the "only create a new project once the child has
+            // changed it" rule (project-saver-hoc.shouldCreateOnServer) treats an
+            // uploaded sb3 as untouched and never persists it (project id stays 0).
+            if (success) {
+                dispatch(setProjectChanged());
+            }
             dispatch(closeLoadingProject());
             dispatch(closeFileMenu());
         },

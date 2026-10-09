@@ -81,6 +81,37 @@ describe('SBFileUploaderHOC', () => {
         expect(projectName).toBe('');
     });
 
+    test('a successful upload marks the project changed so a new project gets saved', () => {
+        const WrappedComponent = getContainer();
+        const mounted = mountWithIntl(
+            <WrappedComponent
+                canSave
+                cancelFileUpload={jest.fn()}
+                closeFileMenu={jest.fn()}
+                requestProjectUpload={jest.fn()}
+                store={store}
+                userOwnsProject={false}
+                vm={vm}
+                onLoadingStarted={jest.fn()}
+                onUpdateProjectTitle={jest.fn()}
+            />
+        );
+        // Use the real redux-mapped onLoadingFinished (not an override).
+        const onLoadingFinished = mounted.find('SBFileUploaderComponent').prop('onLoadingFinished');
+        const changedType = 'scratch-gui/project-changed/SET_PROJECT_CHANGED';
+
+        store.clearActions();
+        onLoadingFinished(LoadingState.LOADING_VM_FILE_UPLOAD, true);
+        const changed = store.getActions().find(a => a.type === changedType);
+        expect(changed).toBeDefined();
+        expect(changed.changed).toBe(true);
+
+        // A failed / cancelled load must not mark the project changed.
+        store.clearActions();
+        onLoadingFinished(LoadingState.LOADING_VM_FILE_UPLOAD, false);
+        expect(store.getActions().some(a => a.type === changedType)).toBe(false);
+    });
+
     test('if isLoadingUpload becomes true, without fileToUpload set, will call cancelFileUpload', () => {
         const mockedCancelFileUpload = jest.fn();
         const WrappedComponent = getContainer();
