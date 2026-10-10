@@ -159,6 +159,15 @@ const reducer = function (state, action) {
         return state;
     case DONE_LOADING_VM_TO_SAVE:
         if (state.loadingState === LoadingState.LOADING_VM_FILE_UPLOAD) {
+            // 服务器上还没有这个作品（「改动后才创建」把开场自动创建去掉了，id 还是默认值）：
+            // 直接进 AUTO_UPDATING 会对 id=0 发更新请求，必然报错。回到 SHOWING_WITHOUT_ID，
+            // 由上传方标记 projectChanged，走 project-saver-hoc.shouldCreateOnServer 的创建正路。
+            if (state.projectId === null || state.projectId === defaultProjectId) {
+                return Object.assign({}, state, {
+                    loadingState: LoadingState.SHOWING_WITHOUT_ID,
+                    projectId: defaultProjectId
+                });
+            }
             return Object.assign({}, state, {
                 loadingState: LoadingState.AUTO_UPDATING
             });

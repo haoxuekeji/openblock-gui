@@ -159,6 +159,33 @@ test('onLoadedProject(LOADING_VM_FILE_UPLOAD, true, true) prepares to save', () 
     expect(resultState.projectId).toBe('100');
 });
 
+// 「改动后才创建」去掉了开场自动创建：上传 sb3 时作品可能还没有服务器 id，
+// 这时直接 AUTO_UPDATING 会对 id=0 发更新请求必然失败（作品id为0 不能保存）。
+// 应回到 SHOWING_WITHOUT_ID，由上传方标记 projectChanged 走创建流程。
+test('onLoadedProject(LOADING_VM_FILE_UPLOAD, true, true) with default project id ' +
+    'results in state SHOWING_WITHOUT_ID instead of updating id 0', () => {
+    const initialState = {
+        projectId: '0',
+        loadingState: LoadingState.LOADING_VM_FILE_UPLOAD
+    };
+    const action = onLoadedProject(initialState.loadingState, true, true);
+    const resultState = projectStateReducer(initialState, action);
+    expect(resultState.loadingState).toBe(LoadingState.SHOWING_WITHOUT_ID);
+    expect(resultState.projectId).toBe('0');
+});
+
+test('onLoadedProject(LOADING_VM_FILE_UPLOAD, true, true) with null project id ' +
+    'results in state SHOWING_WITHOUT_ID instead of updating', () => {
+    const initialState = {
+        projectId: null,
+        loadingState: LoadingState.LOADING_VM_FILE_UPLOAD
+    };
+    const action = onLoadedProject(initialState.loadingState, true, true);
+    const resultState = projectStateReducer(initialState, action);
+    expect(resultState.loadingState).toBe(LoadingState.SHOWING_WITHOUT_ID);
+    expect(resultState.projectId).toBe('0');
+});
+
 test('onLoadedProject(LOADING_VM_FILE_UPLOAD, false, true) results in state SHOWING_WITHOUT_ID', () => {
     const initialState = {
         projectId: '0',
