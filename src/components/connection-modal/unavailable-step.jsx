@@ -90,11 +90,26 @@ const UnavailableStep = props => (
                     />
                 </button>
             </Box>
+            {props.canChangeTransport ? (
+                <button
+                    className={classNames(styles.bottomAreaItem, styles.linkButton)}
+                    type="button"
+                    onClick={props.onChangeTransport}
+                >
+                    <FormattedMessage
+                        defaultMessage="Change connection method"
+                        description="Link in the scanning step to go back and pick another connection transport"
+                        id="gui.connection.scanning.changeTransport"
+                    />
+                </button>
+            ) : null}
         </Box>
     </Box>
 );
 
 UnavailableStep.propTypes = {
+    canChangeTransport: PropTypes.bool,
+    onChangeTransport: PropTypes.func,
     onHelp: PropTypes.func,
     onScanning: PropTypes.func
 };

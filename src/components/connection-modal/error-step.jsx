@@ -83,11 +83,26 @@ const ErrorStep = props => (
                     />
                 </button>
             </Box>
+            {props.canChangeTransport ? (
+                <button
+                    className={classNames(styles.bottomAreaItem, styles.linkButton)}
+                    type="button"
+                    onClick={props.onChangeTransport}
+                >
+                    <FormattedMessage
+                        defaultMessage="Change connection method"
+                        description="Link in the scanning step to go back and pick another connection transport"
+                        id="gui.connection.scanning.changeTransport"
+                    />
+                </button>
+            ) : null}
         </Box>
     </Box>
 );
 
 ErrorStep.propTypes = {
+    canChangeTransport: PropTypes.bool,
+    onChangeTransport: PropTypes.func,
     connectionIconURL: PropTypes.string.isRequired,
     onHelp: PropTypes.func,
     onScanning: PropTypes.func,
