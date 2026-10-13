@@ -13,6 +13,8 @@ import {setConnectionModalPeripheralName, setListAll} from '../reducers/connecti
 import {setSupportSwitchMode} from '../reducers/program-mode';
 
 const TRANSPORT_STORAGE_PREFIX = 'openblock.transport.';
+// How long the "Connected" step stays up before the modal closes itself.
+const CONNECTED_AUTO_CLOSE_MS = 900;
 
 const isWebSerialSupported = () => (
     typeof navigator !== 'undefined' &&
@@ -87,6 +89,7 @@ class ConnectionModal extends React.Component {
         super(props);
         bindAll(this, [
             'handleSelectTransport',
+            'handleChangeTransport',
             'handleScanning',
             'handleCancel',
             'handleConnected',
@@ -101,19 +104,28 @@ class ConnectionModal extends React.Component {
         const methods = availableConnectionMethods(device);
         const activeTransportId = props.vm.getPeripheralTransport ?
             props.vm.getPeripheralTransport(props.deviceId) : null;
-        const selectedMethod = methods.find(method => method.id === activeTransportId) || methods[0] || null;
+        const preferredTransportId = readPreferredTransport(props.deviceId);
+        // A connection method chosen before is reused without asking again:
+        // the modal opens straight on the scan (which, for Web Serial /
+        // Web Bluetooth with a granted device, connects by itself). The
+        // scanning step offers a link back to the method list.
+        const preferredMethod = methods.find(method => method.id === preferredTransportId) || null;
+        const selectedMethod = methods.find(method => method.id === activeTransportId) ||
+            preferredMethod || methods[0] || null;
         const connected = props.vm.getPeripheralIsConnected(props.deviceId);
+        this._skipTransportStep = !connected && methods.length > 1 && !!preferredMethod;
 
         this.state = {
             device,
             methods,
-            selectedMethod,
-            preferredTransportId: readPreferredTransport(props.deviceId),
+            selectedMethod: this._skipTransportStep ? preferredMethod : selectedMethod,
+            preferredTransportId,
             phase: connected ? PHASES.connected :
-                (methods.length > 1 ? PHASES.selectingTransport : PHASES.scanning),
+                (methods.length > 1 && !this._skipTransportStep ? PHASES.selectingTransport : PHASES.scanning),
             peripheralName: null,
             errorMessage: null
         };
+        this._autoCloseTimer = null;
     }
 
     componentDidMount () {
@@ -121,8 +133,12 @@ class ConnectionModal extends React.Component {
         this.props.vm.on('PERIPHERAL_DISCONNECTED', this.handleDisconnected);
         this.props.vm.on('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleError);
         this.props.vm.on('PERIPHERAL_REQUEST_ERROR', this.handleError);
-        if (!this.props.vm.getPeripheralIsConnected(this.props.deviceId) && this.state.methods.length === 1) {
-            this.configureTransport(this.state.methods[0], false);
+        if (!this.props.vm.getPeripheralIsConnected(this.props.deviceId)) {
+            if (this.state.methods.length === 1) {
+                this.configureTransport(this.state.methods[0], false);
+            } else if (this._skipTransportStep) {
+                this.configureTransport(this.state.selectedMethod, false);
+            }
         }
     }
 
@@ -131,6 +147,10 @@ class ConnectionModal extends React.Component {
         this.props.vm.removeListener('PERIPHERAL_DISCONNECTED', this.handleDisconnected);
         this.props.vm.removeListener('PERIPHERAL_CONNECTION_LOST_ERROR', this.handleError);
         this.props.vm.removeListener('PERIPHERAL_REQUEST_ERROR', this.handleError);
+        if (this._autoCloseTimer) {
+            window.clearTimeout(this._autoCloseTimer);
+            this._autoCloseTimer = null;
+        }
     }
 
     findDevice () {
@@ -181,6 +201,22 @@ class ConnectionModal extends React.Component {
     handleScanning () {
         this.setState({
             phase: PHASES.scanning,
+            errorMessage: null
+        });
+    }
+
+    handleChangeTransport () {
+        // Back to the method list from the scan; drop any half-open scan /
+        // chooser state of the current transport first.
+        try {
+            if (!this.props.vm.getPeripheralIsConnected(this.props.deviceId)) {
+                this.props.vm.disconnectPeripheral(this.props.deviceId);
+            }
+        } catch (e) {
+            // Nothing to clean up.
+        }
+        this.setState({
+            phase: PHASES.selectingTransport,
             errorMessage: null
         });
     }
@@ -291,6 +327,17 @@ class ConnectionModal extends React.Component {
         if (this.props.isDeviceTarget) {
             this.props.onConnected(peripheralName);
         }
+        // Show the success state briefly, then get out of the way: the
+        // menu bar already reflects the link and "Go to Editor" was one
+        // more click on every connection. Reopening the modal while
+        // connected still lands on this step with the Disconnect button.
+        if (this._autoCloseTimer) window.clearTimeout(this._autoCloseTimer);
+        this._autoCloseTimer = window.setTimeout(() => {
+            this._autoCloseTimer = null;
+            if (this.props.vm.getPeripheralIsConnected(this.props.deviceId)) {
+                this.props.onCancel();
+            }
+        }, CONNECTED_AUTO_CLOSE_MS);
     }
 
     handleHelp () {
@@ -332,6 +379,8 @@ class ConnectionModal extends React.Component {
                 onHelp={this.handleHelp}
                 onScanning={this.handleScanning}
                 onSelect={this.handleSelectTransport}
+                canChangeTransport={this.state.methods.length > 1}
+                onChangeTransport={this.handleChangeTransport}
             />
         );
     }

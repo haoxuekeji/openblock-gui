@@ -40,8 +40,8 @@ class ScanningStep extends React.Component {
             'PERIPHERAL_SCAN_TIMEOUT', this.handlePeripheralScanTimeout);
     }
 
-    scanForPeripheral (listAll) {
-        this.props.vm.scanForPeripheral(this.props.deviceId, listAll);
+    scanForPeripheral (listAll, options) {
+        this.props.vm.scanForPeripheral(this.props.deviceId, listAll, options);
     }
 
     handlePeripheralScanTimeout () {
@@ -56,8 +56,17 @@ class ScanningStep extends React.Component {
         const peripheralArray = Object.keys(newList).map(id =>
             newList[id]
         );
-        // Web Bluetooth 免选择器重连:vm 侧从已授权设备里找回上次连接的板子时
-        // 会带 rememberedDevice 标记,首次直接进入连接流程,无需用户再点一次。
+        // 系统选择器里刚选中的设备/串口带 autoConnect 标记:用户已经点过一次,
+        // 不再要求在列表里再点一下,直接连接。
+        const picked = peripheralArray.find(peripheral => peripheral.autoConnect);
+        if (picked) {
+            autoConnectDone[this.props.deviceId] = true;
+            this.props.onConnecting(picked.peripheralId, picked.name);
+            return;
+        }
+        // 免选择器重连:vm 侧从已授权设备(Web Bluetooth getDevices / Web Serial
+        // getPorts)里找回上次的板子时会带 rememberedDevice 标记,首次直接进入
+        // 连接流程,无需用户再点一次。
         const remembered = peripheralArray.find(peripheral => peripheral.rememberedDevice);
         if (remembered && !autoConnectDone[this.props.deviceId]) {
             autoConnectDone[this.props.deviceId] = true;
@@ -77,9 +86,10 @@ class ScanningStep extends React.Component {
     }
 
     handleRefresh () {
-        // 蓝牙场景:手动刷新表示用户想换设备,listAll 参数在 BLE 外设侧被解释为
-        // "强制弹系统选择器",跳过免选择器的记住设备路径;串口场景维持原语义。
-        this.scanForPeripheral(this.props.isSerialport ? this.props.isListAll : true);
+        // 手动刷新 = 用户想换设备:强制弹系统选择器,跳过免选择器的记住设备路径
+        // (Web Bluetooth getDevices / Web Serial getPorts)。串口的 listAll
+        // 维持"不按 vid/pid 过滤"的原语义。
+        this.scanForPeripheral(this.props.isListAll, {forceChooser: true});
         this.setState({
             scanning: true,
             peripheralList: []
@@ -100,12 +110,16 @@ class ScanningStep extends React.Component {
                 onConnecting={this.props.onConnecting}
                 onClickListAll={this.handleClickListAll}
                 onRefresh={this.handleRefresh}
+                canChangeTransport={this.props.canChangeTransport}
+                onChangeTransport={this.props.onChangeTransport}
             />
         );
     }
 }
 
 ScanningStep.propTypes = {
+    canChangeTransport: PropTypes.bool,
+    onChangeTransport: PropTypes.func,
     connectionSmallIconURL: PropTypes.string,
     isSerialport: PropTypes.bool.isRequired,
     isListAll: PropTypes.bool.isRequired,

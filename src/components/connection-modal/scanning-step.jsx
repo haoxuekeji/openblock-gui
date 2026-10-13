@@ -101,11 +101,26 @@ const ScanningStep = props => (
                     src={refreshIcon}
                 />
             </button>
+            {props.canChangeTransport ? (
+                <button
+                    className={classNames(styles.bottomAreaItem, styles.linkButton)}
+                    type="button"
+                    onClick={props.onChangeTransport}
+                >
+                    <FormattedMessage
+                        defaultMessage="Change connection method"
+                        description="Link in the scanning step to go back and pick another connection transport"
+                        id="gui.connection.scanning.changeTransport"
+                    />
+                </button>
+            ) : null}
         </Box>
     </Box>
 );
 
 ScanningStep.propTypes = {
+    canChangeTransport: PropTypes.bool,
+    onChangeTransport: PropTypes.func,
     connectionSmallIconURL: PropTypes.string,
     isListAll: PropTypes.bool.isRequired,
     isSerialport: PropTypes.bool,

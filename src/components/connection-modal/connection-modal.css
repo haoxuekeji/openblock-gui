@@ -442,6 +442,17 @@
     background: $motion-transparent;
 }
 
+/* Plain text link (e.g. "Change connection method") under the buttons. */
+.link-button {
+    background: none;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    color: $motion-primary;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 .segmented-button {
     display: flex;
 }
